@@ -1,0 +1,31 @@
+buildscript {
+    ext.kotlin_version = "1.4.10"
+    ext.ktor_version= "1.4.1"
+    ext.logback_version= "1.2.1"
+    ext.compose_version = '1.0.0-alpha04'
+    ext.koin_version = '2.2.0-rc-1'
+
+    repositories {
+        google()
+        mavenLocal()
+        jcenter()
+        maven { url 'https://kotlin.bintray.com/ktor' }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.2.0-alpha13'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenLocal()
+        jcenter()
+        maven { url 'https://kotlin.bintray.com/ktor' }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
