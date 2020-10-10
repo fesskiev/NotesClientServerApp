@@ -6,6 +6,7 @@ import com.fesskiev.compose.data.Repository
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
 
@@ -14,11 +15,23 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         GlobalScope.launch {
-            repository.registration("fesskiev@gmail.com", "Max", "123456")
-            repeat(10) {
-                repository.addNote("text test")
+            try {
+                repository.registration("fesskiev@gmail.com", "Max", "123456")
+                repeat(10) {
+                    repository.addNote("text test")
+                }
+                val notes = repository.getNotes()
+                repository.deleteNote(notes.first())
+
+                repository.getNotes()
+                repository.updateNote(notes.first().copy(text = "copy text"))
+
+                repository.logout()
+                repository.getNotes()
+
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-            repository.getNotes()
         }
     }
 }

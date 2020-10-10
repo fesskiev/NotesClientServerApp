@@ -10,14 +10,14 @@ import io.ktor.routing.*
 import io.ktor.sessions.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
-import io.ktor.gson.*
 import io.ktor.features.*
+import io.ktor.serialization.*
 import io.ktor.server.netty.*
-import java.text.DateFormat
 
 /**
  * https://ktor.io/docs/quickstart-index.html
  * https://www.raywenderlich.com/7265034-ktor-rest-api-for-mobile
+ * https://github.com/JetBrains/kotlinconf-app
  */
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
@@ -44,10 +44,7 @@ fun Application.module() {
     }
 
     install(ContentNegotiation) {
-        gson {
-            setDateFormat(DateFormat.LONG)
-            setPrettyPrinting()
-        }
+        json()
     }
     routing {
         notes(repository)
