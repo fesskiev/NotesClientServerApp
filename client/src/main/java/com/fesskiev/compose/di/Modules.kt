@@ -6,6 +6,7 @@ import com.fesskiev.compose.BuildConfig
 import com.fesskiev.compose.data.Repository
 import com.fesskiev.compose.data.RepositoryImpl
 import com.fesskiev.compose.data.remote.AppInterceptor
+import com.fesskiev.compose.data.remote.UnauthorizedException
 import com.fesskiev.compose.domain.NotesUseCase
 import com.fesskiev.compose.presentation.NotesViewModel
 import io.ktor.client.*
@@ -15,6 +16,7 @@ import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.features.logging.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import okhttp3.Interceptor
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -60,6 +62,13 @@ private fun provideKtorClient(appInterceptor: Interceptor): HttpClient = HttpCli
     }
     engine {
         addInterceptor(appInterceptor)
+    }
+    HttpResponseValidator{
+        validateResponse { response: HttpResponse ->
+            when (response.status.value) {
+                401 -> throw UnauthorizedException()
+            }
+        }
     }
 }
 

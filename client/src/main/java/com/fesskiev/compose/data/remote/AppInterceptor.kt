@@ -1,5 +1,8 @@
 package com.fesskiev.compose.data.remote
 
+import com.fesskiev.Headers.AUTHORIZATION
+import com.fesskiev.Headers.CONTENT_TYPE
+import com.fesskiev.Headers.SESSION
 import com.fesskiev.Routes.LOGIN
 import com.fesskiev.Routes.LOGOUT
 import com.fesskiev.Routes.REGISTRATION
@@ -17,12 +20,12 @@ class AppInterceptor : Interceptor {
         val request = chain.request()
         val url = request.url.toString()
         val builder = request.newBuilder()
-        builder.addHeader("Content-Type", "application/json")
+        builder.addHeader(CONTENT_TYPE, "application/json")
         jwtAuth?.token?.let { token ->
-            builder.addHeader("Authorization", "Bearer $token")
+            builder.addHeader(AUTHORIZATION, "Bearer $token")
         }
         session?.let { session ->
-            builder.addHeader("Session", session)
+            builder.addHeader(SESSION, session)
         }
         val response = chain.proceed(builder.build())
         val contentType = response.body?.contentType()
@@ -34,7 +37,7 @@ class AppInterceptor : Interceptor {
             }
         }
         if (response.isSuccessful) {
-            session = response.headers["Session"]
+            session = response.headers[SESSION]
         }
         return response.newBuilder()
             .body(body?.toResponseBody(contentType))

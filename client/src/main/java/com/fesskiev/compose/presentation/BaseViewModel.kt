@@ -2,6 +2,7 @@ package com.fesskiev.compose.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fesskiev.compose.data.remote.UnauthorizedException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -19,18 +20,11 @@ open class BaseViewModel : ViewModel() {
     }
 
     private fun parseError(e: Exception) : String  {
-        when (e) {
-            is SocketTimeoutException -> return "Timeout error"
-            is IOException -> return "Network error"
-//            is HttpException -> {
-//                e.response()?.let { response ->
-//                    if (response.code() == 401) {
-//                        return "Authorized error"
-//                    }
-//                }
-//            }
-            else -> return "Unknown error"
+        return when (e) {
+            is SocketTimeoutException -> "Timeout error"
+            is IOException -> "Network error"
+            is UnauthorizedException -> "Authorized error"
+            else -> "Unknown error"
         }
-        return "Unknown error"
     }
 }

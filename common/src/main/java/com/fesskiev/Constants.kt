@@ -17,3 +17,9 @@ object HTTPParameters {
     const val PASSWORD = "password"
     const val DISPLAY_NAME = "display_name"
 }
+
+object Headers {
+    const val SESSION = "Session"
+    const val CONTENT_TYPE = "Content-Type"
+    const val AUTHORIZATION = "Authorization"
+}
