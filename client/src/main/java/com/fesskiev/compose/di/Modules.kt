@@ -1,14 +1,16 @@
 package com.fesskiev.compose.di
 
 import android.util.Log
-import androidx.lifecycle.SavedStateHandle
 import com.fesskiev.compose.BuildConfig
 import com.fesskiev.compose.data.Repository
 import com.fesskiev.compose.data.RepositoryImpl
 import com.fesskiev.compose.data.remote.AppInterceptor
 import com.fesskiev.compose.data.remote.UnauthorizedException
 import com.fesskiev.compose.domain.NotesUseCase
+import com.fesskiev.compose.domain.RegistrationUseCase
 import com.fesskiev.compose.presentation.NotesViewModel
+import com.fesskiev.compose.presentation.RegistrationViewModel
+import com.fesskiev.compose.ui.utils.FieldValidator
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.features.*
@@ -19,18 +21,25 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import okhttp3.Interceptor
 import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
+
+val appModule = module {
+    factory { provideFieldValidator() }
+}
 
 val repositoryModule = module {
     single { provideRepository(get()) }
 }
 
 val viewModelModule = module {
-    viewModel { (handle: SavedStateHandle) -> NotesViewModel(handle, get()) }
+    viewModel { NotesViewModel(get(), get()) }
+    viewModel { RegistrationViewModel(get()) }
 }
 
 val useCaseModule = module {
-    single { provideNotesUseCase(get()) }
+    factory { NotesUseCase(get()) }
+    factory { RegistrationUseCase(get(), get()) }
 }
 
 val networkModule = module {
@@ -76,6 +85,6 @@ private fun provideAppInterceptor(): Interceptor = AppInterceptor()
 
 private fun provideRepository(httpClient: HttpClient): Repository = RepositoryImpl(httpClient)
 
-private fun provideNotesUseCase(repository: Repository): NotesUseCase = NotesUseCase(repository)
+private fun provideFieldValidator(): FieldValidator = FieldValidator()
 
-val appModules = listOf(viewModelModule, useCaseModule, repositoryModule, networkModule)
+val appModules = listOf(appModule, viewModelModule, useCaseModule, repositoryModule, networkModule)

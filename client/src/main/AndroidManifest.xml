@@ -14,7 +14,8 @@
         android:supportsRtl="true">
 
         <activity
-            android:name=".ui.MainActivity">
+            android:name=".ui.MainActivity"
+            android:theme="@style/Theme.Compose.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

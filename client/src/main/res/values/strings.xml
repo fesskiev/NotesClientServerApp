@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">NotesClientServerApp</string>
+
+    <string name="registration">Registration</string>
+    <string name="display_name">Display name</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="submit">Submit</string>
+
+    <string name="error_empty_display_name">Empty display name</string>
+    <string name="error_empty_email">Empty email</string>
+    <string name="error_empty_password">Empty password</string>
+    <string name="error_validate_email">Validate email error</string>
+    <string name="error_validate_password">Validate password error</string>
+
 </resources>

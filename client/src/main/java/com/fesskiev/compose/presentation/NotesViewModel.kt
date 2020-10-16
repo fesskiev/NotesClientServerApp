@@ -17,11 +17,11 @@ class NotesViewModel(private val state: SavedStateHandle, private val useCase: N
 
     fun getNotes() {
         launchDataLoad(load = {
-            val notes = useCase.getCurrentWeatherByCity()
+            val notes = useCase.getNotes()
             notesLiveData.postValue(notes)
             state.set("notes", notes)
         }, error = {
-
+            Log.w("test", "error: $it")
         })
     }
 }

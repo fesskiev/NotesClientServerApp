@@ -5,7 +5,7 @@ import com.fesskiev.model.Note
 
 class NotesUseCase(private val repository: Repository) {
 
-    suspend fun getCurrentWeatherByCity() : List<Note> {
+    suspend fun getNotes() : List<Note> {
         return repository.getNotes()
     }
 }

@@ -59,6 +59,7 @@ dependencies {
     implementation "org.koin:koin-core-ext:$koin_version"
     implementation "org.koin:koin-androidx-viewmodel:$koin_version"
     implementation "org.koin:koin-androidx-ext:$koin_version"
+    implementation "org.koin:koin-androidx-compose:$koin_version"
 
     implementation "androidx.compose.compiler:compiler:$compose_version"
     implementation "androidx.compose.runtime:runtime-dispatch:$compose_version"
