@@ -4,6 +4,9 @@ buildscript {
     ext.logback_version= "1.2.1"
     ext.compose_version = '1.0.0-alpha05'
     ext.koin_version = '2.2.0-rc-2'
+    ext.h2_version = "1.4.200"
+    ext.exposed_version = "0.25.1"
+    ext.hikari_version = "3.4.5"
 
     repositories {
         google()
@@ -12,7 +15,7 @@ buildscript {
         maven { url 'https://kotlin.bintray.com/ktor' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.0-alpha13'
+        classpath 'com.android.tools.build:gradle:4.2.0-alpha14'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
     }

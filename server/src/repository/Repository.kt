@@ -5,17 +5,17 @@ import com.fesskiev.model.User
 
 interface Repository {
 
-    fun getNotes(uid: String): List<Note>
+    suspend fun getNotes(uid: Int): List<Note>
 
-    fun addNote(uid: String, text: String): Note
+    suspend fun addNote(uid: Int, text: String): Note?
 
-    fun updateNote(note: Note): Boolean
+    suspend fun editNote(note: Note): Boolean
 
-    fun deleteNote(note: Note): Boolean
+    suspend fun removeNote(note: Note): Boolean
 
-    fun createUser(email: String, displayName: String, password: String): User
+    suspend fun createUser(email: String, displayName: String, password: String): User?
 
-    fun getUserByUid(uid: String): User?
+    suspend fun getUserByUid(uid: Int): User?
 
-    fun getUserByEmail(email: String): User?
+    suspend fun getUserByEmail(email: String): User?
 }

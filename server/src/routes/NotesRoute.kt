@@ -4,7 +4,7 @@ import com.fesskiev.HTTPParameters.NOTE_TEXT
 import com.fesskiev.Routes.ADD_NOTE
 import com.fesskiev.Routes.DELETE_NOTE
 import com.fesskiev.Routes.GET_NOTES
-import com.fesskiev.Routes.UPDATE_NOTE
+import com.fesskiev.Routes.EDIT_NOTE
 import com.fesskiev.auth.UserSession
 import com.fesskiev.model.Note
 import com.fesskiev.model.ServerError
@@ -25,7 +25,7 @@ fun Route.notes(repository: Repository) {
         get(GET_NOTES) {
             val session = call.sessions.get<UserSession>()
             if (session != null) {
-                val user = repository.getUserByUid(session.userId)
+                val user = repository.getUserByUid(session.userUid)
                 if (user == null) {
                     call.respond(BadRequest, ServerError("Problems retrieving User"))
                     return@get
@@ -41,7 +41,7 @@ fun Route.notes(repository: Repository) {
         post(ADD_NOTE) {
             val session = call.sessions.get<UserSession>()
             if (session != null) {
-                val user = repository.getUserByUid(session.userId)
+                val user = repository.getUserByUid(session.userUid)
                 if (user == null) {
                     call.respond(BadRequest, ServerError("Problems retrieving User"))
                     return@post
@@ -49,22 +49,27 @@ fun Route.notes(repository: Repository) {
                     val parameters: Parameters = call.receiveParameters()
                     val text = parameters[NOTE_TEXT] ?: return@post call.respond(BadRequest, ServerError("Missing text of note"))
                     val note = repository.addNote(user.uid, text)
-                    call.respond(Created, note)
+                    if (note == null) {
+                        call.respond(BadRequest, ServerError("Problems adding Note"))
+                    } else {
+                        call.respond(Created, note)
+                    }
+
                 }
             } else {
                 call.respond(BadRequest, ServerError("Problems retrieving session"))
             }
         }
 
-        put(UPDATE_NOTE) {
+        put(EDIT_NOTE) {
             val note = call.receiveOrNull<Note>() ?: return@put call.respond(BadRequest, ServerError("Missing note"))
-            val result = repository.updateNote(note)
+            val result = repository.editNote(note)
             call.respond(OK, result)
         }
 
         delete(DELETE_NOTE) {
             val note = call.receiveOrNull<Note>() ?: return@delete call.respond(BadRequest, ServerError("Missing note"))
-            val result = repository.deleteNote(note)
+            val result = repository.removeNote(note)
             call.respond(OK, result)
         }
     }

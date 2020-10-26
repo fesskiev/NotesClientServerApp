@@ -30,9 +30,12 @@ fun Route.users(repository: Repository, jwtManager: JWTManager) {
         val password = parameters[PASSWORD] ?: return@post call.respond(Unauthorized, ServerError("Missing password"))
 
         val user = repository.createUser(email, displayName, password)
-
-        call.sessions.set(UserSession(user.uid))
-        call.respond(Created, jwtManager.generateToken(user.uid))
+        if (user == null) {
+            call.respond(Unauthorized, ServerError("Problems creating User"))
+        } else {
+            call.sessions.set(UserSession(user.uid))
+            call.respond(Created, jwtManager.generateToken(user.uid))
+        }
     }
 
     post(LOGIN) {
@@ -54,7 +57,7 @@ fun Route.users(repository: Repository, jwtManager: JWTManager) {
 
     post(LOGOUT) {
         call.sessions.get<UserSession>()?.let { session ->
-            val user = repository.getUserByUid(session.userId)
+            val user = repository.getUserByUid(session.userUid)
             if (user == null) {
                 call.respond(BadRequest, ServerError("Problems retrieving User"))
                 return@post

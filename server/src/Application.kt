@@ -3,6 +3,7 @@ package com.fesskiev
 import com.fesskiev.Headers.SESSION
 import com.fesskiev.auth.JWTManager
 import com.fesskiev.auth.UserSession
+import com.fesskiev.db.DatabaseFactory
 import com.fesskiev.repository.RepositoryImpl
 import com.fesskiev.routes.notes
 import com.fesskiev.routes.users
@@ -31,6 +32,7 @@ fun Application.module() {
         header<UserSession>(SESSION)
     }
 
+    DatabaseFactory.init(jdbcUrl = "jdbc:h2:./server/notes")
     val jwtManager = JWTManager()
     val repository = RepositoryImpl()
 
@@ -41,12 +43,12 @@ fun Application.module() {
     }
 
     install(Authentication) {
-        jwt{
+        jwt {
             verifier(jwtManager.verifier)
             realm = jwtManager.issuer
             validate {
                 val payload = it.payload
-                val uid = payload.getClaim("uid").asString()
+                val uid = payload.getClaim("uid").asInt()
                 val user = repository.getUserByUid(uid)
                 user
             }

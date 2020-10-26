@@ -3,4 +3,4 @@ package com.fesskiev.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Note(val uid: String, val text: String, val time: Long)
+data class Note(val noteUid: Int, val userUid: Int,val text: String, val time: Long)

@@ -17,7 +17,7 @@ class JWTManager {
         .withIssuer(issuer)
         .build()
 
-    fun generateToken(uid: String): JWTAuth = JWTAuth(JWT.create()
+    fun generateToken(uid: Int): JWTAuth = JWTAuth(JWT.create()
         .withSubject("Authentication")
         .withIssuer(issuer)
         .withClaim("uid", uid)

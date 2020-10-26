@@ -1,14 +1,14 @@
 package com.fesskiev.compose.ui.components
 
 import androidx.compose.foundation.Text
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
 import androidx.compose.material.Snackbar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.remember
 
 @Composable
 fun SnackBar(message: String) {
@@ -16,8 +16,18 @@ fun SnackBar(message: String) {
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.Bottom
     ) {
-        Snackbar(
-            text = { Text(text = message) }
-        )
+        val visibleState = remember { mutableStateOf(true) }
+        if (visibleState.value) {
+            Snackbar(
+                text = { Text(text = message) },
+                action = {
+                    Button(onClick = {
+                        visibleState.value = false
+                    }) {
+                        Text("Hide")
+                    }
+                },
+            )
+        }
     }
 }

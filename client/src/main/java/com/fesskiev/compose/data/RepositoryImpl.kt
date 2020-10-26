@@ -10,7 +10,7 @@ import com.fesskiev.Routes.GET_NOTES
 import com.fesskiev.Routes.LOGIN
 import com.fesskiev.Routes.LOGOUT
 import com.fesskiev.Routes.REGISTRATION
-import com.fesskiev.Routes.UPDATE_NOTE
+import com.fesskiev.Routes.EDIT_NOTE
 import com.fesskiev.model.JWTAuth
 import com.fesskiev.model.Note
 import io.ktor.client.*
@@ -35,8 +35,8 @@ class RepositoryImpl(private val httpClient: HttpClient) : Repository {
         }
     }
 
-    override suspend fun updateNote(note: Note): Boolean = withContext(Dispatchers.IO) {
-        httpClient.put(UPDATE_NOTE) {
+    override suspend fun editNote(note: Note): Boolean = withContext(Dispatchers.IO) {
+        httpClient.put(EDIT_NOTE) {
             body = defaultSerializer().write(note)
         }
     }

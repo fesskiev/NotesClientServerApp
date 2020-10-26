@@ -7,7 +7,7 @@ object Routes {
 
     const val GET_NOTES = "/notes/get"
     const val ADD_NOTE = "/notes/add"
-    const val UPDATE_NOTE = "/notes/update"
+    const val EDIT_NOTE = "/notes/edit"
     const val DELETE_NOTE = "/notes/delete"
 }
 

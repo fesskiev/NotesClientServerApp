@@ -1,42 +1,22 @@
 package com.fesskiev.repository
 
+import com.fesskiev.db.*
 import com.fesskiev.model.Note
 import com.fesskiev.model.User
-import java.util.*
 
 class RepositoryImpl : Repository {
 
-    private val notes = mutableListOf<Note>()
-    private val users = mutableListOf<User>()
+    override suspend fun getNotes(uid: Int): List<Note> = selectNotes(uid)
 
-    override fun getNotes(uid: String): List<Note> = notes.filter { it.uid == uid }
+    override suspend fun addNote(uid: Int, text: String): Note? = insertNote(uid, text)
 
-    override fun addNote(uid: String, text: String): Note {
-        val createTime = System.currentTimeMillis()
-        val note = Note(uid, text, createTime)
-        notes.add(note)
-        return note
-    }
+    override suspend fun editNote(note: Note): Boolean = updateNote(note)
 
-    override fun updateNote(note: Note): Boolean {
-        val index = notes.indexOf(note)
-        if (index == -1) {
-            return false
-        }
-        notes[index] = note
-        return true
-    }
+    override suspend fun removeNote(note: Note): Boolean = deleteNote(note)
 
-    override fun deleteNote(note: Note): Boolean = notes.remove(note)
+    override suspend fun createUser(email: String, displayName: String, password: String): User? = insertUser(email, displayName, password)
 
-    override fun createUser(email: String, displayName: String, password: String): User {
-        val uid = UUID.randomUUID().toString()
-        val user = User(uid, email, displayName, password)
-        users.add(user)
-        return user
-    }
+    override suspend fun getUserByUid(uid: Int): User? = selectUserById(uid)
 
-    override fun getUserByUid(uid: String): User? = users.first { it.uid == uid }
-
-    override fun getUserByEmail(email: String): User? = users.first { it.email == email }
+    override suspend fun getUserByEmail(email: String): User? = selectUserByEmail(email)
 }
