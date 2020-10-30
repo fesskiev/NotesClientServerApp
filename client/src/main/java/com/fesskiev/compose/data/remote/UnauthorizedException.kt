@@ -1,5 +1,5 @@
 package com.fesskiev.compose.data.remote
 
-import java.lang.Exception
+import java.io.IOException
 
-class UnauthorizedException : Exception()
+class UnauthorizedException(override val message: String) : IOException(message)

@@ -4,12 +4,9 @@ import com.fesskiev.compose.data.Repository
 import com.fesskiev.compose.ui.screens.auth.AuthUiState
 import com.fesskiev.compose.ui.utils.FieldValidator
 
-class RegistrationUseCase(private val repository: Repository, private val validator: FieldValidator) {
+class LoginUseCase(private val repository: Repository, private val validator: FieldValidator) {
 
-    suspend fun registration(email: String, displayName: String, password: String): AuthUiState  {
-        if (validator.emptyDisplayName(displayName)) {
-            return AuthUiState(isEmptyDisplayNameError = true)
-        }
+    suspend fun login(email: String,  password: String): AuthUiState {
         if (validator.emptyEmail(email)) {
             return AuthUiState(isEmptyEmailError = true)
         }
@@ -22,7 +19,7 @@ class RegistrationUseCase(private val repository: Repository, private val valida
         if (!validator.validatePassword(password)) {
             return AuthUiState(isValidatePasswordError = true)
         }
-        repository.registration(email, displayName, password)
+        repository.login(email, password)
         return AuthUiState(isAuthSuccess = true)
     }
 }

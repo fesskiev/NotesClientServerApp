@@ -1,9 +1,11 @@
 package com.fesskiev
 
+import com.fesskiev.Database.SERVER_URL
 import com.fesskiev.Headers.SESSION
 import com.fesskiev.auth.JWTManager
 import com.fesskiev.auth.UserSession
 import com.fesskiev.db.DatabaseFactory
+import com.fesskiev.model.ServerError
 import com.fesskiev.repository.RepositoryImpl
 import com.fesskiev.routes.notes
 import com.fesskiev.routes.users
@@ -18,6 +20,7 @@ import io.ktor.routing.*
 import io.ktor.serialization.*
 import io.ktor.server.netty.*
 import io.ktor.sessions.*
+import kotlinx.serialization.json.Json
 
 /**
  * https://ktor.io/docs/quickstart-index.html
@@ -32,14 +35,20 @@ fun Application.module() {
         header<UserSession>(SESSION)
     }
 
-    DatabaseFactory.init(jdbcUrl = "jdbc:h2:./server/notes")
+    DatabaseFactory.init(url = SERVER_URL)
     val jwtManager = JWTManager()
     val repository = RepositoryImpl()
 
     install(StatusPages) {
         exception<Throwable> { e ->
-            call.respondText(e.localizedMessage, ContentType.Text.Plain, InternalServerError)
+            call.respond(InternalServerError, ServerError(e.message ?: ""))
         }
+    }
+    install(ContentNegotiation) {
+        json(
+            json = Json,
+            contentType = ContentType.Application.Json
+        )
     }
 
     install(Authentication) {
@@ -53,10 +62,6 @@ fun Application.module() {
                 user
             }
         }
-    }
-
-    install(ContentNegotiation) {
-        json()
     }
     routing {
         notes(repository)

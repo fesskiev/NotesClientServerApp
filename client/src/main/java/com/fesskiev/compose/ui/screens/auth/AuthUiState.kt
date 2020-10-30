@@ -1,7 +1,7 @@
-package com.fesskiev.compose.ui.screens.registration
+package com.fesskiev.compose.ui.screens.auth
 
-data class RegistrationUiState(
-    val isRegistrationSuccess: Boolean = false,
+data class AuthUiState(
+    val isAuthSuccess: Boolean = false,
     val isLoading: Boolean = false,
     val isEmptyPasswordError: Boolean = false,
     val isEmptyEmailError: Boolean = false,

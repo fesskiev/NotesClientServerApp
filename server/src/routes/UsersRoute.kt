@@ -28,7 +28,9 @@ fun Route.users(repository: Repository, jwtManager: JWTManager) {
         val email = parameters[EMAIL] ?: return@post call.respond(Unauthorized, ServerError("Missing email"))
         val displayName = parameters[DISPLAY_NAME] ?: return@post call.respond(Unauthorized, ServerError("Missing display name"))
         val password = parameters[PASSWORD] ?: return@post call.respond(Unauthorized, ServerError("Missing password"))
-
+        repository.getUserByEmail(email)?.let {
+            call.respond(Unauthorized, ServerError("email $email already use"))
+        }
         val user = repository.createUser(email, displayName, password)
         if (user == null) {
             call.respond(Unauthorized, ServerError("Problems creating User"))

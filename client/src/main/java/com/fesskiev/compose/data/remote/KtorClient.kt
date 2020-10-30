@@ -16,7 +16,6 @@ import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.features.logging.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -45,13 +44,6 @@ fun provideKtorClient(): HttpClient = HttpClient(OkHttp) {
     engine {
         addInterceptor(AppInterceptor())
     }
-    HttpResponseValidator {
-        validateResponse { response: HttpResponse ->
-            when (response.status.value) {
-                401 -> throw UnauthorizedException()
-            }
-        }
-    }
 }
 
 class AppInterceptor : Interceptor {
@@ -71,12 +63,15 @@ class AppInterceptor : Interceptor {
             builder.addHeader(SESSION, session)
         }
         val response = chain.proceed(builder.build())
-        val contentType = response.body?.contentType()
         val body = response.body?.string()
+        val contentType = response.body?.contentType()
         if (body != null) {
-            when {
-                url.endsWith(REGISTRATION) || url.endsWith(LOGIN) -> jwtAuth = parseJWT(body)
-                url.endsWith(LOGOUT) -> jwtAuth = null
+            when (response.code) {
+                401 -> throw UnauthorizedException(parseServerError(body)?.message ?: "")
+                else -> when {
+                    url.endsWith(REGISTRATION) || url.endsWith(LOGIN) -> jwtAuth = parseJWT(body)
+                    url.endsWith(LOGOUT) -> jwtAuth = null
+                }
             }
         }
         if (response.isSuccessful) {
