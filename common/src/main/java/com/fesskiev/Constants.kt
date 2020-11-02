@@ -28,3 +28,17 @@ object Database {
     const val CLIENT_URL = "jdbc:h2:/data/data/com.fesskiev.compose/data/hello;FILE_LOCK=FS;PAGE_SIZE=1024;CACHE_SIZE=8192"
     const val SERVER_URL = "jdbc:h2:./server/notes"
 }
+
+object ServerErrorCodes {
+    const val EMAIL_EMPTY = 0
+    const val DISPLAY_NAME_EMPTY = 1
+    const val PASSWORD_EMPTY = 2
+    const val EMAIL_ALREADY_USE = 3
+    const val USER_NOT_FOUND = 4
+    const val PASSWORD_INCORRECT = 5
+    const val USER_NOT_CREATED = 6
+    const val SESSION_NOT_FOUND = 7
+    const val NOTE_NOT_ADDED = 8
+    const val NOTE_EMPTY = 9
+    const val NOTE_TEXT_EMPTY = 10
+}

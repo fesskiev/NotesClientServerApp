@@ -57,8 +57,8 @@ fun AuthScreen(navController: NavController, viewModel: AuthViewModel = getViewM
                         )
                     }
                 )
-                uiState.errorMessage?.let { message ->
-                    SnackBar(message)
+                uiState.errorResourceId?.let { resourceId ->
+                    SnackBar(stringResource(resourceId))
                 }
             }
         }

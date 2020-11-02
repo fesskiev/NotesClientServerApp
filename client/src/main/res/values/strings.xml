@@ -13,5 +13,15 @@
     <string name="error_empty_password">Empty password</string>
     <string name="error_validate_email">Validate email error</string>
     <string name="error_validate_password">Validate password error</string>
+    <string name="error_unknown">Unknown error</string>
+    <string name="error_timeout">Timeout error</string>
+    <string name="error_email_already_use">This email is already in use</string>
+    <string name="error_user_not_found">User is not found</string>
+    <string name="error_password_incorrect">Password incorrect</string>
+    <string name="error_user_not_created">User is not created</string>
+    <string name="error_session_not_found">Session is not found</string>
+    <string name="error_note_not_added">Note is not added</string>
+    <string name="error_note_empty">Note is empty</string>
+    <string name="error_note_text_empty">Note text is empty</string>
 
 </resources>

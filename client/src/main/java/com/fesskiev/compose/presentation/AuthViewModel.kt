@@ -19,7 +19,7 @@ class AuthViewModel(private val registrationUseCase: RegistrationUseCase, privat
             val result = registrationUseCase.registration(email, displayName, password)
             liveData.postValue(result)
         }, error = {
-            liveData.postValue(AuthUiState(errorMessage = it))
+            liveData.postValue(AuthUiState(errorResourceId = it))
         })
     }
 
@@ -29,7 +29,7 @@ class AuthViewModel(private val registrationUseCase: RegistrationUseCase, privat
             val result = loginUseCase.login(email, password)
             liveData.postValue(result)
         }, error = {
-            liveData.postValue(AuthUiState(errorMessage = it))
+            liveData.postValue(AuthUiState(errorResourceId = it))
         })
     }
 }
