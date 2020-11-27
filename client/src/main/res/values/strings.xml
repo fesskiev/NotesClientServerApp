@@ -23,5 +23,6 @@
     <string name="error_note_not_added">Note is not added</string>
     <string name="error_note_empty">Note is empty</string>
     <string name="error_note_text_empty">Note text is empty</string>
+    <string name="error_connect_server">Can not connect to the server</string>
 
 </resources>

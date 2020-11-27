@@ -9,6 +9,7 @@ import com.fesskiev.compose.data.remote.UnauthorizedException
 import io.ktor.client.features.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.net.ConnectException
 
 open class BaseViewModel : ViewModel() {
 
@@ -25,6 +26,7 @@ open class BaseViewModel : ViewModel() {
     private fun parseError(e: Exception) : Int  {
         return when (e) {
             is HttpRequestTimeoutException -> R.string.error_timeout
+            is ConnectException -> R.string.error_connect_server
             is UnauthorizedException -> e.resourceId
             is BadRequestException -> e.resourceId
             else -> R.string.error_unknown

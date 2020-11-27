@@ -8,18 +8,18 @@ class LoginUseCase(private val repository: Repository, private val validator: Fi
 
     suspend fun login(email: String,  password: String): AuthUiState {
         if (validator.emptyEmail(email)) {
-            return AuthUiState(isEmptyEmailError = true)
+            return AuthUiState.ValidationError(isEmptyEmailError = true)
         }
         if (validator.emptyPassword(password)) {
-            return AuthUiState(isEmptyPasswordError = true)
+            return AuthUiState.ValidationError(isEmptyPasswordError = true)
         }
         if (!validator.validateEmail(email)) {
-            return AuthUiState(isValidateEmailError = true)
+            return AuthUiState.ValidationError(isValidateEmailError = true)
         }
         if (!validator.validatePassword(password)) {
-            return AuthUiState(isValidatePasswordError = true)
+            return AuthUiState.ValidationError(isValidatePasswordError = true)
         }
         repository.login(email, password)
-        return AuthUiState(isAuthSuccess = true)
+        return AuthUiState.Success
     }
 }

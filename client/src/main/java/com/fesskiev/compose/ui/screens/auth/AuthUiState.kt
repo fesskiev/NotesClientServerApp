@@ -2,14 +2,16 @@ package com.fesskiev.compose.ui.screens.auth
 
 import androidx.annotation.StringRes
 
-data class AuthUiState(
-    val isAuthSuccess: Boolean = false,
-    val isLoading: Boolean = false,
-    val isEmptyPasswordError: Boolean = false,
-    val isEmptyEmailError: Boolean = false,
-    val isEmptyDisplayNameError: Boolean = false,
-    val isValidateEmailError: Boolean = false,
-    val isValidatePasswordError: Boolean = false,
-    @StringRes
-    val errorResourceId: Int? = null
-)
+sealed class AuthUiState {
+    object Init : AuthUiState()
+    object Loading : AuthUiState()
+    object Success : AuthUiState()
+    data class Error(@StringRes val errorResourceId: Int) : AuthUiState()
+    data class ValidationError(
+        val isEmptyPasswordError: Boolean = false,
+        val isEmptyEmailError: Boolean = false,
+        val isEmptyDisplayNameError: Boolean = false,
+        val isValidateEmailError: Boolean = false,
+        val isValidatePasswordError: Boolean = false,
+    ) : AuthUiState()
+}

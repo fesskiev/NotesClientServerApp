@@ -20,48 +20,78 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
 import com.fesskiev.compose.R
-import com.fesskiev.compose.presentation.AuthViewModel
+import com.fesskiev.compose.presentation.AuthScreenViewModel
 import com.fesskiev.compose.ui.components.ProgressBar
 import com.fesskiev.compose.ui.components.SnackBar
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun AuthScreen(navController: NavController, viewModel: AuthViewModel = getViewModel()) {
+fun AuthScreen(navController: NavController, viewModel: AuthScreenViewModel = getViewModel()) {
     val displayName = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     val email = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     val password = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     var isLoginForm = savedInstanceState { true }
 
-    viewModel.liveData.observeAsState().value?.let { uiState ->
-        when {
-            uiState.isAuthSuccess -> navController.navigate("main")
-            uiState.isLoading -> ProgressBar()
-            else -> {
-                AuthForm(
-                    displayNameState = displayName,
-                    emailState = email,
-                    passwordState = password,
-                    isLoginForm = isLoginForm,
-                    uiState = uiState,
-                    registrationOnClick = {
-                        viewModel.registration(
-                            email = email.value.text,
-                            displayName = displayName.value.text,
-                            password = password.value.text
-                        )
-                    },
-                    loginOnClick = {
-                        viewModel.login(
-                            email = email.value.text,
-                            password = password.value.text
-                        )
-                    }
-                )
-                uiState.errorResourceId?.let { resourceId ->
-                    SnackBar(stringResource(resourceId))
+    val uiState = viewModel.liveData.observeAsState().value
+    if (uiState != null) {
+        if (uiState == AuthUiState.Success) {
+            navController.navigate("main")
+        } else if (uiState == AuthUiState.Loading) {
+            ProgressBar()
+        } else {
+            var emailLabel = stringResource(R.string.email)
+            var passwordLabel = stringResource(R.string.password)
+            var displayNameLabel = stringResource(R.string.display_name)
+            var isErrorEmailValue = false
+            var isErrorPasswordValue = false
+            var isErrorDisplayNameValue = false
+            if (uiState is AuthUiState.ValidationError) {
+                isErrorEmailValue = uiState.isEmptyEmailError || uiState.isValidateEmailError
+                emailLabel = when {
+                    uiState.isEmptyEmailError -> stringResource(R.string.error_empty_email)
+                    uiState.isValidateEmailError -> stringResource(R.string.error_validate_email)
+                    else -> stringResource(R.string.email)
                 }
+                isErrorPasswordValue = uiState.isEmptyEmailError || uiState.isValidateEmailError
+                passwordLabel = when {
+                    uiState.isEmptyPasswordError -> stringResource(R.string.error_empty_password)
+                    uiState.isValidatePasswordError -> stringResource(R.string.error_validate_password)
+                    else -> stringResource(R.string.password)
+                }
+                isErrorDisplayNameValue = uiState.isEmptyDisplayNameError
+                displayNameLabel = stringResource(R.string.error_empty_display_name)
+            }
+            AuthForm(
+                displayNameState = displayName,
+                emailState = email,
+                passwordState = password,
+                isLoginForm = isLoginForm,
+                emailLabel = emailLabel,
+                passwordLabel = passwordLabel,
+                displayNameLabel = displayNameLabel,
+                isErrorEmailValue = isErrorEmailValue,
+                isErrorPasswordValue = isErrorPasswordValue,
+                isErrorDisplayNameValue = isErrorDisplayNameValue,
+                registrationOnClick = {
+                    viewModel.registration(
+                        email = email.value.text,
+                        displayName = displayName.value.text,
+                        password = password.value.text
+                    )
+                },
+                loginOnClick = {
+                    viewModel.login(
+                        email = email.value.text,
+                        password = password.value.text
+                    )
+                }
+            )
+            if (uiState is AuthUiState.Error) {
+                SnackBar(stringResource(uiState.errorResourceId))
             }
         }
+    } else {
+        // draw something went wrong
     }
 }
 
@@ -71,7 +101,12 @@ fun AuthForm(
     emailState: MutableState<TextFieldValue>,
     passwordState: MutableState<TextFieldValue>,
     isLoginForm: MutableState<Boolean>,
-    uiState: AuthUiState,
+    emailLabel: String,
+    passwordLabel: String,
+    displayNameLabel: String,
+    isErrorEmailValue: Boolean,
+    isErrorPasswordValue: Boolean,
+    isErrorDisplayNameValue: Boolean,
     registrationOnClick: () -> Unit,
     loginOnClick: () -> Unit
 ) {
@@ -86,21 +121,44 @@ fun AuthForm(
             },
             modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
         )
-        if (isLoginForm.value) {
-            LoginForm(
-                emailState = emailState,
-                passwordState = passwordState,
-                uiState = uiState,
-                loginOnClick = loginOnClick
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            var onClick = loginOnClick
+            if (!isLoginForm.value) {
+                onClick = registrationOnClick
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    value = displayNameState.value,
+                    onValueChange = { displayNameState.value = it },
+                    label = { Text(text = displayNameLabel) },
+                    isErrorValue = isErrorDisplayNameValue
+                )
+            }
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                value = emailState.value,
+                onValueChange = { emailState.value = it },
+                label = { Text(text = emailLabel) },
+                keyboardType = KeyboardType.Email,
+                isErrorValue = isErrorEmailValue
             )
-        } else {
-            RegistrationForm(
-                displayNameState = displayNameState,
-                emailState = emailState,
-                passwordState = passwordState,
-                uiState = uiState,
-                registrationOnClick = registrationOnClick
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                value = passwordState.value,
+                onValueChange = { passwordState.value = it },
+                label = { Text(text = passwordLabel) },
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardType = KeyboardType.Password,
+                isErrorValue = isErrorPasswordValue
             )
+            Button(
+                modifier = Modifier.padding(top = 8.dp).height(48.dp).align(Alignment.End),
+                onClick = onClick
+            ) {
+                Text(stringResource(R.string.submit))
+            }
         }
         Text(
             modifier = Modifier.padding(top = 8.dp).clickable(
@@ -114,127 +172,5 @@ fun AuthForm(
             },
             textDecoration = TextDecoration.Underline
         )
-    }
-}
-
-@Composable
-fun LoginForm(
-    emailState: MutableState<TextFieldValue>,
-    passwordState: MutableState<TextFieldValue>,
-    uiState: AuthUiState,
-    loginOnClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            value = emailState.value,
-            onValueChange = { emailState.value = it },
-            label = {
-                Text(
-                    text = when {
-                        uiState.isEmptyEmailError -> stringResource(R.string.error_empty_email)
-                        uiState.isValidateEmailError -> stringResource(R.string.error_validate_email)
-                        else -> stringResource(R.string.email)
-                    }
-                )
-            },
-            keyboardType = KeyboardType.Email,
-            isErrorValue = uiState.isEmptyEmailError || uiState.isValidateEmailError
-        )
-
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            value = passwordState.value,
-            onValueChange = { passwordState.value = it },
-            label = {
-                Text(
-                    text = when {
-                        uiState.isEmptyPasswordError -> stringResource(R.string.error_empty_password)
-                        uiState.isValidatePasswordError -> stringResource(R.string.error_validate_password)
-                        else -> stringResource(R.string.password)
-                    }
-                )
-            },
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardType = KeyboardType.Password,
-            isErrorValue = uiState.isEmptyPasswordError || uiState.isValidatePasswordError,
-        )
-        Button(
-            modifier = Modifier.padding(top = 8.dp).height(48.dp).align(Alignment.End),
-            onClick = loginOnClick
-        ) {
-            Text(stringResource(R.string.submit))
-        }
-    }
-}
-
-@Composable
-fun RegistrationForm(
-    displayNameState: MutableState<TextFieldValue>,
-    emailState: MutableState<TextFieldValue>,
-    passwordState: MutableState<TextFieldValue>,
-    uiState: AuthUiState,
-    registrationOnClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            value = displayNameState.value,
-            onValueChange = { displayNameState.value = it },
-            label = {
-                Text(
-                    text = when {
-                        uiState.isEmptyDisplayNameError -> stringResource(R.string.error_empty_display_name)
-                        else -> stringResource(R.string.display_name)
-                    }
-                )
-            },
-            isErrorValue = uiState.isEmptyDisplayNameError
-        )
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            value = emailState.value,
-            onValueChange = { emailState.value = it },
-            label = {
-                Text(
-                    text = when {
-                        uiState.isEmptyEmailError -> stringResource(R.string.error_empty_email)
-                        uiState.isValidateEmailError -> stringResource(R.string.error_validate_email)
-                        else -> stringResource(R.string.email)
-                    }
-                )
-            },
-            keyboardType = KeyboardType.Email,
-            isErrorValue = uiState.isEmptyEmailError || uiState.isValidateEmailError
-        )
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            value = passwordState.value,
-            onValueChange = { passwordState.value = it },
-            label = {
-                Text(
-                    text = when {
-                        uiState.isEmptyPasswordError -> stringResource(R.string.error_empty_password)
-                        uiState.isValidatePasswordError -> stringResource(R.string.error_validate_password)
-                        else -> stringResource(R.string.password)
-                    }
-                )
-            },
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardType = KeyboardType.Password,
-            isErrorValue = uiState.isEmptyPasswordError || uiState.isValidatePasswordError,
-        )
-        Button(
-            modifier = Modifier.padding(top = 8.dp).height(48.dp).align(Alignment.End),
-            onClick = registrationOnClick
-        ) {
-            Text(stringResource(R.string.submit))
-        }
     }
 }

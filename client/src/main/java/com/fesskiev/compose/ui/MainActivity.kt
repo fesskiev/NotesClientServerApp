@@ -9,9 +9,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fesskiev.Database.CLIENT_URL
 import com.fesskiev.compose.data.Repository
-import com.fesskiev.compose.presentation.NotesViewModel
+import com.fesskiev.compose.presentation.MainScreenViewModel
 import com.fesskiev.compose.ui.screens.auth.AuthScreen
 import com.fesskiev.compose.ui.screens.main.MainScreen
+import com.fesskiev.compose.ui.screens.settings.SettingsScreen
 import com.fesskiev.compose.ui.utils.AppTheme
 import com.fesskiev.db.DatabaseFactory
 import com.fesskiev.db.insertNote
@@ -27,7 +28,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainActivity : AppCompatActivity() {
 
     private val repository by inject<Repository>()
-    private val navigationViewModel by viewModel<NotesViewModel>(state = { Bundle() })
+    private val navigationViewModel by viewModel<MainScreenViewModel>(state = { Bundle() })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +38,7 @@ class MainActivity : AppCompatActivity() {
                 NavHost(navController, startDestination = "auth") {
                     composable("auth") { AuthScreen(navController) }
                     composable("main") { MainScreen(navController) }
+                    composable("settings") { SettingsScreen(navController) }
                 }
             }
         }

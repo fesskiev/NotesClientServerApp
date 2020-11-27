@@ -2,6 +2,7 @@ package com.fesskiev
 
 import com.fesskiev.Database.SERVER_URL
 import com.fesskiev.Headers.SESSION
+import com.fesskiev.ServerErrorCodes.INTERNAL_SERVER_ERROR
 import com.fesskiev.auth.JWTManager
 import com.fesskiev.auth.UserSession
 import com.fesskiev.db.DatabaseFactory
@@ -40,8 +41,8 @@ fun Application.module() {
     val repository = RepositoryImpl()
 
     install(StatusPages) {
-        exception<Throwable> { e ->
-            call.respond(InternalServerError, ServerError(e.message ?: ""))
+        exception<Throwable> {
+            call.respond(InternalServerError, ServerError(INTERNAL_SERVER_ERROR))
         }
     }
     install(ContentNegotiation) {

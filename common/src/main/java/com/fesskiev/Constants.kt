@@ -41,4 +41,5 @@ object ServerErrorCodes {
     const val NOTE_NOT_ADDED = 8
     const val NOTE_EMPTY = 9
     const val NOTE_TEXT_EMPTY = 10
+    const val INTERNAL_SERVER_ERROR = 11
 }

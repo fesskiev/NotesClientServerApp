@@ -6,8 +6,8 @@ import com.fesskiev.compose.data.remote.provideKtorClient
 import com.fesskiev.compose.domain.LoginUseCase
 import com.fesskiev.compose.domain.NotesUseCase
 import com.fesskiev.compose.domain.RegistrationUseCase
-import com.fesskiev.compose.presentation.NotesViewModel
-import com.fesskiev.compose.presentation.AuthViewModel
+import com.fesskiev.compose.presentation.MainScreenViewModel
+import com.fesskiev.compose.presentation.AuthScreenViewModel
 import com.fesskiev.compose.ui.utils.FieldValidator
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -21,8 +21,8 @@ val repositoryModule = module {
 }
 
 val viewModelModule = module {
-    viewModel { NotesViewModel(get(), get()) }
-    viewModel { AuthViewModel(get(), get()) }
+    viewModel { MainScreenViewModel(get()) }
+    viewModel { AuthScreenViewModel(get(), get()) }
 }
 
 val useCaseModule = module {
