@@ -2,11 +2,11 @@ buildscript {
     ext.kotlin_version = "1.4.10"
     ext.ktor_version= "1.4.1"
     ext.logback_version= "1.2.1"
-    ext.compose_version = '1.0.0-alpha06'
-    ext.koin_version = '2.2.0-rc-2'
+    ext.compose_version = '1.0.0-alpha07'
+    ext.koin_version = '2.2.1'
     ext.h2_version = "1.4.200"
     ext.exposed_version = "0.25.1"
-    ext.nav_compose_version = "1.0.0-alpha01"
+    ext.nav_compose_version = "1.0.0-alpha02"
 
     repositories {
         google()

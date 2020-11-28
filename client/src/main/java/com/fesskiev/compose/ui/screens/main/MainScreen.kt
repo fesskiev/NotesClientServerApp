@@ -1,17 +1,14 @@
 package com.fesskiev.compose.ui.screens.main
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollableColumn
-import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -22,7 +19,8 @@ import com.fesskiev.compose.R
 import com.fesskiev.compose.presentation.MainScreenViewModel
 import com.fesskiev.compose.ui.components.AppHamburgerToolbar
 import com.fesskiev.compose.ui.components.ProgressBar
-import com.fesskiev.model.Note
+import com.fesskiev.compose.ui.components.SnackBar
+import com.fesskiev.compose.ui.screens.notes.NotesList
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -46,26 +44,31 @@ fun MainScreen(navController: NavHostController, viewModel: MainScreenViewModel 
             FloatingActionButton(
                 onClick = {
 
-                }
+                },
+                backgroundColor = Color(0xFF272729)
             ) {
-                Icon(Icons.Filled.Favorite)
+                Image(asset = vectorResource(R.drawable.ic_plus_one))
             }
         },
-        bodyContent = { padding ->
-            when (val uiState = viewModel.liveData.observeAsState().value) {
-                MainUiState.Loading -> ProgressBar()
-                is MainUiState.Data -> NotesList(padding, navController, uiState.notes)
+        bodyContent = {
+            val uiState = viewModel.liveData.observeAsState().value
+            if (uiState != null) {
+                when (uiState) {
+                    MainUiState.Loading -> ProgressBar()
+                    MainUiState.Empty -> {
+
+                    }
+                    is MainUiState.Data -> NotesList(uiState.notes, noteOnClick = {
+
+                    })
+                }
+                if (uiState is MainUiState.Error) {
+                    SnackBar(stringResource(uiState.errorResourceId))
+                }
+            } else {
+                // draw something went wrong
             }
         })
-}
-
-@Composable
-fun NotesList(padding: PaddingValues, navController: NavHostController, notes: List<Note>) {
-    ScrollableColumn {
-        Column(Modifier.padding(padding)) {
-
-        }
-    }
 }
 
 @Composable
@@ -78,8 +81,8 @@ fun AppDrawer(settingsOnClick: () -> Unit) {
                 Spacer(Modifier.preferredWidth(16.dp))
                 Text(
                     text = "Settings",
-                    style = TextStyle(color = Color(0xFF272729), fontWeight = FontWeight.Bold),
-                    modifier = Modifier.fillMaxWidth().align(Alignment.CenterVertically)
+                    modifier = Modifier.fillMaxWidth().align(Alignment.CenterVertically),
+                    style = TextStyle(color = Color(0xFF272729), fontWeight = FontWeight.Bold)
                 )
             }
         }

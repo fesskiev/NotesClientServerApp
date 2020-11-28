@@ -1,10 +1,11 @@
 package com.fesskiev.compose.ui.screens.auth
 
-import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.livedata.observeAsState
@@ -34,60 +35,60 @@ fun AuthScreen(navController: NavController, viewModel: AuthScreenViewModel = ge
 
     val uiState = viewModel.liveData.observeAsState().value
     if (uiState != null) {
-        if (uiState == AuthUiState.Success) {
-            navController.navigate("main")
-        } else if (uiState == AuthUiState.Loading) {
-            ProgressBar()
-        } else {
-            var emailLabel = stringResource(R.string.email)
-            var passwordLabel = stringResource(R.string.password)
-            var displayNameLabel = stringResource(R.string.display_name)
-            var isErrorEmailValue = false
-            var isErrorPasswordValue = false
-            var isErrorDisplayNameValue = false
-            if (uiState is AuthUiState.ValidationError) {
-                isErrorEmailValue = uiState.isEmptyEmailError || uiState.isValidateEmailError
-                emailLabel = when {
-                    uiState.isEmptyEmailError -> stringResource(R.string.error_empty_email)
-                    uiState.isValidateEmailError -> stringResource(R.string.error_validate_email)
-                    else -> stringResource(R.string.email)
+        when (uiState) {
+            AuthUiState.Success -> navController.navigate("main")
+            AuthUiState.Loading -> ProgressBar()
+            else -> {
+                var emailLabel = stringResource(R.string.email)
+                var passwordLabel = stringResource(R.string.password)
+                var displayNameLabel = stringResource(R.string.display_name)
+                var isErrorEmailValue = false
+                var isErrorPasswordValue = false
+                var isErrorDisplayNameValue = false
+                if (uiState is AuthUiState.ValidationError) {
+                    isErrorEmailValue = uiState.isEmptyEmailError || uiState.isValidateEmailError
+                    emailLabel = when {
+                        uiState.isEmptyEmailError -> stringResource(R.string.error_empty_email)
+                        uiState.isValidateEmailError -> stringResource(R.string.error_validate_email)
+                        else -> stringResource(R.string.email)
+                    }
+                    isErrorPasswordValue = uiState.isEmptyEmailError || uiState.isValidateEmailError
+                    passwordLabel = when {
+                        uiState.isEmptyPasswordError -> stringResource(R.string.error_empty_password)
+                        uiState.isValidatePasswordError -> stringResource(R.string.error_validate_password)
+                        else -> stringResource(R.string.password)
+                    }
+                    isErrorDisplayNameValue = uiState.isEmptyDisplayNameError
+                    displayNameLabel = stringResource(R.string.error_empty_display_name)
                 }
-                isErrorPasswordValue = uiState.isEmptyEmailError || uiState.isValidateEmailError
-                passwordLabel = when {
-                    uiState.isEmptyPasswordError -> stringResource(R.string.error_empty_password)
-                    uiState.isValidatePasswordError -> stringResource(R.string.error_validate_password)
-                    else -> stringResource(R.string.password)
+                AuthForm(
+                    displayNameState = displayName,
+                    emailState = email,
+                    passwordState = password,
+                    isLoginForm = isLoginForm,
+                    emailLabel = emailLabel,
+                    passwordLabel = passwordLabel,
+                    displayNameLabel = displayNameLabel,
+                    isErrorEmailValue = isErrorEmailValue,
+                    isErrorPasswordValue = isErrorPasswordValue,
+                    isErrorDisplayNameValue = isErrorDisplayNameValue,
+                    registrationOnClick = {
+                        viewModel.registration(
+                            email = email.value.text,
+                            displayName = displayName.value.text,
+                            password = password.value.text
+                        )
+                    },
+                    loginOnClick = {
+                        viewModel.login(
+                            email = email.value.text,
+                            password = password.value.text
+                        )
+                    }
+                )
+                if (uiState is AuthUiState.Error) {
+                    SnackBar(stringResource(uiState.errorResourceId))
                 }
-                isErrorDisplayNameValue = uiState.isEmptyDisplayNameError
-                displayNameLabel = stringResource(R.string.error_empty_display_name)
-            }
-            AuthForm(
-                displayNameState = displayName,
-                emailState = email,
-                passwordState = password,
-                isLoginForm = isLoginForm,
-                emailLabel = emailLabel,
-                passwordLabel = passwordLabel,
-                displayNameLabel = displayNameLabel,
-                isErrorEmailValue = isErrorEmailValue,
-                isErrorPasswordValue = isErrorPasswordValue,
-                isErrorDisplayNameValue = isErrorDisplayNameValue,
-                registrationOnClick = {
-                    viewModel.registration(
-                        email = email.value.text,
-                        displayName = displayName.value.text,
-                        password = password.value.text
-                    )
-                },
-                loginOnClick = {
-                    viewModel.login(
-                        email = email.value.text,
-                        password = password.value.text
-                    )
-                }
-            )
-            if (uiState is AuthUiState.Error) {
-                SnackBar(stringResource(uiState.errorResourceId))
             }
         }
     } else {
@@ -132,7 +133,7 @@ fun AuthForm(
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                     value = displayNameState.value,
                     onValueChange = { displayNameState.value = it },
-                    label = { Text(text = displayNameLabel) },
+                    label = { Text(displayNameLabel) },
                     isErrorValue = isErrorDisplayNameValue
                 )
             }
@@ -140,18 +141,18 @@ fun AuthForm(
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 value = emailState.value,
                 onValueChange = { emailState.value = it },
-                label = { Text(text = emailLabel) },
-                keyboardType = KeyboardType.Email,
-                isErrorValue = isErrorEmailValue
+                label = { Text(emailLabel) },
+                isErrorValue = isErrorEmailValue,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 value = passwordState.value,
                 onValueChange = { passwordState.value = it },
-                label = { Text(text = passwordLabel) },
+                label = { Text(passwordLabel) },
+                isErrorValue = isErrorPasswordValue,
                 visualTransformation = PasswordVisualTransformation(),
-                keyboardType = KeyboardType.Password,
-                isErrorValue = isErrorPasswordValue
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
             Button(
                 modifier = Modifier.padding(top = 8.dp).height(48.dp).align(Alignment.End),
