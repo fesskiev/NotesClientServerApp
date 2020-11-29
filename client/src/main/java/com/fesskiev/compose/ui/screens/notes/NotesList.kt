@@ -84,7 +84,7 @@ fun NoteItem(
                     modifier = Modifier.wrapContentSize(Alignment.CenterStart).padding(start = 8.dp)
                 ) {
                     Text(
-                        note.text,
+                        note.title,
                         style = TextStyle(color = Color(0xFF272729), fontWeight = FontWeight.Bold)
                     )
                     val formatter = SimpleDateFormat("dd.MM.yyyy")
@@ -102,6 +102,6 @@ fun NoteItem(
 @Preview
 @Composable
 fun NoteItemPreview() {
-    val note = Note(1, 1, "test", System.currentTimeMillis())
+    val note = Note(1, 1, "title", "description", "url", System.currentTimeMillis())
     NoteItem(note = note, noteOnClick = {}, deleteNoteOnClick = {}, editNoteOnClick = {})
 }

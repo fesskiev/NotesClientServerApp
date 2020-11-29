@@ -7,7 +7,7 @@ interface Repository  {
 
     suspend fun getNotes(): List<Note>
 
-    suspend fun addNote(text: String): Note
+    suspend fun addNote(title: String, description: String, pictureUrl: String?): Note
 
     suspend fun editNote(note: Note): Boolean
 

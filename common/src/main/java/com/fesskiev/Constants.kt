@@ -12,7 +12,9 @@ object Routes {
 }
 
 object HTTPParameters {
-    const val NOTE_TEXT = "note_text"
+    const val NOTE_TITLE = "note_title"
+    const val NOTE_DESCRIPTION = "note_description"
+    const val NOTE_PICTURE_URL = "note_picture_url"
     const val EMAIL = "email"
     const val PASSWORD = "password"
     const val DISPLAY_NAME = "display_name"
@@ -40,6 +42,7 @@ object ServerErrorCodes {
     const val SESSION_NOT_FOUND = 7
     const val NOTE_NOT_ADDED = 8
     const val NOTE_EMPTY = 9
-    const val NOTE_TEXT_EMPTY = 10
-    const val INTERNAL_SERVER_ERROR = 11
+    const val NOTE_TITLE_EMPTY = 10
+    const val NOTE_DESCRIPTION_EMPTY = 11
+    const val INTERNAL_SERVER_ERROR = 12
 }

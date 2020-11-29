@@ -1,13 +1,16 @@
 package com.fesskiev.routes
 
-import com.fesskiev.HTTPParameters.NOTE_TEXT
+import com.fesskiev.HTTPParameters.NOTE_DESCRIPTION
+import com.fesskiev.HTTPParameters.NOTE_PICTURE_URL
+import com.fesskiev.HTTPParameters.NOTE_TITLE
 import com.fesskiev.Routes.ADD_NOTE
 import com.fesskiev.Routes.DELETE_NOTE
 import com.fesskiev.Routes.GET_NOTES
 import com.fesskiev.Routes.EDIT_NOTE
+import com.fesskiev.ServerErrorCodes.NOTE_DESCRIPTION_EMPTY
 import com.fesskiev.ServerErrorCodes.NOTE_EMPTY
 import com.fesskiev.ServerErrorCodes.NOTE_NOT_ADDED
-import com.fesskiev.ServerErrorCodes.NOTE_TEXT_EMPTY
+import com.fesskiev.ServerErrorCodes.NOTE_TITLE_EMPTY
 import com.fesskiev.ServerErrorCodes.SESSION_NOT_FOUND
 import com.fesskiev.ServerErrorCodes.USER_NOT_FOUND
 import com.fesskiev.auth.UserSession
@@ -54,8 +57,10 @@ fun Route.notes(repository: Repository) {
                     return@post
                 } else {
                     val parameters: Parameters = call.receiveParameters()
-                    val text = parameters[NOTE_TEXT] ?: return@post call.respond(BadRequest, ServerError(NOTE_TEXT_EMPTY))
-                    val note = repository.addNote(user.uid, text)
+                    val title = parameters[NOTE_TITLE] ?: return@post call.respond(BadRequest, ServerError(NOTE_TITLE_EMPTY))
+                    val description = parameters[NOTE_DESCRIPTION] ?: return@post call.respond(BadRequest, ServerError(NOTE_DESCRIPTION_EMPTY))
+                    val pictureUrl = parameters[NOTE_PICTURE_URL]
+                    val note = repository.addNote(user.uid, title, description, pictureUrl)
                     if (note == null) {
                         call.respond(BadRequest, ServerError(NOTE_NOT_ADDED))
                     } else {

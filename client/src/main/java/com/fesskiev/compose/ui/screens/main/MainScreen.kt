@@ -21,7 +21,6 @@ import com.fesskiev.compose.ui.components.AppHamburgerToolbar
 import com.fesskiev.compose.ui.components.ProgressBar
 import com.fesskiev.compose.ui.components.SnackBar
 import com.fesskiev.compose.ui.screens.notes.NotesList
-import com.fesskiev.model.Note
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -57,9 +56,9 @@ fun MainScreen(navController: NavHostController, viewModel: MainScreenViewModel 
             if (uiState != null) {
                 when (uiState) {
                     MainUiState.Loading -> ProgressBar()
-                    MainUiState.Empty -> NotesList(generateTestNotes(), noteOnClick = {
-                        navController.navigate("note_details")
-                    }, deleteNoteOnClick = {}, editNoteOnClick = {})
+                    MainUiState.Empty -> {
+
+                    }
                     is MainUiState.Data -> NotesList(uiState.notes, noteOnClick = {
                         navController.navigate("note_details")
                     }, deleteNoteOnClick = {}, editNoteOnClick = {})
@@ -71,16 +70,6 @@ fun MainScreen(navController: NavHostController, viewModel: MainScreenViewModel 
                 // draw something went wrong
             }
         })
-}
-
-
-
-private fun generateTestNotes(): List<Note> {
-    val notes = mutableListOf<Note>()
-    for (i in 1..20) {
-        notes.add(Note(i, i, "note: $i", System.currentTimeMillis()))
-    }
-    return notes
 }
 
 @Composable

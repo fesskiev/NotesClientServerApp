@@ -4,9 +4,10 @@ import androidx.annotation.StringRes
 import com.fesskiev.ServerErrorCodes.DISPLAY_NAME_EMPTY
 import com.fesskiev.ServerErrorCodes.EMAIL_ALREADY_USE
 import com.fesskiev.ServerErrorCodes.EMAIL_EMPTY
+import com.fesskiev.ServerErrorCodes.NOTE_DESCRIPTION_EMPTY
 import com.fesskiev.ServerErrorCodes.NOTE_EMPTY
 import com.fesskiev.ServerErrorCodes.NOTE_NOT_ADDED
-import com.fesskiev.ServerErrorCodes.NOTE_TEXT_EMPTY
+import com.fesskiev.ServerErrorCodes.NOTE_TITLE_EMPTY
 import com.fesskiev.ServerErrorCodes.PASSWORD_EMPTY
 import com.fesskiev.ServerErrorCodes.PASSWORD_INCORRECT
 import com.fesskiev.ServerErrorCodes.SESSION_NOT_FOUND
@@ -42,7 +43,8 @@ fun parseServerErrorCode(errorCode: Int): Int = when (errorCode) {
     SESSION_NOT_FOUND -> R.string.error_session_not_found
     NOTE_NOT_ADDED -> R.string.error_note_not_added
     NOTE_EMPTY -> R.string.error_note_empty
-    NOTE_TEXT_EMPTY -> R.string.error_note_text_empty
+    NOTE_TITLE_EMPTY -> R.string.error_note_title_empty
+    NOTE_DESCRIPTION_EMPTY -> R.string.error_note_description_empty
     else -> R.string.error_unknown
 }
 

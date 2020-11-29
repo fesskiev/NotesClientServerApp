@@ -2,7 +2,9 @@ package com.fesskiev.compose.data
 
 import com.fesskiev.HTTPParameters.DISPLAY_NAME
 import com.fesskiev.HTTPParameters.EMAIL
-import com.fesskiev.HTTPParameters.NOTE_TEXT
+import com.fesskiev.HTTPParameters.NOTE_DESCRIPTION
+import com.fesskiev.HTTPParameters.NOTE_PICTURE_URL
+import com.fesskiev.HTTPParameters.NOTE_TITLE
 import com.fesskiev.HTTPParameters.PASSWORD
 import com.fesskiev.Routes.ADD_NOTE
 import com.fesskiev.Routes.DELETE_NOTE
@@ -27,10 +29,14 @@ class RepositoryImpl(private val httpClient: HttpClient) : Repository {
          httpClient.get(GET_NOTES)
     }
 
-    override suspend fun addNote(text: String): Note = withContext(Dispatchers.IO) {
+    override suspend fun addNote(title: String, description: String, pictureUrl: String?): Note = withContext(Dispatchers.IO) {
         httpClient.post(ADD_NOTE) {
             body = FormDataContent(Parameters.build {
-                append(NOTE_TEXT, text)
+                append(NOTE_TITLE, title)
+                append(NOTE_DESCRIPTION, description)
+                pictureUrl?.let {
+                    append(NOTE_PICTURE_URL, it)
+                }
             })
         }
     }
