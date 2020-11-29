@@ -21,6 +21,7 @@ import com.fesskiev.compose.ui.components.AppHamburgerToolbar
 import com.fesskiev.compose.ui.components.ProgressBar
 import com.fesskiev.compose.ui.components.SnackBar
 import com.fesskiev.compose.ui.screens.notes.NotesList
+import com.fesskiev.model.Note
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -35,15 +36,16 @@ fun MainScreen(navController: NavHostController, viewModel: MainScreenViewModel 
         },
         drawerContent = {
             AppDrawer(settingsOnClick = {
-                scaffoldState.drawerState.close()
-                navController.navigate("settings")
+                scaffoldState.drawerState.close(onClosed = {
+                    navController.navigate("settings")
+                })
             })
         },
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-
+                    navController.navigate("add_note")
                 },
                 backgroundColor = Color(0xFF272729)
             ) {
@@ -55,12 +57,12 @@ fun MainScreen(navController: NavHostController, viewModel: MainScreenViewModel 
             if (uiState != null) {
                 when (uiState) {
                     MainUiState.Loading -> ProgressBar()
-                    MainUiState.Empty -> {
-
-                    }
+                    MainUiState.Empty -> NotesList(generateTestNotes(), noteOnClick = {
+                        navController.navigate("note_details")
+                    }, deleteNoteOnClick = {}, editNoteOnClick = {})
                     is MainUiState.Data -> NotesList(uiState.notes, noteOnClick = {
-
-                    })
+                        navController.navigate("note_details")
+                    }, deleteNoteOnClick = {}, editNoteOnClick = {})
                 }
                 if (uiState is MainUiState.Error) {
                     SnackBar(stringResource(uiState.errorResourceId))
@@ -69,6 +71,16 @@ fun MainScreen(navController: NavHostController, viewModel: MainScreenViewModel 
                 // draw something went wrong
             }
         })
+}
+
+
+
+private fun generateTestNotes(): List<Note> {
+    val notes = mutableListOf<Note>()
+    for (i in 1..20) {
+        notes.add(Note(i, i, "note: $i", System.currentTimeMillis()))
+    }
+    return notes
 }
 
 @Composable
