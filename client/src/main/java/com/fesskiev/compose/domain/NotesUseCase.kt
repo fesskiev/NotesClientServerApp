@@ -1,17 +1,15 @@
 package com.fesskiev.compose.domain
 
 import com.fesskiev.compose.data.Repository
-import com.fesskiev.compose.ui.screens.main.MainUiState
-import com.fesskiev.model.Note
+import com.fesskiev.compose.ui.screens.notes.NotesUiState
 
 class NotesUseCase(private val repository: Repository) {
 
-    suspend fun getNotes() : MainUiState {
+    suspend fun getNotes(): NotesUiState {
         val notes = repository.getNotes()
-        return if (notes.isEmpty()) {
-            MainUiState.Empty
-        } else {
-            MainUiState.Data(notes)
+        if (notes.isEmpty()) {
+            return NotesUiState.Empty
         }
+        return NotesUiState.Data(notes)
     }
 }

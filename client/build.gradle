@@ -18,15 +18,20 @@ android {
 
     flavorDimensions "default"
     productFlavors {
-        production {
+        dev {
             buildConfigField "String", "HOST", "\"10.0.2.2\""
             buildConfigField "Integer", "PORT", "8080"
         }
     }
     buildTypes {
+        debug {
+            debuggable true
+        }
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            debuggable false
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
@@ -76,11 +81,9 @@ dependencies {
     implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.material:material-icons-core:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
-    implementation "androidx.compose.runtime:runtime-rxjava2:$compose_version"
     implementation("androidx.compose.ui:ui-text:$compose_version")
     implementation("androidx.compose.ui:ui-util:$compose_version")
-    implementation ("androidx.compose.ui:ui-viewbinding:$compose_version")
-    implementation "androidx.ui:ui-tooling:$compose_version"
+    implementation "androidx.compose.ui:ui-tooling:$compose_version"
 
     implementation "io.ktor:ktor-client-okhttp:$ktor_version"
     implementation "io.ktor:ktor-client-serialization-jvm:$ktor_version"

@@ -3,6 +3,7 @@
 
     <string name="registration">Registration</string>
     <string name="login">Login</string>
+    <string name="settings">Settings</string>
     <string name="display_name">Display name</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
@@ -25,5 +26,7 @@
     <string name="error_note_title_empty">Note title is empty</string>
     <string name="error_note_description_empty">Note description is empty</string>
     <string name="error_connect_server">Can not connect to the server</string>
+    <string name="error_delete_note">Can not delete the note</string>
+    <string name="error_edit_note">Can not edit the note</string>
 
 </resources>

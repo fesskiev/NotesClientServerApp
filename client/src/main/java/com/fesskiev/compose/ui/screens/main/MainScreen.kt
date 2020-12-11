@@ -16,20 +16,21 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.navigate
 import com.fesskiev.compose.R
-import com.fesskiev.compose.presentation.MainScreenViewModel
+import com.fesskiev.compose.presentation.NotesViewModel
 import com.fesskiev.compose.ui.components.AppHamburgerToolbar
 import com.fesskiev.compose.ui.components.ProgressBar
 import com.fesskiev.compose.ui.components.SnackBar
 import com.fesskiev.compose.ui.screens.notes.NotesList
+import com.fesskiev.compose.ui.screens.notes.NotesUiState
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun MainScreen(navController: NavHostController, viewModel: MainScreenViewModel = getViewModel()) {
+fun MainScreen(navController: NavHostController, viewModel: NotesViewModel = getViewModel()) {
     val scaffoldState = rememberScaffoldState()
     viewModel.getNotes()
     Scaffold(scaffoldState = scaffoldState,
         topBar = {
-            AppHamburgerToolbar(title = "NotesApp", hamburgerOnClick = {
+            AppHamburgerToolbar(title = stringResource(R.string.app_name), hamburgerOnClick = {
                 scaffoldState.drawerState.open()
             })
         },
@@ -48,28 +49,36 @@ fun MainScreen(navController: NavHostController, viewModel: MainScreenViewModel 
                 },
                 backgroundColor = Color(0xFF272729)
             ) {
-                Image(asset = vectorResource(R.drawable.ic_plus_one))
+                Image(imageVector = vectorResource(R.drawable.ic_plus_one))
             }
         },
         bodyContent = {
-            val uiState = viewModel.liveData.observeAsState().value
-            if (uiState != null) {
-                when (uiState) {
-                    MainUiState.Loading -> ProgressBar()
-                    MainUiState.Empty -> {
-
+            val state = viewModel.liveData.observeAsState().value
+            if (state != null) {
+                when (state) {
+                    NotesUiState.Empty -> EmptyView()
+                    is NotesUiState.Loading -> ProgressBar()
+                    is NotesUiState.Data -> {
+                        NotesList(
+                            state.notes,
+                            noteOnClick = { navController.navigate("note_details") },
+                            deleteNoteOnClick = { viewModel.deleteNote(it) },
+                            editNoteOnClick = { viewModel.editNote(it) })
                     }
-                    is MainUiState.Data -> NotesList(uiState.notes, noteOnClick = {
-                        navController.navigate("note_details")
-                    }, deleteNoteOnClick = {}, editNoteOnClick = {})
+                    else -> EmptyView()
                 }
-                if (uiState is MainUiState.Error) {
-                    SnackBar(stringResource(uiState.errorResourceId))
+                if (state is NotesUiState.Error) {
+                    SnackBar(stringResource(state.errorResourceId))
                 }
             } else {
-                // draw something went wrong
+                EmptyView()
             }
         })
+}
+
+@Composable
+fun EmptyView() {
+
 }
 
 @Composable
@@ -78,10 +87,10 @@ fun AppDrawer(settingsOnClick: () -> Unit) {
         Spacer(Modifier.preferredHeight(24.dp))
         TextButton(onClick = { settingsOnClick() }, modifier = Modifier.fillMaxWidth()) {
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
-                Image(asset = vectorResource(R.drawable.ic_home))
+                Image(imageVector = vectorResource(R.drawable.ic_settings))
                 Spacer(Modifier.preferredWidth(16.dp))
                 Text(
-                    text = "Settings",
+                    text = stringResource(R.string.settings),
                     modifier = Modifier.fillMaxWidth().align(Alignment.CenterVertically),
                     style = TextStyle(color = Color(0xFF272729), fontWeight = FontWeight.Bold)
                 )

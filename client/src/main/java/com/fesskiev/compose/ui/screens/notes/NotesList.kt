@@ -17,8 +17,8 @@ import androidx.compose.ui.layout.WithConstraints
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.ui.tooling.preview.Preview
 import com.fesskiev.compose.R
 import com.fesskiev.model.Note
 import java.text.SimpleDateFormat
@@ -59,7 +59,7 @@ fun NoteItem(
                 modifier = Modifier.fillMaxWidth().height(72.dp)
             ) {
                 Image(
-                    asset = vectorResource(R.drawable.ic_delete),
+                    imageVector = vectorResource(R.drawable.ic_delete),
                     modifier = Modifier.padding(horizontal = 20.dp).clickable(
                         onClick = {
                             deleteNoteOnClick(note)
@@ -67,7 +67,7 @@ fun NoteItem(
                     )
                 )
                 Image(
-                    asset = vectorResource(R.drawable.ic_edit),
+                    imageVector = vectorResource(R.drawable.ic_edit),
                     modifier = Modifier.padding(horizontal = 20.dp).clickable(
                         onClick = {
                             editNoteOnClick(note)

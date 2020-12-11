@@ -21,16 +21,16 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
 import com.fesskiev.compose.R
-import com.fesskiev.compose.presentation.AuthScreenViewModel
+import com.fesskiev.compose.presentation.AuthViewModel
 import com.fesskiev.compose.ui.components.ProgressBar
 import com.fesskiev.compose.ui.components.SnackBar
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun AuthScreen(navController: NavController, viewModel: AuthScreenViewModel = getViewModel()) {
+fun AuthScreen(navController: NavController, viewModel: AuthViewModel = getViewModel()) {
     val displayName = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    val email = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    val password = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
+    val email = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue("test1@i.ua") }
+    val password = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue("123456") }
     var isLoginForm = savedInstanceState { true }
 
     val uiState = viewModel.liveData.observeAsState().value
