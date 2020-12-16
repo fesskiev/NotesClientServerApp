@@ -2,7 +2,7 @@ package com.fesskiev.compose.domain
 
 import com.fesskiev.compose.R
 import com.fesskiev.compose.data.Repository
-import com.fesskiev.compose.ui.screens.notes.list.NotesListUiState
+import com.fesskiev.compose.presentation.NotesListUiState
 import com.fesskiev.model.Note
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

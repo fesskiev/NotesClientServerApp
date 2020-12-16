@@ -1,4 +1,4 @@
-package com.fesskiev.compose.ui.screens.notes.add
+package com.fesskiev.compose.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth

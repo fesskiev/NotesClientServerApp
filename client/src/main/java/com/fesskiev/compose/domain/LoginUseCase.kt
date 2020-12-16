@@ -1,7 +1,7 @@
 package com.fesskiev.compose.domain
 
 import com.fesskiev.compose.data.Repository
-import com.fesskiev.compose.ui.screens.auth.AuthUiState
+import com.fesskiev.compose.presentation.AuthUiState
 import com.fesskiev.compose.ui.utils.FieldValidator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

@@ -1,4 +1,4 @@
-package com.fesskiev.compose.ui.screens.notes.details
+package com.fesskiev.compose.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,12 +10,12 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 
 @Composable
-fun NoteDetailsScreen(navController: NavHostController) {
+fun SettingsScreen(navController: NavHostController) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "details note screen!")
+        Text(text = "settings screen!")
     }
 }

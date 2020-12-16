@@ -1,4 +1,4 @@
-package com.fesskiev.compose.ui.screens.notes.list
+package com.fesskiev.compose.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
-fun NotesList(
+fun NotesListScreen(
     notes: List<Note>, noteOnClick: (Note) -> Unit,
     deleteNoteOnClick: (Note) -> Unit,
     editNoteOnClick: (Note) -> Unit

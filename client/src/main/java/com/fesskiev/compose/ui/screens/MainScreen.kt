@@ -1,4 +1,4 @@
-package com.fesskiev.compose.ui.screens.main
+package com.fesskiev.compose.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -18,7 +18,6 @@ import androidx.navigation.compose.navigate
 import com.fesskiev.compose.R
 import com.fesskiev.compose.presentation.NotesListViewModel
 import com.fesskiev.compose.ui.components.*
-import com.fesskiev.compose.ui.screens.notes.list.NotesList
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -56,7 +55,7 @@ fun MainScreen(navController: NavHostController, viewModel: NotesListViewModel =
                 uiState.notes != null -> {
                     val notes = uiState.notes
                     if (notes.isNotEmpty()) {
-                        NotesList(
+                        NotesListScreen(
                             notes,
                             noteOnClick = { navController.navigate("note_details") },
                             deleteNoteOnClick = { viewModel.deleteNote(it) },

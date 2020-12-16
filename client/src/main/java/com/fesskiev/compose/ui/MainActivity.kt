@@ -7,11 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fesskiev.compose.data.Repository
-import com.fesskiev.compose.ui.screens.auth.AuthScreen
-import com.fesskiev.compose.ui.screens.main.MainScreen
-import com.fesskiev.compose.ui.screens.notes.add.AddNoteScreen
-import com.fesskiev.compose.ui.screens.notes.details.NoteDetailsScreen
-import com.fesskiev.compose.ui.screens.settings.SettingsScreen
+import com.fesskiev.compose.ui.screens.*
 import com.fesskiev.compose.ui.utils.AppTheme
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

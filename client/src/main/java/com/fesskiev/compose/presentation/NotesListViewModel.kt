@@ -3,11 +3,9 @@ package com.fesskiev.compose.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fesskiev.compose.data.remote.parseHttpError
-import com.fesskiev.compose.domain.AddNoteUseCase
 import com.fesskiev.compose.domain.DeleteNoteUseCase
 import com.fesskiev.compose.domain.EditNoteUseCase
 import com.fesskiev.compose.domain.NotesListUseCase
-import com.fesskiev.compose.ui.screens.notes.list.NotesListUiState
 import com.fesskiev.model.Note
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch

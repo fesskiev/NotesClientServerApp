@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fesskiev.compose.data.remote.parseHttpError
 import com.fesskiev.compose.domain.AddNoteUseCase
-import com.fesskiev.compose.ui.screens.notes.add.AddNoteUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
