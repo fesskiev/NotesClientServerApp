@@ -2,16 +2,19 @@ package com.fesskiev.compose.domain
 
 import com.fesskiev.compose.R
 import com.fesskiev.compose.data.Repository
-import com.fesskiev.compose.ui.screens.notes.NotesUiState
+import com.fesskiev.compose.ui.screens.notes.list.NotesListUiState
 import com.fesskiev.model.Note
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class DeleteNoteUseCase(private val repository: Repository) {
 
-    suspend fun deleteNote(note: Note): NotesUiState {
+    suspend fun deleteNote(note: Note): Flow<NotesListUiState> = flow {
         val result = repository.deleteNote(note)
         if (result) {
-            return NotesUiState.Data(repository.getNotes())
+            val notes = repository.getNotes()
+            return@flow emit(NotesListUiState(notes = notes))
         }
-        return NotesUiState.Error(R.string.error_delete_note)
+        emit(NotesListUiState(errorResourceId = R.string.error_delete_note))
     }
 }

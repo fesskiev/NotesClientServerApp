@@ -4,7 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,16 +16,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.navigate
 import com.fesskiev.compose.R
-import com.fesskiev.compose.presentation.NotesViewModel
-import com.fesskiev.compose.ui.components.AppHamburgerToolbar
-import com.fesskiev.compose.ui.components.ProgressBar
-import com.fesskiev.compose.ui.components.SnackBar
-import com.fesskiev.compose.ui.screens.notes.NotesList
-import com.fesskiev.compose.ui.screens.notes.NotesUiState
+import com.fesskiev.compose.presentation.NotesListViewModel
+import com.fesskiev.compose.ui.components.*
+import com.fesskiev.compose.ui.screens.notes.list.NotesList
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun MainScreen(navController: NavHostController, viewModel: NotesViewModel = getViewModel()) {
+fun MainScreen(navController: NavHostController, viewModel: NotesListViewModel = getViewModel()) {
     val scaffoldState = rememberScaffoldState()
     viewModel.getNotes()
     Scaffold(scaffoldState = scaffoldState,
@@ -53,32 +50,26 @@ fun MainScreen(navController: NavHostController, viewModel: NotesViewModel = get
             }
         },
         bodyContent = {
-            val state = viewModel.liveData.observeAsState().value
-            if (state != null) {
-                when (state) {
-                    NotesUiState.Empty -> EmptyView()
-                    is NotesUiState.Loading -> ProgressBar()
-                    is NotesUiState.Data -> {
+            val uiState = viewModel.stateFlow.collectAsState().value
+            when {
+                uiState.loading -> ProgressBar()
+                uiState.notes != null -> {
+                    val notes = uiState.notes
+                    if (notes.isNotEmpty()) {
                         NotesList(
-                            state.notes,
+                            notes,
                             noteOnClick = { navController.navigate("note_details") },
                             deleteNoteOnClick = { viewModel.deleteNote(it) },
                             editNoteOnClick = { viewModel.editNote(it) })
+                    } else {
+                        EmptyView(stringResource(R.string.empty_notes_list))
                     }
-                    else -> EmptyView()
                 }
-                if (state is NotesUiState.Error) {
-                    SnackBar(stringResource(state.errorResourceId))
-                }
-            } else {
-                EmptyView()
+            }
+            uiState.errorResourceId?.let {
+                SnackBar(stringResource(it))
             }
         })
-}
-
-@Composable
-fun EmptyView() {
-
 }
 
 @Composable

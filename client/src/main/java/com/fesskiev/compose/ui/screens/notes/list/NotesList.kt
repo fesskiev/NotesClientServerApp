@@ -1,4 +1,4 @@
-package com.fesskiev.compose.ui.screens.notes
+package com.fesskiev.compose.ui.screens.notes.list
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -35,7 +35,6 @@ fun NotesList(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun NoteItem(
     note: Note,
@@ -46,11 +45,12 @@ fun NoteItem(
     WithConstraints {
         val max = 0.dp
         val min = (-150).dp
-        val offsetPosition = remember { mutableStateOf(0f) }
+        val offsetPositionX = remember { mutableStateOf(0f) }
+        val offsetPositionY = remember { mutableStateOf(0f) }
         Box(
             Modifier.draggable(orientation = Orientation.Horizontal) { delta ->
-                val newValue = offsetPosition.value + delta
-                offsetPosition.value = newValue.coerceIn(min.toPx(), max.toPx())
+                val newValue = offsetPositionX.value + delta
+                offsetPositionX.value = newValue.coerceIn(min.toPx(), max.toPx())
             }
         ) {
             Row(
@@ -77,7 +77,7 @@ fun NoteItem(
             }
             Card(
                 modifier = Modifier.fillMaxWidth().height(72.dp).padding(4.dp, 2.dp, 4.dp, 2.dp)
-                    .offsetPx(x = offsetPosition)
+                    .offset({ offsetPositionX.value }, { offsetPositionY.value })
                     .clickable(onClick = { noteOnClick(note) }), elevation = 4.dp
             ) {
                 Column(
@@ -87,7 +87,7 @@ fun NoteItem(
                         note.title,
                         style = TextStyle(color = Color(0xFF272729), fontWeight = FontWeight.Bold)
                     )
-                    val formatter = SimpleDateFormat("dd.MM.yyyy")
+                    val formatter = SimpleDateFormat("dd.MM.yy hh:mm:ss")
                     val formattedDate = formatter.format(Date(note.time))
                     Text(
                         formattedDate,

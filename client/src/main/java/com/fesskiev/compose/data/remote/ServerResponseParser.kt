@@ -16,7 +16,9 @@ import com.fesskiev.ServerErrorCodes.USER_NOT_FOUND
 import com.fesskiev.compose.R
 import com.fesskiev.model.JWTAuth
 import com.fesskiev.model.ServerError
+import io.ktor.client.features.*
 import kotlinx.serialization.json.Json
+import java.net.ConnectException
 
 fun parseJWT(body: String): JWTAuth? = try {
     Json.decodeFromString(JWTAuth.serializer(), body)
@@ -46,5 +48,17 @@ fun parseServerErrorCode(errorCode: Int): Int = when (errorCode) {
     NOTE_TITLE_EMPTY -> R.string.error_note_title_empty
     NOTE_DESCRIPTION_EMPTY -> R.string.error_note_description_empty
     else -> R.string.error_unknown
+}
+
+@StringRes
+fun parseHttpError(t: Throwable): Int {
+    return when (t) {
+        is NoNetworkException -> R.string.error_no_network
+        is HttpRequestTimeoutException -> R.string.error_timeout
+        is ConnectException -> R.string.error_connect_server
+        is UnauthorizedException -> t.resourceId
+        is BadRequestException -> t.resourceId
+        else -> R.string.error_unknown
+    }
 }
 

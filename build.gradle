@@ -15,7 +15,7 @@ buildscript {
         maven { url 'https://kotlin.bintray.com/ktor' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.0-alpha02'
+        classpath 'com.android.tools.build:gradle:7.0.0-alpha03'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
     }

@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.remember
 
 @Composable
-fun SnackBar(message: String) {
+fun SnackBar(message: String, onClick: () -> Unit = {}) {
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.Bottom
@@ -23,6 +23,7 @@ fun SnackBar(message: String) {
                 action = {
                     Button(onClick = {
                         visibleState.value = false
+                        onClick()
                     }) {
                         Text("Hide")
                     }

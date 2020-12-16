@@ -4,10 +4,17 @@
     <string name="registration">Registration</string>
     <string name="login">Login</string>
     <string name="settings">Settings</string>
+    <string name="add_note">Add note</string>
+
     <string name="display_name">Display name</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="submit">Submit</string>
+    <string name="note_title">Title</string>
+    <string name="note_description">Description</string>
+    <string name="note_picture_url">Picture URL</string>
+    <string name="note_added">Note added</string>
+    <string name="empty_notes_list">Empty notes list</string>
 
     <string name="error_empty_display_name">Empty display name</string>
     <string name="error_empty_email">Empty email</string>
@@ -28,5 +35,8 @@
     <string name="error_connect_server">Can not connect to the server</string>
     <string name="error_delete_note">Can not delete the note</string>
     <string name="error_edit_note">Can not edit the note</string>
+    <string name="error_no_network">No network</string>
+    <string name="error_empty_title">Empty title</string>
+    <string name="error_empty_desc">Empty description</string>
 
 </resources>

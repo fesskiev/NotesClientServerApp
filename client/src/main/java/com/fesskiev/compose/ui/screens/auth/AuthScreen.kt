@@ -8,7 +8,7 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,66 +33,56 @@ fun AuthScreen(navController: NavController, viewModel: AuthViewModel = getViewM
     val password = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue("123456") }
     var isLoginForm = savedInstanceState { true }
 
-    val uiState = viewModel.liveData.observeAsState().value
-    if (uiState != null) {
-        when (uiState) {
-            AuthUiState.Success -> navController.navigate("main")
-            AuthUiState.Loading -> ProgressBar()
-            else -> {
-                var emailLabel = stringResource(R.string.email)
-                var passwordLabel = stringResource(R.string.password)
-                var displayNameLabel = stringResource(R.string.display_name)
-                var isErrorEmailValue = false
-                var isErrorPasswordValue = false
-                var isErrorDisplayNameValue = false
-                if (uiState is AuthUiState.ValidationError) {
-                    isErrorEmailValue = uiState.isEmptyEmailError || uiState.isValidateEmailError
-                    emailLabel = when {
-                        uiState.isEmptyEmailError -> stringResource(R.string.error_empty_email)
-                        uiState.isValidateEmailError -> stringResource(R.string.error_validate_email)
-                        else -> stringResource(R.string.email)
-                    }
-                    isErrorPasswordValue = uiState.isEmptyEmailError || uiState.isValidateEmailError
-                    passwordLabel = when {
-                        uiState.isEmptyPasswordError -> stringResource(R.string.error_empty_password)
-                        uiState.isValidatePasswordError -> stringResource(R.string.error_validate_password)
-                        else -> stringResource(R.string.password)
-                    }
-                    isErrorDisplayNameValue = uiState.isEmptyDisplayNameError
-                    displayNameLabel = stringResource(R.string.error_empty_display_name)
+    val uiState = viewModel.stateFlow.collectAsState().value
+    when {
+        uiState.success -> navController.navigate("main")
+        uiState.loading -> ProgressBar()
+        else -> {
+            var isErrorEmailValue = uiState.isEmptyEmailError || uiState.isValidateEmailError
+            var isErrorPasswordValue =
+                uiState.isEmptyPasswordError || uiState.isValidatePasswordError
+            var isErrorDisplayNameValue = uiState.isEmptyDisplayNameError
+            val emailLabel = when {
+                uiState.isEmptyEmailError -> stringResource(R.string.error_empty_email)
+                uiState.isValidateEmailError -> stringResource(R.string.error_validate_email)
+                else -> stringResource(R.string.email)
+            }
+            val passwordLabel = when {
+                uiState.isEmptyPasswordError -> stringResource(R.string.error_empty_password)
+                uiState.isValidatePasswordError -> stringResource(R.string.error_validate_password)
+                else -> stringResource(R.string.password)
+            }
+            val displayNameLabel = stringResource(R.string.error_empty_display_name)
+
+            AuthForm(
+                displayNameState = displayName,
+                emailState = email,
+                passwordState = password,
+                isLoginForm = isLoginForm,
+                emailLabel = emailLabel,
+                passwordLabel = passwordLabel,
+                displayNameLabel = displayNameLabel,
+                isErrorEmailValue = isErrorEmailValue,
+                isErrorPasswordValue = isErrorPasswordValue,
+                isErrorDisplayNameValue = isErrorDisplayNameValue,
+                registrationOnClick = {
+                    viewModel.registration(
+                        email = email.value.text,
+                        displayName = displayName.value.text,
+                        password = password.value.text
+                    )
+                },
+                loginOnClick = {
+                    viewModel.login(
+                        email = email.value.text,
+                        password = password.value.text
+                    )
                 }
-                AuthForm(
-                    displayNameState = displayName,
-                    emailState = email,
-                    passwordState = password,
-                    isLoginForm = isLoginForm,
-                    emailLabel = emailLabel,
-                    passwordLabel = passwordLabel,
-                    displayNameLabel = displayNameLabel,
-                    isErrorEmailValue = isErrorEmailValue,
-                    isErrorPasswordValue = isErrorPasswordValue,
-                    isErrorDisplayNameValue = isErrorDisplayNameValue,
-                    registrationOnClick = {
-                        viewModel.registration(
-                            email = email.value.text,
-                            displayName = displayName.value.text,
-                            password = password.value.text
-                        )
-                    },
-                    loginOnClick = {
-                        viewModel.login(
-                            email = email.value.text,
-                            password = password.value.text
-                        )
-                    }
-                )
-                if (uiState is AuthUiState.Error) {
-                    SnackBar(stringResource(uiState.errorResourceId))
-                }
+            )
+            uiState.errorResourceId?.let {
+                SnackBar(stringResource(it))
             }
         }
-    } else {
-        // draw something went wrong
     }
 }
 

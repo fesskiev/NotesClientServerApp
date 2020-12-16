@@ -4,13 +4,16 @@ import com.fesskiev.compose.data.Repository
 import com.fesskiev.compose.data.RepositoryImpl
 import com.fesskiev.compose.data.remote.provideKtorClient
 import com.fesskiev.compose.domain.*
-import com.fesskiev.compose.presentation.NotesViewModel
+import com.fesskiev.compose.presentation.AddNoteViewModel
+import com.fesskiev.compose.presentation.NotesListViewModel
 import com.fesskiev.compose.presentation.AuthViewModel
 import com.fesskiev.compose.ui.utils.FieldValidator
+import com.fesskiev.compose.ui.utils.NetworkManager
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {
+    single { NetworkManager(get()) }
     factory { FieldValidator() }
 }
 
@@ -19,12 +22,14 @@ val repositoryModule = module {
 }
 
 val viewModelModule = module {
-    viewModel { NotesViewModel(get(), get(), get()) }
+    viewModel { AddNoteViewModel(get()) }
+    viewModel { NotesListViewModel(get(), get(), get()) }
     viewModel { AuthViewModel(get(), get()) }
 }
 
 val useCaseModule = module {
-    factory { NotesUseCase(get()) }
+    factory { AddNoteUseCase(get()) }
+    factory { NotesListUseCase(get()) }
     factory { DeleteNoteUseCase(get()) }
     factory { EditNoteUseCase(get()) }
     factory { RegistrationUseCase(get(), get()) }
@@ -32,7 +37,7 @@ val useCaseModule = module {
 }
 
 val networkModule = module {
-    single { provideKtorClient() }
+    single { provideKtorClient(get()) }
 }
 
 val appModules = listOf(appModule, viewModelModule, useCaseModule, repositoryModule, networkModule)

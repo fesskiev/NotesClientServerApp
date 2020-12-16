@@ -8,6 +8,7 @@ import com.fesskiev.Routes.LOGIN
 import com.fesskiev.Routes.LOGOUT
 import com.fesskiev.Routes.REGISTRATION
 import com.fesskiev.compose.BuildConfig
+import com.fesskiev.compose.ui.utils.NetworkManager
 import com.fesskiev.model.JWTAuth
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
@@ -20,7 +21,7 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 
-fun provideKtorClient(): HttpClient = HttpClient(OkHttp) {
+fun provideKtorClient(networkManager: NetworkManager): HttpClient = HttpClient(OkHttp) {
     install(JsonFeature) {
         serializer = KotlinxSerializer()
     }
@@ -42,16 +43,19 @@ fun provideKtorClient(): HttpClient = HttpClient(OkHttp) {
         port = BuildConfig.PORT
     }
     engine {
-        addInterceptor(AppInterceptor())
+        addInterceptor(AppInterceptor(networkManager))
     }
 }
 
-class AppInterceptor : Interceptor {
+class AppInterceptor(val networkManager: NetworkManager) : Interceptor {
 
     private var jwtAuth: JWTAuth? = null
     private var session: String? = null
 
     override fun intercept(chain: Interceptor.Chain): Response {
+        if (!networkManager.isNetworkAvailable) {
+            throw NoNetworkException()
+        }
         val request = chain.request()
         val url = request.url.toString()
         val builder = request.newBuilder()
