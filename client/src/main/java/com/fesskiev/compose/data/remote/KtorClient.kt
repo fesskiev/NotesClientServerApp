@@ -8,6 +8,9 @@ import com.fesskiev.Routes.LOGIN
 import com.fesskiev.Routes.LOGOUT
 import com.fesskiev.Routes.REGISTRATION
 import com.fesskiev.compose.BuildConfig
+import com.fesskiev.compose.data.remote.exceptions.BadRequestException
+import com.fesskiev.compose.data.remote.exceptions.NoNetworkException
+import com.fesskiev.compose.data.remote.exceptions.UnauthorizedException
 import com.fesskiev.compose.ui.utils.NetworkManager
 import com.fesskiev.model.JWTAuth
 import io.ktor.client.*

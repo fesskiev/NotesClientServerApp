@@ -1,4 +1,4 @@
-package com.fesskiev.compose.data.remote
+package com.fesskiev.compose.data.remote.exceptions
 
 import androidx.annotation.StringRes
 import java.io.IOException

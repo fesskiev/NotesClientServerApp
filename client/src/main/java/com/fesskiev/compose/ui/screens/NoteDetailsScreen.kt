@@ -8,14 +8,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import com.fesskiev.model.Note
 
 @Composable
-fun NoteDetailsScreen(navController: NavHostController) {
+fun NoteDetailsScreen(navController: NavHostController, noteUid: Int) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "details note screen!")
+        Text(text = "details note screen!: $noteUid")
     }
 }

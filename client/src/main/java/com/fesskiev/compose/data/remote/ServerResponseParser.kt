@@ -14,6 +14,9 @@ import com.fesskiev.ServerErrorCodes.SESSION_NOT_FOUND
 import com.fesskiev.ServerErrorCodes.USER_NOT_CREATED
 import com.fesskiev.ServerErrorCodes.USER_NOT_FOUND
 import com.fesskiev.compose.R
+import com.fesskiev.compose.data.remote.exceptions.BadRequestException
+import com.fesskiev.compose.data.remote.exceptions.NoNetworkException
+import com.fesskiev.compose.data.remote.exceptions.UnauthorizedException
 import com.fesskiev.model.JWTAuth
 import com.fesskiev.model.ServerError
 import io.ktor.client.features.*

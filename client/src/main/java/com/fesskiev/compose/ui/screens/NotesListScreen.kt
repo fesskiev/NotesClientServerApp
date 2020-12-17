@@ -20,9 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.fesskiev.compose.R
+import com.fesskiev.compose.ui.utils.formatDate
 import com.fesskiev.model.Note
-import java.text.SimpleDateFormat
-import java.util.*
 
 @Composable
 fun NotesListScreen(
@@ -87,10 +86,8 @@ fun NoteItem(
                         note.title,
                         style = TextStyle(color = Color(0xFF272729), fontWeight = FontWeight.Bold)
                     )
-                    val formatter = SimpleDateFormat("dd.MM.yy hh:mm:ss")
-                    val formattedDate = formatter.format(Date(note.time))
                     Text(
-                        formattedDate,
+                        formatDate(note.time),
                         style = TextStyle(color = Color(0xFF272729), fontWeight = FontWeight.Normal)
                     )
                 }

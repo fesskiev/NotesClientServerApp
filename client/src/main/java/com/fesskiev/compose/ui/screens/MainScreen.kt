@@ -57,9 +57,11 @@ fun MainScreen(navController: NavHostController, viewModel: NotesListViewModel =
                     if (notes.isNotEmpty()) {
                         NotesListScreen(
                             notes,
-                            noteOnClick = { navController.navigate("note_details") },
+                            noteOnClick = { navController.navigate("note_details/${it.noteUid}") },
                             deleteNoteOnClick = { viewModel.deleteNote(it) },
-                            editNoteOnClick = { viewModel.editNote(it) })
+                            editNoteOnClick = {
+                                navController.navigate("edit_add/${it.noteUid}")
+                            })
                     } else {
                         EmptyView(stringResource(R.string.empty_notes_list))
                     }
