@@ -7,6 +7,7 @@ import com.fesskiev.compose.domain.*
 import com.fesskiev.compose.presentation.AddNoteViewModel
 import com.fesskiev.compose.presentation.NotesListViewModel
 import com.fesskiev.compose.presentation.AuthViewModel
+import com.fesskiev.compose.presentation.EditNoteViewModel
 import com.fesskiev.compose.ui.utils.FieldValidator
 import com.fesskiev.compose.ui.utils.NetworkManager
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -23,11 +24,13 @@ val repositoryModule = module {
 
 val viewModelModule = module {
     viewModel { AddNoteViewModel(get()) }
-    viewModel { NotesListViewModel(get(), get(), get()) }
+    viewModel { EditNoteViewModel(get(), get()) }
+    viewModel { NotesListViewModel(get(), get()) }
     viewModel { AuthViewModel(get(), get()) }
 }
 
 val useCaseModule = module {
+    factory { GetNoteByIdUseCase(get()) }
     factory { AddNoteUseCase(get()) }
     factory { NotesListUseCase(get()) }
     factory { DeleteNoteUseCase(get()) }

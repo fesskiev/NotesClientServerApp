@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -29,8 +30,10 @@ fun NotesListScreen(
     deleteNoteOnClick: (Note) -> Unit,
     editNoteOnClick: (Note) -> Unit
 ) {
-    LazyColumnFor(notes) { note ->
-        NoteItem(note, noteOnClick, deleteNoteOnClick, editNoteOnClick)
+    LazyColumn {
+        items(notes) { note ->
+            NoteItem(note, noteOnClick, deleteNoteOnClick, editNoteOnClick)
+        }
     }
 }
 
@@ -42,14 +45,13 @@ fun NoteItem(
     editNoteOnClick: (Note) -> Unit
 ) {
     WithConstraints {
-        val max = 0.dp
-        val min = (-150).dp
+        val max = 0f
+        val min = -160f
         val offsetPositionX = remember { mutableStateOf(0f) }
-        val offsetPositionY = remember { mutableStateOf(0f) }
         Box(
             Modifier.draggable(orientation = Orientation.Horizontal) { delta ->
                 val newValue = offsetPositionX.value + delta
-                offsetPositionX.value = newValue.coerceIn(min.toPx(), max.toPx())
+                offsetPositionX.value = newValue.coerceIn(min, max)
             }
         ) {
             Row(
@@ -76,7 +78,7 @@ fun NoteItem(
             }
             Card(
                 modifier = Modifier.fillMaxWidth().height(72.dp).padding(4.dp, 2.dp, 4.dp, 2.dp)
-                    .offset({ offsetPositionX.value }, { offsetPositionY.value })
+                    .offset( offsetPositionX.value.dp , 0.dp )
                     .clickable(onClick = { noteOnClick(note) }), elevation = 4.dp
             ) {
                 Column(

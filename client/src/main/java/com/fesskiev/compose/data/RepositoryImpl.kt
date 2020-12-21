@@ -26,7 +26,7 @@ import kotlinx.coroutines.withContext
 
 class RepositoryImpl(private val httpClient: HttpClient) : Repository {
 
-    val notes: MutableList<Note> = mutableListOf()
+    private val notes: MutableList<Note> = mutableListOf()
     var isNotesCacheExpired: Boolean = true
 
     override suspend fun getNotes(): List<Note> = withContext(Dispatchers.IO) {
@@ -37,6 +37,8 @@ class RepositoryImpl(private val httpClient: HttpClient) : Repository {
         }
         return@withContext notes
     }
+
+    override suspend fun getNoteById(noteUid: Int): Note = notes.first { it.noteUid == noteUid }
 
     override suspend fun addNote(title: String, description: String, pictureUrl: String?): Note =
         withContext(Dispatchers.IO) {
@@ -53,7 +55,19 @@ class RepositoryImpl(private val httpClient: HttpClient) : Repository {
             return@withContext newNote
         }
 
-    override suspend fun editNote(note: Note): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun editNote(
+        noteUid: Int,
+        title: String,
+        description: String,
+        pictureUrl: String?
+    ): Boolean = withContext(Dispatchers.IO) {
+        val note = getNoteById(noteUid).copy(
+            noteUid = noteUid,
+            title = title,
+            description = description,
+            pictureUrl = pictureUrl
+        )
+
         val edited = httpClient.put<Boolean>(EDIT_NOTE) {
             body = defaultSerializer().write(note)
         }

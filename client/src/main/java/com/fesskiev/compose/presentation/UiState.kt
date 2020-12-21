@@ -30,3 +30,13 @@ data class AddNoteUiState(
     @StringRes
     val errorResourceId: Int? = null,
 )
+
+data class EditNoteUiState(
+    val loading: Boolean = false,
+    val note: Note? = null,
+    val success: Boolean = false,
+    val isEmptyTitle: Boolean = false,
+    val isEmptyDescription: Boolean = false,
+    @StringRes
+    val errorResourceId: Int? = null,
+)

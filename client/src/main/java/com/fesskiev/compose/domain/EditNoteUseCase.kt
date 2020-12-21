@@ -1,20 +1,25 @@
 package com.fesskiev.compose.domain
 
-import com.fesskiev.compose.R
 import com.fesskiev.compose.data.Repository
-import com.fesskiev.compose.presentation.NotesListUiState
-import com.fesskiev.model.Note
+import com.fesskiev.compose.presentation.EditNoteUiState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 class EditNoteUseCase(private val repository: Repository) {
 
-    suspend fun editNote(note: Note): Flow<NotesListUiState> = flow {
-        val result = repository.editNote(note)
-        if (result) {
-            val notes = repository.getNotes()
-            return@flow emit(NotesListUiState(notes = notes))
+    fun editNote(
+        noteUid: Int,
+        title: String,
+        description: String,
+        pictureUrl: String?
+    ): Flow<EditNoteUiState> = flow {
+        if (title.isEmpty()) {
+            return@flow emit(EditNoteUiState(isEmptyTitle = true))
         }
-        emit(NotesListUiState(errorResourceId = R.string.error_edit_note))
+        if (description.isEmpty()) {
+            return@flow emit(EditNoteUiState(isEmptyDescription = true))
+        }
+        repository.editNote(noteUid, title, description, pictureUrl)
+        emit(EditNoteUiState(success = true))
     }
 }

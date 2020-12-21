@@ -10,13 +10,13 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
-class AddNoteViewModel(private val addNoteUseCase: AddNoteUseCase) : ViewModel() {
+class AddNoteViewModel(private val useCase: AddNoteUseCase) : ViewModel() {
 
     val stateFlow = MutableStateFlow(AddNoteUiState())
 
     fun addNote(title: String, description: String, pictureUrl: String?) {
         viewModelScope.launch {
-            addNoteUseCase.addNote(title, description, pictureUrl)
+            useCase.addNote(title, description, pictureUrl)
                 .onStart {
                     stateFlow.value = AddNoteUiState(loading = true)
                 }

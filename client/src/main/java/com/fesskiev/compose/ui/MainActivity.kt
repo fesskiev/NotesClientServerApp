@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
                             noteUid = backStackEntry.arguments?.getInt("noteUid") ?: -1,
                         )
                     }
-                    composable("edit_add/{noteUid}", arguments = listOf(navArgument("noteUid")
+                    composable("edit_note/{noteUid}", arguments = listOf(navArgument("noteUid")
                     { type = NavType.IntType })) { backStackEntry ->
                         EditNoteScreen(
                             navController,
