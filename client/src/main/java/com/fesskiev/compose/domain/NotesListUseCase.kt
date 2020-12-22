@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.flow
 
 class NotesListUseCase(private val repository: Repository) {
 
-    suspend fun getNotes(): Flow<NotesListUiState> = flow {
+    fun getNotes(): Flow<NotesListUiState> = flow {
         val notes = repository.getNotes()
         emit(NotesListUiState(notes = notes))
     }

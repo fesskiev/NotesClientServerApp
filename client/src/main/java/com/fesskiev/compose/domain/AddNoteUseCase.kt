@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.flow
 
 class AddNoteUseCase(private val repository: Repository) {
 
-    suspend fun addNote(title: String, description: String, pictureUrl: String?): Flow<AddNoteUiState> = flow {
+    fun addNote(title: String, description: String, pictureUrl: String?): Flow<AddNoteUiState> = flow {
         if (title.isEmpty()) {
             return@flow emit(AddNoteUiState(isEmptyTitle = true))
         }

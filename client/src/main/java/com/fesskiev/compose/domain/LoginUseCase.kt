@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.flow
 
 class LoginUseCase(private val repository: Repository, private val validator: FieldValidator) {
 
-    suspend fun login(email: String, password: String): Flow<AuthUiState> = flow {
+    fun login(email: String, password: String): Flow<AuthUiState> = flow {
         if (validator.emptyEmail(email)) {
             return@flow emit(AuthUiState(isEmptyEmailError = true))
         }

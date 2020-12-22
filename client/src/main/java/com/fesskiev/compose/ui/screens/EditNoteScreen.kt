@@ -1,6 +1,5 @@
 package com.fesskiev.compose.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,18 +32,15 @@ fun EditNoteScreen(
     viewModel: EditNoteViewModel = getViewModel(),
     noteUid: Int
 ) {
-    Log.wtf("test", "root")
     val title = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     val description = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     val pictureUrl = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     viewModel.getNoteByUid(noteUid)
     Scaffold(topBar = {
-        Log.wtf("test", "app bar")
         AppBackToolbar(stringResource(R.string.add_note)) {
             navController.popBackStack()
         }
     }, bodyContent = {
-        Log.wtf("test", "body")
         val uiState = viewModel.stateFlow.collectAsState().value
         when {
             uiState.loading -> ProgressBar()
@@ -68,7 +64,6 @@ fun EditNoteScreen(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Log.wtf("test", "column")
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                         value = title.value,

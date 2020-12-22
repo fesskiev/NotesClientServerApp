@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.flow
 
 class RegistrationUseCase(private val repository: Repository, private val validator: FieldValidator) {
 
-    suspend fun registration(email: String, displayName: String, password: String): Flow<AuthUiState> = flow {
+    fun registration(email: String, displayName: String, password: String): Flow<AuthUiState> = flow {
         if (validator.emptyDisplayName(displayName)) {
             return@flow emit(AuthUiState(isEmptyDisplayNameError = true))
         }

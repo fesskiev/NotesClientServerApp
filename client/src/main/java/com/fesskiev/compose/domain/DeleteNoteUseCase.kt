@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.flow
 
 class DeleteNoteUseCase(private val repository: Repository) {
 
-    suspend fun deleteNote(note: Note): Flow<NotesListUiState> = flow {
+    fun deleteNote(note: Note): Flow<NotesListUiState> = flow {
         val result = repository.deleteNote(note)
         if (result) {
             val notes = repository.getNotes()
