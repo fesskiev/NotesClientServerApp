@@ -43,7 +43,7 @@ class EditNoteViewModel(
                 .catch {
                     stateFlow.value = EditNoteUiState(errorResourceId = parseHttpError(it))
                 }.collect {
-                    stateFlow.value = it
+                    stateFlow.value =  EditNoteUiState(note = it)
                 }
         }
     }

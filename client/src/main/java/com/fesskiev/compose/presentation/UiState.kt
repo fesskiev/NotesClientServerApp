@@ -40,3 +40,10 @@ data class EditNoteUiState(
     @StringRes
     val errorResourceId: Int? = null,
 )
+
+data class NoteDetailsUiState(
+    val loading: Boolean = false,
+    val note: Note? = null,
+    @StringRes
+    val errorResourceId: Int? = null,
+)
