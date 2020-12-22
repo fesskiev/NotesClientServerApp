@@ -5,10 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.fesskiev.compose.data.remote.parseHttpError
 import com.fesskiev.compose.domain.EditNoteUseCase
 import com.fesskiev.compose.domain.GetNoteByIdUseCase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class EditNoteViewModel(
@@ -37,6 +35,10 @@ class EditNoteViewModel(
             getNoteByIdUseCase.getNoteByUid(noteUid)
                 .onStart {
                     stateFlow.value = EditNoteUiState(loading = true)
+                }
+                .onCompletion {
+                    delay(100)
+                    stateFlow.value = EditNoteUiState(note = null)
                 }
                 .catch {
                     stateFlow.value = EditNoteUiState(errorResourceId = parseHttpError(it))

@@ -2,9 +2,7 @@ package com.fesskiev.compose.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -13,8 +11,6 @@ import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -22,16 +18,15 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
 import com.fesskiev.compose.R
 import com.fesskiev.compose.presentation.AuthViewModel
-import com.fesskiev.compose.ui.components.ProgressBar
-import com.fesskiev.compose.ui.components.SnackBar
+import com.fesskiev.compose.ui.components.*
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun AuthScreen(navController: NavController, viewModel: AuthViewModel = getViewModel()) {
-    val displayName = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    val email = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue("test1@i.ua") }
-    val password = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue("123456") }
-    var isLoginForm = savedInstanceState { true }
+    val displayNameState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
+    val emailState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue("test1@i.ua") }
+    val passwordState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue("123456") }
+    var isLoginFormState = savedInstanceState { true }
 
     val uiState = viewModel.stateFlow.collectAsState().value
     when {
@@ -55,10 +50,10 @@ fun AuthScreen(navController: NavController, viewModel: AuthViewModel = getViewM
             val displayNameLabel = stringResource(R.string.error_empty_display_name)
 
             AuthForm(
-                displayNameState = displayName,
-                emailState = email,
-                passwordState = password,
-                isLoginForm = isLoginForm,
+                displayNameState = displayNameState,
+                emailState = emailState,
+                passwordState = passwordState,
+                isLoginFormState = isLoginFormState,
                 emailLabel = emailLabel,
                 passwordLabel = passwordLabel,
                 displayNameLabel = displayNameLabel,
@@ -67,15 +62,15 @@ fun AuthScreen(navController: NavController, viewModel: AuthViewModel = getViewM
                 isErrorDisplayNameValue = isErrorDisplayNameValue,
                 registrationOnClick = {
                     viewModel.registration(
-                        email = email.value.text,
-                        displayName = displayName.value.text,
-                        password = password.value.text
+                        email = emailState.value.text,
+                        displayName = displayNameState.value.text,
+                        password = passwordState.value.text
                     )
                 },
                 loginOnClick = {
                     viewModel.login(
-                        email = email.value.text,
-                        password = password.value.text
+                        email = emailState.value.text,
+                        password = passwordState.value.text
                     )
                 }
             )
@@ -91,7 +86,7 @@ fun AuthForm(
     displayNameState: MutableState<TextFieldValue>,
     emailState: MutableState<TextFieldValue>,
     passwordState: MutableState<TextFieldValue>,
-    isLoginForm: MutableState<Boolean>,
+    isLoginFormState: MutableState<Boolean>,
     emailLabel: String,
     passwordLabel: String,
     displayNameLabel: String,
@@ -107,7 +102,7 @@ fun AuthForm(
     ) {
         Text(
             text = when {
-                isLoginForm.value -> stringResource(R.string.login)
+                isLoginFormState.value -> stringResource(R.string.login)
                 else -> stringResource(R.string.registration)
             },
             modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
@@ -117,32 +112,26 @@ fun AuthForm(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             var onClick = loginOnClick
-            if (!isLoginForm.value) {
+            if (!isLoginFormState.value) {
                 onClick = registrationOnClick
-                OutlinedTextField(
+                AsciiTextField(
+                    label = displayNameLabel,
+                    textFieldState = displayNameState,
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    value = displayNameState.value,
-                    onValueChange = { displayNameState.value = it },
-                    label = { Text(displayNameLabel) },
                     isErrorValue = isErrorDisplayNameValue
                 )
             }
-            OutlinedTextField(
+            EmailTextField(
+                label = emailLabel,
+                textFieldState = emailState,
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                value = emailState.value,
-                onValueChange = { emailState.value = it },
-                label = { Text(emailLabel) },
                 isErrorValue = isErrorEmailValue,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
-            OutlinedTextField(
+            PasswordTextField(
+                label = passwordLabel,
+                textFieldState = passwordState,
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                value = passwordState.value,
-                onValueChange = { passwordState.value = it },
-                label = { Text(passwordLabel) },
-                isErrorValue = isErrorPasswordValue,
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                isErrorValue = isErrorPasswordValue
             )
             Button(
                 modifier = Modifier.padding(top = 8.dp).height(48.dp).align(Alignment.End),
@@ -154,11 +143,11 @@ fun AuthForm(
         Text(
             modifier = Modifier.padding(top = 8.dp).clickable(
                 onClick = {
-                    isLoginForm.value = !isLoginForm.value
+                    isLoginFormState.value = !isLoginFormState.value
                 },
             ),
             text = when {
-                isLoginForm.value -> stringResource(R.string.registration)
+                isLoginFormState.value -> stringResource(R.string.registration)
                 else -> stringResource(R.string.login)
             },
             textDecoration = TextDecoration.Underline
