@@ -18,9 +18,10 @@ fun AsciiTextField(
 ) {
     OutlinedTextField(
         modifier = modifier,
+        textStyle = MaterialTheme.typography.body2,
         value = textFieldState.value,
         onValueChange = { textFieldState.value = it },
-        label = { Text(label) },
+        label = { Text(text = label, style = MaterialTheme.typography.body2) },
         isErrorValue = isErrorValue,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii)
     )
@@ -35,9 +36,10 @@ fun EmailTextField(
 ) {
     OutlinedTextField(
         modifier = modifier,
+        textStyle = MaterialTheme.typography.body2,
         value = textFieldState.value,
         onValueChange = { textFieldState.value = it },
-        label = { Text(label) },
+        label = { Text(text = label, style = MaterialTheme.typography.body2) },
         isErrorValue = isErrorValue,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
     )
@@ -54,9 +56,10 @@ fun PasswordTextField(
     val showPassword = remember { mutableStateOf(false) }
     OutlinedTextField(
         modifier = modifier,
+        textStyle = MaterialTheme.typography.body2,
         value = textFieldState.value,
         onValueChange = { textFieldState.value = it },
-        label = { Text(label) },
+        label = { Text(text = label, style = MaterialTheme.typography.body2) },
         isErrorValue = isErrorValue,
         visualTransformation = if (showPassword.value) {
             VisualTransformation.None

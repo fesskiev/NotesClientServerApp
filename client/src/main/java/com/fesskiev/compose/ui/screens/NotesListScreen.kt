@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -13,11 +12,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.WithConstraints
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.fesskiev.compose.R
@@ -44,6 +40,7 @@ fun NoteItem(
     deleteNoteOnClick: (Note) -> Unit,
     editNoteOnClick: (Note) -> Unit
 ) {
+    val height = 100.dp
     WithConstraints {
         val max = 0f
         val min = -160f
@@ -57,7 +54,7 @@ fun NoteItem(
             Row(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().height(72.dp)
+                modifier = Modifier.fillMaxWidth().height(height)
             ) {
                 Image(
                     imageVector = vectorResource(R.drawable.ic_delete),
@@ -77,21 +74,16 @@ fun NoteItem(
                 )
             }
             Card(
-                modifier = Modifier.fillMaxWidth().height(72.dp).padding(4.dp, 2.dp, 4.dp, 2.dp)
-                    .offset( offsetPositionX.value.dp , 0.dp )
+                modifier = Modifier.fillMaxWidth().height(height).padding(4.dp, 2.dp, 4.dp, 2.dp)
+                    .offset(offsetPositionX.value.dp, 0.dp)
                     .clickable(onClick = { noteOnClick(note) }), elevation = 4.dp
             ) {
                 Column(
                     modifier = Modifier.wrapContentSize(Alignment.CenterStart).padding(start = 8.dp)
                 ) {
-                    Text(
-                        note.title,
-                        style = TextStyle(color = Color(0xFF272729), fontWeight = FontWeight.Bold)
-                    )
-                    Text(
-                        formatDate(note.time),
-                        style = TextStyle(color = Color(0xFF272729), fontWeight = FontWeight.Normal)
-                    )
+                    Text(text = note.title, style = MaterialTheme.typography.h6)
+                    Spacer(Modifier.preferredHeight(8.dp))
+                    Text(text = formatDate(note.time), style = MaterialTheme.typography.body2)
                 }
             }
         }

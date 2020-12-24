@@ -1,6 +1,7 @@
 package com.fesskiev.compose.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -31,38 +32,41 @@ fun NoteDetailsScreen(
         AppBackToolbar(stringResource(R.string.note_details)) {
             navController.popBackStack()
         }
-    }, bodyContent = {
-        val uiState = viewModel.stateFlow.collectAsState().value
-        when {
-            uiState.loading -> ProgressBar()
-            uiState.note != null -> NoteDetails(uiState.note)
-            else -> {
-                uiState.errorResourceId?.let {
-                    SnackBar(stringResource(it))
-                }
+    }, bodyContent = { NoteDetailsContent(viewModel) })
+}
+
+@Composable
+fun NoteDetailsContent(viewModel: NotesDetailsViewModel) {
+    val uiState = viewModel.stateFlow.collectAsState().value
+    when {
+        uiState.loading -> ProgressBar()
+        uiState.note != null -> NoteDetails(uiState.note)
+        else -> {
+            uiState.errorResourceId?.let {
+                SnackBar(stringResource(it))
             }
         }
-    })
+    }
 }
 
 @Composable
 fun NoteDetails(note: Note) {
-    Column(modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        Spacer(Modifier.preferredHeight(16.dp))
-        Text(text = note.title)
-        Spacer(Modifier.preferredHeight(16.dp))
-        Text(text = note.description)
-        Spacer(Modifier.preferredHeight(16.dp))
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(Modifier.preferredHeight(25.dp))
+        Text(text = note.title, style = MaterialTheme.typography.h5)
+        Spacer(Modifier.preferredHeight(20.dp))
+        Text(text = note.description, style = MaterialTheme.typography.body1)
+        Spacer(Modifier.preferredHeight(25.dp))
         note.pictureUrl?.let {
             CoilImage(
                 data = it,
                 fadeIn = true,
                 contentScale = ContentScale.Crop,
-                loading = {
-
-                },
-                modifier = Modifier.preferredSize(164.dp)
+                loading = { ProgressBar() },
+                modifier = Modifier.preferredSize(300.dp)
             )
         }
     }

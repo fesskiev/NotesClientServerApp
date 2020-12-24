@@ -16,7 +16,7 @@
 
         <activity
             android:name=".ui.MainActivity"
-            android:theme="@style/Theme.Compose.NoActionBar">
+            android:theme="@style/Theme.Compose">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

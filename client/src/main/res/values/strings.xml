@@ -17,6 +17,8 @@
     <string name="note_picture_url">Picture URL</string>
     <string name="note_added">Note added</string>
     <string name="empty_notes_list">Empty notes list</string>
+    <string name="hide">Hide</string>
+    <string name="dark_theme">Dark Theme</string>
 
     <string name="error_empty_display_name">Empty display name</string>
     <string name="error_empty_email">Empty email</string>
