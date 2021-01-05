@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -31,53 +32,55 @@ fun AuthScreen(navController: NavController, viewModel: AuthViewModel = getViewM
 
     val uiState = viewModel.stateFlow.collectAsState().value
     when {
-        uiState.success -> navController.navigate("main")
+        uiState.authState.success -> navController.navigate("main")
         uiState.loading -> ProgressBar()
         else -> {
-            var isErrorEmailValue = uiState.isEmptyEmailError || uiState.isValidateEmailError
+            var isErrorEmailValue = uiState.authState.isEmptyEmailError || uiState.authState.isValidateEmailError
             var isErrorPasswordValue =
-                uiState.isEmptyPasswordError || uiState.isValidatePasswordError
-            var isErrorDisplayNameValue = uiState.isEmptyDisplayNameError
+                uiState.authState.isEmptyPasswordError || uiState.authState.isValidatePasswordError
+            var isErrorDisplayNameValue = uiState.authState.isEmptyDisplayNameError
             val emailLabel = when {
-                uiState.isEmptyEmailError -> stringResource(R.string.error_empty_email)
-                uiState.isValidateEmailError -> stringResource(R.string.error_validate_email)
+                uiState.authState.isEmptyEmailError -> stringResource(R.string.error_empty_email)
+                uiState.authState.isValidateEmailError -> stringResource(R.string.error_validate_email)
                 else -> stringResource(R.string.email)
             }
             val passwordLabel = when {
-                uiState.isEmptyPasswordError -> stringResource(R.string.error_empty_password)
-                uiState.isValidatePasswordError -> stringResource(R.string.error_validate_password)
+                uiState.authState.isEmptyPasswordError -> stringResource(R.string.error_empty_password)
+                uiState.authState.isValidatePasswordError -> stringResource(R.string.error_validate_password)
                 else -> stringResource(R.string.password)
             }
             val displayNameLabel = stringResource(R.string.error_empty_display_name)
 
-            AuthForm(
-                displayNameState = displayNameState,
-                emailState = emailState,
-                passwordState = passwordState,
-                isLoginFormState = isLoginFormState,
-                emailLabel = emailLabel,
-                passwordLabel = passwordLabel,
-                displayNameLabel = displayNameLabel,
-                isErrorEmailValue = isErrorEmailValue,
-                isErrorPasswordValue = isErrorPasswordValue,
-                isErrorDisplayNameValue = isErrorDisplayNameValue,
-                registrationOnClick = {
-                    viewModel.registration(
-                        email = emailState.value.text,
-                        displayName = displayNameState.value.text,
-                        password = passwordState.value.text
-                    )
-                },
-                loginOnClick = {
-                    viewModel.login(
-                        email = emailState.value.text,
-                        password = passwordState.value.text
-                    )
+            Scaffold(bodyContent = {
+                AuthForm(
+                    displayNameState = displayNameState,
+                    emailState = emailState,
+                    passwordState = passwordState,
+                    isLoginFormState = isLoginFormState,
+                    emailLabel = emailLabel,
+                    passwordLabel = passwordLabel,
+                    displayNameLabel = displayNameLabel,
+                    isErrorEmailValue = isErrorEmailValue,
+                    isErrorPasswordValue = isErrorPasswordValue,
+                    isErrorDisplayNameValue = isErrorDisplayNameValue,
+                    registrationOnClick = {
+                        viewModel.registration(
+                            email = emailState.value.text,
+                            displayName = displayNameState.value.text,
+                            password = passwordState.value.text
+                        )
+                    },
+                    loginOnClick = {
+                        viewModel.login(
+                            email = emailState.value.text,
+                            password = passwordState.value.text
+                        )
+                    }
+                )
+                uiState.errorResourceId?.let {
+                    SnackBar(stringResource(it))
                 }
-            )
-            uiState.errorResourceId?.let {
-                SnackBar(stringResource(it))
-            }
+            })
         }
     }
 }

@@ -37,14 +37,14 @@ fun AddNoteScreen(navController: NavHostController, viewModel: AddNoteViewModel 
         val uiState = viewModel.stateFlow.collectAsState().value
         when {
             uiState.loading -> ProgressBar()
-            uiState.success -> navController.popBackStack()
+            uiState.addNoteState.success -> navController.popBackStack()
             else -> {
                 val titleLabel = when {
-                    uiState.isEmptyTitle -> stringResource(R.string.error_empty_title)
+                    uiState.addNoteState.isEmptyTitle -> stringResource(R.string.error_empty_title)
                     else -> stringResource(R.string.note_title)
                 }
                 val descriptionLabel = when {
-                    uiState.isEmptyDescription -> stringResource(R.string.error_empty_desc)
+                    uiState.addNoteState.isEmptyDescription -> stringResource(R.string.error_empty_desc)
                     else -> stringResource(R.string.note_description)
                 }
                 Column(
@@ -55,13 +55,13 @@ fun AddNoteScreen(navController: NavHostController, viewModel: AddNoteViewModel 
                         label = titleLabel,
                         textFieldState = titleState,
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                        isErrorValue = uiState.isEmptyTitle
+                        isErrorValue = uiState.addNoteState.isEmptyTitle
                     )
                     AsciiTextField(
                         label = descriptionLabel,
                         textFieldState = descriptionState,
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                        isErrorValue = uiState.isEmptyDescription,
+                        isErrorValue = uiState.addNoteState.isEmptyDescription,
                     )
                     AsciiTextField(
                         label = stringResource(R.string.note_picture_url),

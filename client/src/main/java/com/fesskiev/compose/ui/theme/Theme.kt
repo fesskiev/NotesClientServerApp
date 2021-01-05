@@ -14,7 +14,7 @@ private val LightColors = lightColors(
     secondary = BlueLight700,
     secondaryVariant = BlueLight900,
     onSecondary = Color.White,
-    error = BlueLight800
+    error = Red800
 )
 
 private val DarkColors = darkColors(
@@ -23,7 +23,7 @@ private val DarkColors = darkColors(
     onPrimary = Color.Black,
     secondary = BlueLight300,
     onSecondary = Color.White,
-    error = BlueLight200
+    error = Red300
 )
 
 @Composable

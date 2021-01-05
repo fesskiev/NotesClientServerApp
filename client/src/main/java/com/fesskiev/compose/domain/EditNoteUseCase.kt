@@ -1,7 +1,7 @@
 package com.fesskiev.compose.domain
 
 import com.fesskiev.compose.data.Repository
-import com.fesskiev.compose.presentation.EditNoteUiState
+import com.fesskiev.compose.presentation.EditNoteState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -12,14 +12,14 @@ class EditNoteUseCase(private val repository: Repository) {
         title: String,
         description: String,
         pictureUrl: String?
-    ): Flow<EditNoteUiState> = flow {
+    ): Flow<EditNoteState> = flow {
         if (title.isEmpty()) {
-            return@flow emit(EditNoteUiState(isEmptyTitle = true))
+            return@flow emit(EditNoteState(isEmptyTitle = true))
         }
         if (description.isEmpty()) {
-            return@flow emit(EditNoteUiState(isEmptyDescription = true))
+            return@flow emit(EditNoteState(isEmptyDescription = true))
         }
         repository.editNote(noteUid, title, description, pictureUrl)
-        emit(EditNoteUiState(success = true))
+        emit(EditNoteState(success = true))
     }
 }

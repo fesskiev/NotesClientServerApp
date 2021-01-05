@@ -28,7 +28,7 @@ fun MainScreen(navController: NavHostController, viewModel: NotesListViewModel =
             })
         },
         drawerContent = {
-            AppDrawer(settingsOnClick = {
+            AppDrawer(onSettingsClick = {
                 scaffoldState.drawerState.close(onClosed = {
                     navController.navigate("settings")
                 })
@@ -70,10 +70,10 @@ fun MainScreen(navController: NavHostController, viewModel: NotesListViewModel =
 }
 
 @Composable
-fun AppDrawer(settingsOnClick: () -> Unit) {
+fun AppDrawer(onSettingsClick: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
         Spacer(Modifier.preferredHeight(24.dp))
-        TextButton(onClick = { settingsOnClick() }, modifier = Modifier.fillMaxWidth()) {
+        TextButton(onClick = { onSettingsClick() }, modifier = Modifier.fillMaxWidth()) {
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
                 Image(imageVector = vectorResource(R.drawable.ic_settings))
                 Spacer(Modifier.preferredWidth(16.dp))

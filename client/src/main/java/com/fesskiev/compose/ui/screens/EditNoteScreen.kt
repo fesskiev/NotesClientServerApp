@@ -35,14 +35,14 @@ fun EditNoteScreen(
     val pictureUrlState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     viewModel.getNoteByUid(noteUid)
     Scaffold(topBar = {
-        AppBackToolbar(stringResource(R.string.add_note)) {
+        AppBackToolbar(stringResource(R.string.edit_note)) {
             navController.popBackStack()
         }
     }, bodyContent = {
         val uiState = viewModel.stateFlow.collectAsState().value
         when {
             uiState.loading -> ProgressBar()
-            uiState.success -> navController.popBackStack()
+            uiState.editNoteState.success -> navController.popBackStack()
             else -> {
                 if (uiState.note != null) {
                     val note = uiState.note
@@ -51,11 +51,11 @@ fun EditNoteScreen(
                     pictureUrlState.value = TextFieldValue(note.pictureUrl ?: "")
                 }
                 val titleLabel = when {
-                    uiState.isEmptyTitle -> stringResource(R.string.error_empty_title)
+                    uiState.editNoteState.isEmptyTitle -> stringResource(R.string.error_empty_title)
                     else -> stringResource(R.string.note_title)
                 }
                 val descriptionLabel = when {
-                    uiState.isEmptyDescription -> stringResource(R.string.error_empty_desc)
+                    uiState.editNoteState.isEmptyDescription -> stringResource(R.string.error_empty_desc)
                     else -> stringResource(R.string.note_description)
                 }
                 Column(
@@ -66,13 +66,13 @@ fun EditNoteScreen(
                         label = titleLabel,
                         textFieldState = titleState,
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                        isErrorValue = uiState.isEmptyTitle
+                        isErrorValue = uiState.editNoteState.isEmptyTitle
                     )
                     AsciiTextField(
                         label = descriptionLabel,
                         textFieldState = descriptionState,
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                        isErrorValue = uiState.isEmptyDescription,
+                        isErrorValue = uiState.editNoteState.isEmptyDescription,
                     )
                     AsciiTextField(
                         label = stringResource(R.string.note_picture_url),

@@ -1,7 +1,7 @@
 package com.fesskiev.compose.ui
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.setContent
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -11,7 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.fesskiev.compose.ui.screens.*
 import com.fesskiev.compose.ui.theme.AppTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,15 +23,19 @@ class MainActivity : ComponentActivity() {
                     composable("main") { MainScreen(navController) }
                     composable("settings") { SettingsScreen(navController) }
                     composable("add_note") { AddNoteScreen(navController) }
-                    composable("note_details/{noteUid}", arguments = listOf(navArgument("noteUid")
-                    { type = NavType.IntType })) { backStackEntry ->
+                    composable(
+                        "note_details/{noteUid}", arguments = listOf(navArgument("noteUid")
+                        { type = NavType.IntType })
+                    ) { backStackEntry ->
                         NoteDetailsScreen(
                             navController,
                             noteUid = backStackEntry.arguments?.getInt("noteUid") ?: -1,
                         )
                     }
-                    composable("edit_note/{noteUid}", arguments = listOf(navArgument("noteUid")
-                    { type = NavType.IntType })) { backStackEntry ->
+                    composable(
+                        "edit_note/{noteUid}", arguments = listOf(navArgument("noteUid")
+                        { type = NavType.IntType })
+                    ) { backStackEntry ->
                         EditNoteScreen(
                             navController,
                             noteUid = backStackEntry.arguments?.getInt("noteUid") ?: -1,

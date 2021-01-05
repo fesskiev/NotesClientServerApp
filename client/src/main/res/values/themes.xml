@@ -1,9 +1,7 @@
 <resources>
 
-    <style name="Theme.Compose" parent="Theme.Material.DayNight.NoActionBar">
+    <style name="Theme.Compose" parent="@style/Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:statusBarColor">@color/status_bar</item>
     </style>
-
-    <style name="Theme.Material.DayNight.NoActionBar" parent="@android:style/Theme.Material.Light.NoActionBar" />
 
 </resources>

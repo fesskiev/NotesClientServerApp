@@ -13,6 +13,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.fesskiev.compose.R
+import com.fesskiev.compose.presentation.NoteDetailsUiState
 import com.fesskiev.compose.presentation.NotesDetailsViewModel
 import com.fesskiev.compose.ui.components.AppBackToolbar
 import com.fesskiev.compose.ui.components.ProgressBar
@@ -27,17 +28,18 @@ fun NoteDetailsScreen(
     viewModel: NotesDetailsViewModel = getViewModel(),
     noteUid: Int
 ) {
+    val uiState = viewModel.stateFlow.collectAsState().value
     viewModel.getNoteByUid(noteUid)
+
     Scaffold(topBar = {
         AppBackToolbar(stringResource(R.string.note_details)) {
             navController.popBackStack()
         }
-    }, bodyContent = { NoteDetailsContent(viewModel) })
+    }, bodyContent = { NoteDetailsContent(uiState) })
 }
 
 @Composable
-fun NoteDetailsContent(viewModel: NotesDetailsViewModel) {
-    val uiState = viewModel.stateFlow.collectAsState().value
+fun NoteDetailsContent(uiState: NoteDetailsUiState) {
     when {
         uiState.loading -> ProgressBar()
         uiState.note != null -> NoteDetails(uiState.note)

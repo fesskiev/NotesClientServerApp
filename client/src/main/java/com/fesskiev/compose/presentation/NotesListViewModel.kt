@@ -14,7 +14,8 @@ import kotlinx.coroutines.launch
 
 class NotesListViewModel(
     private val notesListUseCase: NotesListUseCase,
-    private val deleteNoteUseCase: DeleteNoteUseCase) : ViewModel() {
+    private val deleteNoteUseCase: DeleteNoteUseCase
+) : ViewModel() {
 
     val stateFlow = MutableStateFlow(NotesListUiState())
 
@@ -22,12 +23,14 @@ class NotesListViewModel(
         viewModelScope.launch {
             notesListUseCase.getNotes()
                 .onStart {
-                    stateFlow.value = NotesListUiState(loading = true)
+                    stateFlow.value = stateFlow.value.copy(loading = true, errorResourceId = null)
                 }
                 .catch {
-                    stateFlow.value = NotesListUiState(errorResourceId = parseHttpError(it))
+                    stateFlow.value =
+                        stateFlow.value.copy(loading = false, errorResourceId = parseHttpError(it))
                 }.collect {
-                    stateFlow.value = it
+                    stateFlow.value =
+                        stateFlow.value.copy(loading = false, notes = it, errorResourceId = null)
                 }
         }
     }
@@ -36,12 +39,14 @@ class NotesListViewModel(
         viewModelScope.launch {
             deleteNoteUseCase.deleteNote(note)
                 .onStart {
-                    stateFlow.value = NotesListUiState(loading = true)
+                    stateFlow.value = stateFlow.value.copy(loading = true, errorResourceId = null)
                 }
                 .catch {
-                    stateFlow.value = NotesListUiState(errorResourceId = parseHttpError(it))
+                    stateFlow.value =
+                        stateFlow.value.copy(loading = false, errorResourceId = parseHttpError(it))
                 }.collect {
-                    stateFlow.value = it
+                    stateFlow.value =
+                        stateFlow.value.copy(loading = false, notes = it.notes, errorResourceId = it.errorResourceId)
                 }
         }
     }

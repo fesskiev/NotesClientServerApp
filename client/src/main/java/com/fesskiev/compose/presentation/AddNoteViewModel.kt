@@ -18,12 +18,17 @@ class AddNoteViewModel(private val useCase: AddNoteUseCase) : ViewModel() {
         viewModelScope.launch {
             useCase.addNote(title, description, pictureUrl)
                 .onStart {
-                    stateFlow.value = AddNoteUiState(loading = true)
+                    stateFlow.value = stateFlow.value.copy(loading = true, errorResourceId = null)
                 }
                 .catch {
-                    stateFlow.value = AddNoteUiState(errorResourceId = parseHttpError(it))
+                    stateFlow.value =
+                        stateFlow.value.copy(loading = false, errorResourceId = parseHttpError(it))
                 }.collect {
-                    stateFlow.value = it
+                    stateFlow.value = stateFlow.value.copy(
+                        loading = false,
+                        addNoteState = it,
+                        errorResourceId = null
+                    )
                 }
         }
     }

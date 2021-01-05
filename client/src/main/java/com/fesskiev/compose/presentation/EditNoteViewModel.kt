@@ -20,12 +20,17 @@ class EditNoteViewModel(
         viewModelScope.launch {
             editNoteUseCase.editNote(noteUid, title, description, pictureUrl)
                 .onStart {
-                    stateFlow.value = EditNoteUiState(loading = true)
+                    stateFlow.value = stateFlow.value.copy(loading = true, errorResourceId = null)
                 }
                 .catch {
-                    stateFlow.value = EditNoteUiState(errorResourceId = parseHttpError(it))
+                    stateFlow.value =
+                        stateFlow.value.copy(loading = false, errorResourceId = parseHttpError(it))
                 }.collect {
-                    stateFlow.value = it
+                    stateFlow.value = stateFlow.value.copy(
+                        loading = false,
+                        editNoteState = it,
+                        errorResourceId = null
+                    )
                 }
         }
     }
@@ -34,16 +39,14 @@ class EditNoteViewModel(
         viewModelScope.launch {
             getNoteByIdUseCase.getNoteByUid(noteUid)
                 .onStart {
-                    stateFlow.value = EditNoteUiState(loading = true)
-                }
-                .onCompletion {
-                    delay(100)
-                    stateFlow.value = EditNoteUiState(note = null)
+                    stateFlow.value = stateFlow.value.copy(loading = true, errorResourceId = null)
                 }
                 .catch {
-                    stateFlow.value = EditNoteUiState(errorResourceId = parseHttpError(it))
+                    stateFlow.value =
+                        stateFlow.value.copy(loading = false, errorResourceId = parseHttpError(it))
                 }.collect {
-                    stateFlow.value =  EditNoteUiState(note = it)
+                    stateFlow.value =
+                        stateFlow.value.copy(loading = false, note = it, errorResourceId = null)
                 }
         }
     }

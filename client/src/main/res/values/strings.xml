@@ -8,6 +8,10 @@
     <string name="edit_note">Edit note</string>
     <string name="note_details">Note details</string>
 
+    <string name="theme_night">Night</string>
+    <string name="theme_day">Day</string>
+    <string name="theme_system">System</string>
+
     <string name="display_name">Display name</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
@@ -18,7 +22,8 @@
     <string name="note_added">Note added</string>
     <string name="empty_notes_list">Empty notes list</string>
     <string name="hide">Hide</string>
-    <string name="dark_theme">Dark Theme</string>
+    <string name="theme">Theme</string>
+    <string name="logout">Logout</string>
 
     <string name="error_empty_display_name">Empty display name</string>
     <string name="error_empty_email">Empty email</string>

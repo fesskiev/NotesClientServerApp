@@ -19,12 +19,22 @@ class AuthViewModel(
         viewModelScope.launch {
             registrationUseCase.registration(email, displayName, password)
                 .onStart {
-                    stateFlow.value = AuthUiState(loading = true)
+                    stateFlow.value = stateFlow.value.copy(
+                        loading = true,
+                        authState = AuthState(),
+                        errorResourceId = null
+                    )
                 }
                 .catch {
-                    stateFlow.value = AuthUiState(errorResourceId = parseHttpError(it))
+                    stateFlow.value =
+                        stateFlow.value.copy(
+                            loading = false,
+                            authState = AuthState(),
+                            errorResourceId = parseHttpError(it)
+                        )
                 }.collect {
-                    stateFlow.value = it
+                    stateFlow.value =
+                        stateFlow.value.copy(loading = false, authState = it, errorResourceId = null)
                 }
         }
     }
@@ -33,12 +43,22 @@ class AuthViewModel(
         viewModelScope.launch {
             loginUseCase.login(email, password)
                 .onStart {
-                    stateFlow.value = AuthUiState(loading = true)
+                    stateFlow.value = stateFlow.value.copy(
+                        loading = true,
+                        authState = AuthState(),
+                        errorResourceId = null
+                    )
                 }
                 .catch {
-                    stateFlow.value = AuthUiState(errorResourceId = parseHttpError(it))
+                    stateFlow.value =
+                        stateFlow.value.copy(
+                            loading = false,
+                            authState = AuthState(),
+                            errorResourceId = parseHttpError(it)
+                        )
                 }.collect {
-                    stateFlow.value = it
+                    stateFlow.value =
+                        stateFlow.value.copy(loading = false, authState = it, errorResourceId = null)
                 }
         }
     }
