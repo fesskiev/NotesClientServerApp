@@ -5,8 +5,8 @@ import com.fesskiev.HTTPParameters.NOTE_PICTURE_URL
 import com.fesskiev.HTTPParameters.NOTE_TITLE
 import com.fesskiev.Routes.ADD_NOTE
 import com.fesskiev.Routes.DELETE_NOTE
-import com.fesskiev.Routes.GET_NOTES
 import com.fesskiev.Routes.EDIT_NOTE
+import com.fesskiev.Routes.GET_NOTES
 import com.fesskiev.ServerErrorCodes.NOTE_DESCRIPTION_EMPTY
 import com.fesskiev.ServerErrorCodes.NOTE_EMPTY
 import com.fesskiev.ServerErrorCodes.NOTE_NOT_ADDED

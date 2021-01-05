@@ -1,7 +1,10 @@
 package com.fesskiev.db
 
 import com.fesskiev.model.User
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 
 object UsersTable : Table() {
     val uid = integer("uid").autoIncrement()

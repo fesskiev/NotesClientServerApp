@@ -9,7 +9,6 @@ import androidx.datastore.preferences.createDataStore
 import com.fesskiev.compose.ui.utils.Constants.ThemeMode.SYSTEM
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 

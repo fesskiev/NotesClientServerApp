@@ -14,6 +14,26 @@ also supports JWT Authentication. Common module is shared code that uses both cl
 * [Exposed] - ORM framework
 * [H2] - database
 
+### ToDo
+Android:
+* Pagination
+* Upload images
+* Caching to database
+
+Server:
+* Pagination
+* Store Images
+*
+### Run Server
+ Android Studio
+open 'Edit Run/Debug configuration' dialog
+click 'Kotlin'
+click the "+" button
+In 'Name' enter any server name
+'Use classpath of module' choose 'NotesClientServerApp.server'
+'Main class' choose 'ApplicationKt'
+click Apply
+
 ### License
 MIT
 
@@ -24,3 +44,4 @@ MIT
 [Koin]: <https://insert-koin.io/>
 [Exposed]: <https://github.com/JetBrains/Exposed>
 [H2]: <https://www.h2database.com/html/main.html>
+

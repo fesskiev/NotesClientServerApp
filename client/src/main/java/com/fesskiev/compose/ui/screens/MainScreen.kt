@@ -14,7 +14,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.navigate
 import com.fesskiev.compose.R
 import com.fesskiev.compose.presentation.NotesListViewModel
-import com.fesskiev.compose.ui.components.*
+import com.fesskiev.compose.ui.components.AppHamburgerToolbar
+import com.fesskiev.compose.ui.components.EmptyView
+import com.fesskiev.compose.ui.components.ProgressBar
+import com.fesskiev.compose.ui.components.SnackBar
 import org.koin.androidx.compose.getViewModel
 
 @Composable

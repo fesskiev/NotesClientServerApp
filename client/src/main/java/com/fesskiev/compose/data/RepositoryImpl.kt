@@ -8,11 +8,11 @@ import com.fesskiev.HTTPParameters.NOTE_TITLE
 import com.fesskiev.HTTPParameters.PASSWORD
 import com.fesskiev.Routes.ADD_NOTE
 import com.fesskiev.Routes.DELETE_NOTE
+import com.fesskiev.Routes.EDIT_NOTE
 import com.fesskiev.Routes.GET_NOTES
 import com.fesskiev.Routes.LOGIN
 import com.fesskiev.Routes.LOGOUT
 import com.fesskiev.Routes.REGISTRATION
-import com.fesskiev.Routes.EDIT_NOTE
 import com.fesskiev.model.JWTAuth
 import com.fesskiev.model.Note
 import io.ktor.client.*
