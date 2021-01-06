@@ -8,6 +8,8 @@ buildscript {
     ext.exposed_version = "0.25.1"
     ext.nav_compose_version = "1.0.0-alpha04"
     ext.coroutines_version = "1.4.2"
+    ext.coil = "0.4.1"
+    ext.datastore = "1.0.0-alpha05"
 
     repositories {
         google()

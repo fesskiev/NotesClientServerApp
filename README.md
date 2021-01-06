@@ -1,4 +1,6 @@
-## NotesClientServerApp
+# NotesClientServerApp
+<img src="readme/preview.gif"/>
+
 Main idea of this project is use the same modern technologies for development both client and server side. 
 The app contains three modules: client, server and common. Client module is an Android app that consists of registration,
 login and main screen where user can perform typical CRUD operations. Android app is developed with 
@@ -32,7 +34,7 @@ click the "+" button
 In 'Name' enter any server name
 'Use classpath of module' choose 'NotesClientServerApp.server'
 'Main class' choose 'ApplicationKt'
-click Apply
+click 'Apply'
 
 ### License
 MIT
