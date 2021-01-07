@@ -6,6 +6,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.onActive
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -29,8 +30,9 @@ fun NoteDetailsScreen(
     noteUid: Int
 ) {
     val uiState = viewModel.stateFlow.collectAsState().value
-    viewModel.getNoteByUid(noteUid)
-
+    onActive {
+        viewModel.getNoteByUid(noteUid)
+    }
     Scaffold(topBar = {
         AppBackToolbar(stringResource(R.string.note_details)) {
             navController.popBackStack()

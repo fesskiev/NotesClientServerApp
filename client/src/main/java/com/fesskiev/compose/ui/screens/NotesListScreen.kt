@@ -24,13 +24,14 @@ import com.fesskiev.model.Note
 
 @Composable
 fun NotesListScreen(
-    notes: List<Note>, noteOnClick: (Note) -> Unit,
-    deleteNoteOnClick: (Note) -> Unit,
-    editNoteOnClick: (Note) -> Unit
+    notes: List<Note>,
+    onNoteClick: (Note) -> Unit,
+    onNoteDeleteClick: (Note) -> Unit,
+    onNoteEditClick: (Note) -> Unit
 ) {
     LazyColumn {
         items(notes) { note ->
-            NoteItem(note, noteOnClick, deleteNoteOnClick, editNoteOnClick)
+            NoteItem(note, onNoteClick, onNoteDeleteClick, onNoteEditClick)
         }
     }
 }
@@ -38,9 +39,9 @@ fun NotesListScreen(
 @Composable
 fun NoteItem(
     note: Note,
-    noteOnClick: (Note) -> Unit,
-    deleteNoteOnClick: (Note) -> Unit,
-    editNoteOnClick: (Note) -> Unit
+    onNoteClick: (Note) -> Unit,
+    onNoteDeleteClick: (Note) -> Unit,
+    onNoteEditClick: (Note) -> Unit
 ) {
     val height = 100.dp
     WithConstraints {
@@ -56,32 +57,43 @@ fun NoteItem(
             Row(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().height(height)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height)
             ) {
                 Image(
                     imageVector = vectorResource(R.drawable.ic_delete),
-                    modifier = Modifier.padding(horizontal = 20.dp).clickable(
-                        onClick = {
-                            deleteNoteOnClick(note)
-                        }
-                    )
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .clickable(
+                            onClick = {
+                                onNoteDeleteClick(note)
+                            }
+                        )
                 )
                 Image(
                     imageVector = vectorResource(R.drawable.ic_edit),
-                    modifier = Modifier.padding(horizontal = 20.dp).clickable(
-                        onClick = {
-                            editNoteOnClick(note)
-                        }
-                    )
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .clickable(
+                            onClick = {
+                                onNoteEditClick(note)
+                            }
+                        )
                 )
             }
             Card(
-                modifier = Modifier.fillMaxWidth().height(height).padding(4.dp, 2.dp, 4.dp, 2.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height)
+                    .padding(4.dp, 2.dp, 4.dp, 2.dp)
                     .offset(offsetPositionX.value.dp, 0.dp)
-                    .clickable(onClick = { noteOnClick(note) }), elevation = 4.dp
+                    .clickable(onClick = { onNoteClick(note) }), elevation = 4.dp
             ) {
                 Column(
-                    modifier = Modifier.wrapContentSize(Alignment.CenterStart).padding(start = 8.dp)
+                    modifier = Modifier
+                        .wrapContentSize(Alignment.CenterStart)
+                        .padding(start = 8.dp)
                 ) {
                     Text(text = note.title, style = MaterialTheme.typography.h6)
                     Spacer(Modifier.preferredHeight(8.dp))
@@ -96,5 +108,5 @@ fun NoteItem(
 @Composable
 fun NoteItemPreview() {
     val note = Note(1, 1, "title", "description", "url", System.currentTimeMillis())
-    NoteItem(note = note, noteOnClick = {}, deleteNoteOnClick = {}, editNoteOnClick = {})
+    NoteItem(note = note, onNoteClick = {}, onNoteDeleteClick = {}, onNoteEditClick = {})
 }
