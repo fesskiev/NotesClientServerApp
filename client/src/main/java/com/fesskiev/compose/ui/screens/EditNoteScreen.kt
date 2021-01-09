@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -21,10 +20,7 @@ import androidx.navigation.NavHostController
 import com.fesskiev.compose.R
 import com.fesskiev.compose.presentation.EditNoteUiState
 import com.fesskiev.compose.presentation.EditNoteViewModel
-import com.fesskiev.compose.ui.components.AppBackToolbar
-import com.fesskiev.compose.ui.components.AsciiTextField
-import com.fesskiev.compose.ui.components.ProgressBar
-import com.fesskiev.compose.ui.components.SnackBar
+import com.fesskiev.compose.ui.components.*
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -57,27 +53,31 @@ fun EditNoteScreen(
     if (uiState.editNoteState.success) {
         navController.popBackStack()
     } else {
-        Scaffold(topBar = {
-            AppBackToolbar(stringResource(R.string.edit_note)) {
-                navController.popBackStack()
-            }
-        }, bodyContent = {
-            EditNoteContent(
-                titleLabel,
-                descriptionLabel,
-                titleState,
-                descriptionState,
-                pictureUrlState,
-                uiState, onEditClick = {
-                    viewModel.editNote(
-                        noteUid,
-                        titleState.value.text,
-                        descriptionState.value.text,
-                        pictureUrlState.value.text
-                    )
+        AppScaffold(
+            topBar = {
+                AppBackToolbar(stringResource(R.string.edit_note)) {
+                    navController.popBackStack()
                 }
-            )
-        })
+            },
+            bodyContent = {
+                EditNoteContent(
+                    titleLabel,
+                    descriptionLabel,
+                    titleState,
+                    descriptionState,
+                    pictureUrlState,
+                    uiState, onEditClick = {
+                        viewModel.editNote(
+                            noteUid,
+                            titleState.value.text,
+                            descriptionState.value.text,
+                            pictureUrlState.value.text
+                        )
+                    }
+                )
+            },
+            errorResourceId = uiState.errorResourceId
+        )
     }
 }
 
@@ -132,9 +132,6 @@ fun EditNoteContent(
                 ) {
                     Text(stringResource(R.string.submit))
                 }
-            }
-            uiState.errorResourceId?.let {
-                SnackBar(stringResource(it))
             }
         }
     }

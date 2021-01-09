@@ -26,8 +26,10 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun AuthScreen(navController: NavController, viewModel: AuthViewModel = getViewModel()) {
     val displayNameState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    val emailState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue("test1@i.ua") }
-    val passwordState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue("123456") }
+    val emailState =
+        savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue("test1@i.ua") }
+    val passwordState =
+        savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue("123456") }
     var isLoginFormState = savedInstanceState { true }
 
     val uiState = viewModel.stateFlow.collectAsState().value
@@ -35,7 +37,8 @@ fun AuthScreen(navController: NavController, viewModel: AuthViewModel = getViewM
         uiState.authState.success -> navController.navigate("main")
         uiState.loading -> ProgressBar()
         else -> {
-            var isErrorEmailValue = uiState.authState.isEmptyEmailError || uiState.authState.isValidateEmailError
+            var isErrorEmailValue =
+                uiState.authState.isEmptyEmailError || uiState.authState.isValidateEmailError
             var isErrorPasswordValue =
                 uiState.authState.isEmptyPasswordError || uiState.authState.isValidatePasswordError
             var isErrorDisplayNameValue = uiState.authState.isEmptyDisplayNameError
@@ -51,36 +54,36 @@ fun AuthScreen(navController: NavController, viewModel: AuthViewModel = getViewM
             }
             val displayNameLabel = stringResource(R.string.error_empty_display_name)
 
-            Scaffold(bodyContent = {
-                AuthForm(
-                    displayNameState = displayNameState,
-                    emailState = emailState,
-                    passwordState = passwordState,
-                    isLoginFormState = isLoginFormState,
-                    emailLabel = emailLabel,
-                    passwordLabel = passwordLabel,
-                    displayNameLabel = displayNameLabel,
-                    isErrorEmailValue = isErrorEmailValue,
-                    isErrorPasswordValue = isErrorPasswordValue,
-                    isErrorDisplayNameValue = isErrorDisplayNameValue,
-                    registrationOnClick = {
-                        viewModel.registration(
-                            email = emailState.value.text,
-                            displayName = displayNameState.value.text,
-                            password = passwordState.value.text
-                        )
-                    },
-                    loginOnClick = {
-                        viewModel.login(
-                            email = emailState.value.text,
-                            password = passwordState.value.text
-                        )
-                    }
-                )
-                uiState.errorResourceId?.let {
-                    SnackBar(stringResource(it))
-                }
-            })
+            AppScaffold(
+                bodyContent = {
+                    AuthForm(
+                        displayNameState = displayNameState,
+                        emailState = emailState,
+                        passwordState = passwordState,
+                        isLoginFormState = isLoginFormState,
+                        emailLabel = emailLabel,
+                        passwordLabel = passwordLabel,
+                        displayNameLabel = displayNameLabel,
+                        isErrorEmailValue = isErrorEmailValue,
+                        isErrorPasswordValue = isErrorPasswordValue,
+                        isErrorDisplayNameValue = isErrorDisplayNameValue,
+                        registrationOnClick = {
+                            viewModel.registration(
+                                email = emailState.value.text,
+                                displayName = displayNameState.value.text,
+                                password = passwordState.value.text
+                            )
+                        },
+                        loginOnClick = {
+                            viewModel.login(
+                                email = emailState.value.text,
+                                password = passwordState.value.text
+                            )
+                        }
+                    )
+                },
+                errorResourceId = uiState.errorResourceId
+            )
         }
     }
 }
@@ -113,7 +116,9 @@ fun AuthForm(
             style = MaterialTheme.typography.h5
         )
         Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             var onClick = loginOnClick
@@ -122,35 +127,46 @@ fun AuthForm(
                 AsciiTextField(
                     label = displayNameLabel,
                     textFieldState = displayNameState,
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
                     isErrorValue = isErrorDisplayNameValue
                 )
             }
             EmailTextField(
                 label = emailLabel,
                 textFieldState = emailState,
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
                 isErrorValue = isErrorEmailValue,
             )
             PasswordTextField(
                 label = passwordLabel,
                 textFieldState = passwordState,
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
                 isErrorValue = isErrorPasswordValue
             )
             Button(
-                modifier = Modifier.padding(top = 8.dp).height(48.dp).align(Alignment.End),
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .height(48.dp)
+                    .align(Alignment.End),
                 onClick = onClick
             ) {
                 Text(stringResource(R.string.submit))
             }
         }
         Text(
-            modifier = Modifier.padding(top = 8.dp).clickable(
-                onClick = {
-                    isLoginFormState.value = !isLoginFormState.value
-                },
-            ),
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .clickable(
+                    onClick = {
+                        isLoginFormState.value = !isLoginFormState.value
+                    },
+                ),
             style = MaterialTheme.typography.h6,
             text = when {
                 isLoginFormState.value -> stringResource(R.string.registration)

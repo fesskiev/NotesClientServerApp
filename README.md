@@ -1,5 +1,5 @@
 # NotesClientServerApp
-<img src="readme/preview.gif"/>
+![preview.gif](readme/preview.gif)
 
 Main idea of this project is use the same modern technologies for development both client and server side. 
 The app contains three modules: client, server and common. Client module is an Android app that consists of registration,

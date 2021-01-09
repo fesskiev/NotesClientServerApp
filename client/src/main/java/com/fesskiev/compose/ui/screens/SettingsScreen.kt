@@ -17,8 +17,8 @@ import com.fesskiev.compose.R
 import com.fesskiev.compose.presentation.SettingsUiState
 import com.fesskiev.compose.presentation.SettingsViewModel
 import com.fesskiev.compose.ui.components.AppBackToolbar
+import com.fesskiev.compose.ui.components.AppScaffold
 import com.fesskiev.compose.ui.components.ProgressBar
-import com.fesskiev.compose.ui.components.SnackBar
 import com.fesskiev.compose.ui.utils.Constants.ThemeMode.DAY
 import com.fesskiev.compose.ui.utils.Constants.ThemeMode.NIGHT
 import com.fesskiev.compose.ui.utils.Constants.ThemeMode.SYSTEM
@@ -34,21 +34,21 @@ fun SettingsScreen(
         uiState.isLogout -> navController.navigate("auth")
         uiState.loading -> ProgressBar()
         else -> {
-            Scaffold(topBar = {
-                AppBackToolbar(stringResource(R.string.settings)) {
-                    navController.popBackStack()
-                }
-            }, bodyContent = {
-                SettingsContent(
-                    uiState,
-                    onHidePopupClick = { viewModel.hideThemeModePopup() },
-                    onShowPopupClick = { viewModel.showThemeModePopup() },
-                    onThemeClick = { viewModel.setThemeMode(it) },
-                    onLogoutClick = { viewModel.logout() })
-            })
-            uiState.errorResourceId?.let {
-                SnackBar(stringResource(it))
-            }
+            AppScaffold(
+                topBar = {
+                    AppBackToolbar(stringResource(R.string.settings)) {
+                        navController.popBackStack()
+                    }
+                }, bodyContent = {
+                    SettingsContent(
+                        uiState,
+                        onHidePopupClick = { viewModel.hideThemeModePopup() },
+                        onShowPopupClick = { viewModel.showThemeModePopup() },
+                        onThemeClick = { viewModel.setThemeMode(it) },
+                        onLogoutClick = { viewModel.logout() })
+                },
+                errorResourceId = uiState.errorResourceId
+            )
         }
     }
 }
@@ -70,7 +70,9 @@ private fun SettingsContent(
             )
         }
         Row(
-            modifier = Modifier.preferredHeight(64.dp).clickable(onClick = onShowPopupClick),
+            modifier = Modifier
+                .preferredHeight(64.dp)
+                .clickable(onClick = onShowPopupClick),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -158,7 +160,9 @@ private fun RadioButtonRow(text: String, selected: Boolean, onClick: () -> Unit)
         )
         Text(
             text = text,
-            modifier = Modifier.padding(start = 12.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(start = 12.dp)
+                .fillMaxWidth(),
             style = MaterialTheme.typography.body1
         )
     }

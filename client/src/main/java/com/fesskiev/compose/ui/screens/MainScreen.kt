@@ -18,25 +18,22 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun MainScreen(navController: NavHostController, viewModel: NotesListViewModel = getViewModel()) {
-    val scaffoldState = rememberScaffoldState()
     val uiState = viewModel.stateFlow.collectAsState().value
     onActive {
         viewModel.getNotes()
     }
-    Scaffold(scaffoldState = scaffoldState,
+    AppScaffold(
         topBar = {
             AppHamburgerToolbar(title = stringResource(R.string.app_name), hamburgerOnClick = {
-                scaffoldState.drawerState.open()
+                it.drawerState.open()
             })
-        },
-        drawerContent = {
+        }, drawerContent = {
             AppDrawer(onSettingsClick = {
-                scaffoldState.drawerState.close(onClosed = {
+                it.drawerState.close(onClosed = {
                     navController.navigate("settings")
                 })
             })
         },
-        floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -52,7 +49,9 @@ fun MainScreen(navController: NavHostController, viewModel: NotesListViewModel =
                 onNoteClick = { navController.navigate("note_details/${it.noteUid}") },
                 onNoteDeleteClick = { viewModel.deleteNote(it) },
                 onNoteEditClick = { navController.navigate("edit_note/${it.noteUid}") })
-        })
+        },
+        errorResourceId = uiState.errorResourceId
+    )
 }
 
 @Composable
@@ -77,9 +76,6 @@ fun MainContent(
                 EmptyView(stringResource(R.string.empty_notes_list))
             }
         }
-    }
-    uiState.errorResourceId?.let {
-        SnackBar(stringResource(it))
     }
 }
 

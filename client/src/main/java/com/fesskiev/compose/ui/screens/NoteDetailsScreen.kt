@@ -2,7 +2,6 @@ package com.fesskiev.compose.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -17,8 +16,8 @@ import com.fesskiev.compose.R
 import com.fesskiev.compose.presentation.NoteDetailsUiState
 import com.fesskiev.compose.presentation.NotesDetailsViewModel
 import com.fesskiev.compose.ui.components.AppBackToolbar
+import com.fesskiev.compose.ui.components.AppScaffold
 import com.fesskiev.compose.ui.components.ProgressBar
-import com.fesskiev.compose.ui.components.SnackBar
 import com.fesskiev.model.Note
 import dev.chrisbanes.accompanist.coil.CoilImage
 import org.koin.androidx.compose.getViewModel
@@ -33,11 +32,17 @@ fun NoteDetailsScreen(
     onActive {
         viewModel.getNoteByUid(noteUid)
     }
-    Scaffold(topBar = {
-        AppBackToolbar(stringResource(R.string.note_details)) {
-            navController.popBackStack()
-        }
-    }, bodyContent = { NoteDetailsContent(uiState) })
+    AppScaffold(
+        topBar = {
+            AppBackToolbar(stringResource(R.string.note_details)) {
+                navController.popBackStack()
+            }
+        },
+        bodyContent = {
+            NoteDetailsContent(uiState)
+        },
+        errorResourceId = uiState.errorResourceId
+    )
 }
 
 @Composable
@@ -45,11 +50,6 @@ fun NoteDetailsContent(uiState: NoteDetailsUiState) {
     when {
         uiState.loading -> ProgressBar()
         uiState.note != null -> NoteDetails(uiState.note)
-        else -> {
-            uiState.errorResourceId?.let {
-                SnackBar(stringResource(it))
-            }
-        }
     }
 }
 
