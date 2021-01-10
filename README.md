@@ -25,15 +25,15 @@ Android:
 Server:
 * Pagination
 * Store Images
-*
+
 ### Run Server
- Android Studio
-open 'Edit Run/Debug configuration' dialog
-click 'Kotlin'
-click the "+" button
-In 'Name' enter any server name
-'Use classpath of module' choose 'NotesClientServerApp.server'
-'Main class' choose 'ApplicationKt'
+ Android Studio\
+open 'Edit Run/Debug configuration' dialog\
+click 'Kotlin'\
+click the "+" button\
+In 'Name' enter any server name\
+'Use classpath of module' choose 'NotesClientServerApp.server'\
+'Main class' choose 'ApplicationKt'\
 click 'Apply'
 
 ### License
