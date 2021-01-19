@@ -3,6 +3,7 @@ package com.fesskiev.routes
 import com.fesskiev.HTTPParameters.NOTE_DESCRIPTION
 import com.fesskiev.HTTPParameters.NOTE_PICTURE_URL
 import com.fesskiev.HTTPParameters.NOTE_TITLE
+import com.fesskiev.HTTPParameters.PAGE
 import com.fesskiev.Routes.ADD_NOTE
 import com.fesskiev.Routes.DELETE_NOTE
 import com.fesskiev.Routes.EDIT_NOTE
@@ -40,7 +41,10 @@ fun Route.notes(repository: Repository) {
                     call.respond(BadRequest, ServerError(USER_NOT_FOUND))
                     return@get
                 } else {
-                    val notes = repository.getNotes(user.uid)
+                    val parameters: Parameters = call.parameters
+                    val page = parameters[PAGE]?.toInt() ?: 1
+
+                    val notes = repository.getNotes(user.uid, page)
                     call.respond(OK, notes)
                 }
             }

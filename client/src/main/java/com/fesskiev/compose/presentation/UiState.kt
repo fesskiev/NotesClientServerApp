@@ -21,10 +21,17 @@ data class AuthState(
 
 data class NotesListUiState(
     val loading: Boolean = false,
+    val paging: Boolean = false,
+    val needLoadMore: Boolean = true,
     val notes: List<Note>? = null,
+    val page: Int = 1,
     @StringRes
     val errorResourceId: Int? = null,
-)
+) {
+    override fun toString(): String {
+        return "NotesListUiState(loading=$loading, paging=$paging, needLoadMore=$needLoadMore, notes size=${notes?.size}, page=$page, errorResourceId=$errorResourceId)"
+    }
+}
 
 data class DeleteNoteState(
     val notes: List<Note>? = null,

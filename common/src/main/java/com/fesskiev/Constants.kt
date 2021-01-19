@@ -18,6 +18,7 @@ object HTTPParameters {
     const val EMAIL = "email"
     const val PASSWORD = "password"
     const val DISPLAY_NAME = "display_name"
+    const val PAGE = "page"
 }
 
 object Headers {

@@ -6,7 +6,7 @@ import com.fesskiev.model.User
 
 class RepositoryImpl : Repository {
 
-    override suspend fun getNotes(uid: Int): List<Note> = selectNotes(uid)
+    override suspend fun getNotes(uid: Int, page: Int): List<Note> = selectNotes(uid, page)
 
     override suspend fun addNote(uid: Int, title: String, description: String, pictureUrl: String?): Note? =
         insertNote(uid, title, description, pictureUrl)

@@ -2,6 +2,7 @@ package com.fesskiev.compose.domain
 
 import com.fesskiev.compose.R
 import com.fesskiev.compose.data.Repository
+import com.fesskiev.compose.data.RepositoryImpl
 import com.fesskiev.compose.presentation.DeleteNoteState
 import com.fesskiev.model.Note
 import kotlinx.coroutines.flow.Flow
@@ -12,7 +13,7 @@ class DeleteNoteUseCase(private val repository: Repository) {
     fun deleteNote(note: Note): Flow<DeleteNoteState> = flow {
         val result = repository.deleteNote(note)
         if (result) {
-            val notes = repository.getNotes()
+            val notes = (repository as RepositoryImpl).notes
             return@flow emit(DeleteNoteState(notes = notes))
         }
         emit(DeleteNoteState(errorResourceId = R.string.error_delete_note))

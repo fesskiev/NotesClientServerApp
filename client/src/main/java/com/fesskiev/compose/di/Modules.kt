@@ -25,7 +25,7 @@ val repositoryModule = module {
 
 val viewModelModule = module {
     viewModel { SettingsViewModel(get(), get()) }
-    viewModel { NotesDetailsViewModel(get()) }
+    viewModel { NoteDetailsViewModel(get()) }
     viewModel { AddNoteViewModel(get()) }
     viewModel { EditNoteViewModel(get(), get()) }
     viewModel { NotesListViewModel(get(), get()) }

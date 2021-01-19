@@ -8,10 +8,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
+import com.fesskiev.compose.data.Repository
 import com.fesskiev.compose.ui.screens.*
 import com.fesskiev.compose.ui.theme.AppTheme
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 class MainActivity : AppCompatActivity() {
+
+    private val repository by inject<Repository>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +48,20 @@ class MainActivity : AppCompatActivity() {
                         )
                     }
                 }
+            }
+        }
+//        registrationFlow()
+    }
+
+    private fun registrationFlow() {
+        GlobalScope.launch {
+            try {
+                repository.registration("test10@i.ua", "Max", "123456")
+                repeat(100) {
+                    repository.addNote("title: $it", "desc: $it", "url: $it")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }

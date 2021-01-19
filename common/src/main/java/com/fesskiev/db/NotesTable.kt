@@ -29,10 +29,12 @@ suspend fun insertNote(uidValue: Int, titleValue: String, descriptionValue: Stri
     }
 }
 
-suspend fun selectNotes(uidValue: Int): List<Note> = DatabaseFactory.dbQuery {
+suspend fun selectNotes(uidValue: Int, page: Int): List<Note> = DatabaseFactory.dbQuery {
+    val limit = 10
+    val offset = (page - 1) * 10
     NotesTable.select {
         (NotesTable.userUid eq uidValue)
-    }.map {
+    }.limit(limit, offset.toLong()).map {
         toNote(it)
     }
 }

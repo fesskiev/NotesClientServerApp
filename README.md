@@ -18,12 +18,10 @@ also supports JWT Authentication. The common module is shared code that uses bot
 
 ### ToDo
 Android:
-* Pagination
 * Upload images
-* Caching to database
+* Database cache
 
 Server:
-* Pagination
 * Store Images
 
 ### Run Server

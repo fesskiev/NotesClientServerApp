@@ -1,9 +1,6 @@
 package com.fesskiev.compose.ui.components
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,5 +15,16 @@ fun ProgressBar() {
         verticalArrangement = Arrangement.Center
     ) {
         CircularProgressIndicator(modifier = Modifier.preferredSize(64.dp, 64.dp))
+    }
+}
+
+@Composable
+fun PagingProgressBar() {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        CircularProgressIndicator(modifier = Modifier.preferredSize(32.dp, 32.dp))
     }
 }

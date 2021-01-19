@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
-class NotesDetailsViewModel(private val getNoteByIdUseCase: GetNoteByIdUseCase) : ViewModel() {
+class NoteDetailsViewModel(private val getNoteByIdUseCase: GetNoteByIdUseCase) : ViewModel() {
 
     val stateFlow = MutableStateFlow(NoteDetailsUiState())
 

@@ -8,7 +8,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,17 +19,14 @@ import com.fesskiev.compose.R
 import com.fesskiev.compose.presentation.AddNoteUiState
 import com.fesskiev.compose.presentation.AddNoteViewModel
 import com.fesskiev.compose.ui.components.AppBackToolbar
+import com.fesskiev.compose.ui.components.AppScaffold
 import com.fesskiev.compose.ui.components.AsciiTextField
 import com.fesskiev.compose.ui.components.ProgressBar
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
-@ExperimentalMaterialApi
 @Composable
 fun AddNoteScreen(navController: NavHostController, viewModel: AddNoteViewModel = getViewModel()) {
-    val scaffoldState = rememberScaffoldState()
-    val scope = rememberCoroutineScope()
-
     val titleState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     val descriptionState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     val pictureUrlState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
@@ -38,12 +34,13 @@ fun AddNoteScreen(navController: NavHostController, viewModel: AddNoteViewModel 
     if (uiState.addNoteState.success) {
         navController.popBackStack()
     } else {
-        Scaffold(scaffoldState = scaffoldState,
+        AppScaffold(
             topBar = {
                 AppBackToolbar(stringResource(R.string.add_note)) {
                     navController.popBackStack()
                 }
-            }, bodyContent = {
+            },
+            bodyContent = {
                 AddNoteContent(
                     titleState,
                     descriptionState,
@@ -56,13 +53,8 @@ fun AddNoteScreen(navController: NavHostController, viewModel: AddNoteViewModel 
                             pictureUrlState.value.text
                         )
                     })
-            })
-        uiState.errorResourceId?.let {
-            val message = stringResource(it)
-            scope.launch {
-                scaffoldState.snackbarHostState.showSnackbar(message = message)
-            }
-        }
+            }, errorResourceId = uiState.errorResourceId
+        )
     }
 }
 

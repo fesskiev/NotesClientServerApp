@@ -5,6 +5,7 @@ import com.fesskiev.HTTPParameters.EMAIL
 import com.fesskiev.HTTPParameters.NOTE_DESCRIPTION
 import com.fesskiev.HTTPParameters.NOTE_PICTURE_URL
 import com.fesskiev.HTTPParameters.NOTE_TITLE
+import com.fesskiev.HTTPParameters.PAGE
 import com.fesskiev.HTTPParameters.PASSWORD
 import com.fesskiev.Routes.ADD_NOTE
 import com.fesskiev.Routes.DELETE_NOTE
@@ -16,6 +17,7 @@ import com.fesskiev.Routes.REGISTRATION
 import com.fesskiev.model.JWTAuth
 import com.fesskiev.model.Note
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.features.*
 import io.ktor.client.features.json.*
 import io.ktor.client.request.*
@@ -26,12 +28,14 @@ import kotlinx.coroutines.withContext
 
 class RepositoryImpl(private val httpClient: HttpClient) : Repository {
 
-    private val notes: MutableList<Note> = mutableListOf()
+    val notes: MutableList<Note> = mutableListOf()
     var isNotesCacheExpired: Boolean = true
 
-    override suspend fun getNotes(): List<Note> = withContext(Dispatchers.IO) {
+    override suspend fun getNotes(page: Int): List<Note> = withContext(Dispatchers.IO) {
         if (isNotesCacheExpired) {
-            val newNotes = httpClient.get<List<Note>>(GET_NOTES)
+            val newNotes = httpClient.get<List<Note>>(GET_NOTES) {
+                url.parameters.append(PAGE, page.toString())
+            }
             notes.addAll(newNotes)
             isNotesCacheExpired = false
         }
@@ -116,6 +120,8 @@ class RepositoryImpl(private val httpClient: HttpClient) : Repository {
         }
 
     override suspend fun logout(): Unit = withContext(Dispatchers.IO) {
-        httpClient.post(LOGOUT)
+        httpClient.post<Unit>(LOGOUT)
+        notes.clear()
+        isNotesCacheExpired = true
     }
 }

@@ -1,5 +1,6 @@
 package com.fesskiev.compose.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -20,7 +21,7 @@ import org.koin.androidx.compose.getViewModel
 fun MainScreen(navController: NavHostController, viewModel: NotesListViewModel = getViewModel()) {
     val uiState = viewModel.stateFlow.collectAsState().value
     onActive {
-        viewModel.getNotes()
+        viewModel.getNotes(uiState.page)
     }
     AppScaffold(
         topBar = {
@@ -48,7 +49,8 @@ fun MainScreen(navController: NavHostController, viewModel: NotesListViewModel =
                 uiState,
                 onNoteClick = { navController.navigate("note_details/${it.noteUid}") },
                 onNoteDeleteClick = { viewModel.deleteNote(it) },
-                onNoteEditClick = { navController.navigate("edit_note/${it.noteUid}") })
+                onNoteEditClick = { navController.navigate("edit_note/${it.noteUid}") },
+                onLoadMoreItems = { viewModel.loadMoreNotes()})
         },
         errorResourceId = uiState.errorResourceId
     )
@@ -59,7 +61,8 @@ fun MainContent(
     uiState: NotesListUiState,
     onNoteClick: (Note) -> Unit,
     onNoteDeleteClick: (Note) -> Unit,
-    onNoteEditClick: (Note) -> Unit
+    onNoteEditClick: (Note) -> Unit,
+    onLoadMoreItems: () -> Unit
 ) {
     when {
         uiState.loading -> ProgressBar()
@@ -68,9 +71,12 @@ fun MainContent(
             if (notes.isNotEmpty()) {
                 NotesListScreen(
                     notes,
+                    uiState.paging,
+                    uiState.needLoadMore,
                     onNoteClick = onNoteClick,
                     onNoteDeleteClick = onNoteDeleteClick,
-                    onNoteEditClick = onNoteEditClick
+                    onNoteEditClick = onNoteEditClick,
+                    onLoadMoreItems = onLoadMoreItems
                 )
             } else {
                 EmptyView(stringResource(R.string.empty_notes_list))

@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.fesskiev.compose.R
 import com.fesskiev.compose.presentation.NoteDetailsUiState
-import com.fesskiev.compose.presentation.NotesDetailsViewModel
+import com.fesskiev.compose.presentation.NoteDetailsViewModel
 import com.fesskiev.compose.ui.components.AppBackToolbar
 import com.fesskiev.compose.ui.components.AppScaffold
 import com.fesskiev.compose.ui.components.ProgressBar
@@ -25,7 +25,7 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun NoteDetailsScreen(
     navController: NavHostController,
-    viewModel: NotesDetailsViewModel = getViewModel(),
+    viewModel: NoteDetailsViewModel = getViewModel(),
     noteUid: Int
 ) {
     val uiState = viewModel.stateFlow.collectAsState().value

@@ -5,7 +5,7 @@ import com.fesskiev.model.User
 
 interface Repository {
 
-    suspend fun getNotes(uid: Int): List<Note>
+    suspend fun getNotes(uid: Int, page: Int): List<Note>
 
     suspend fun addNote(uid: Int, title: String, description: String, pictureUrl: String?): Note?
 
