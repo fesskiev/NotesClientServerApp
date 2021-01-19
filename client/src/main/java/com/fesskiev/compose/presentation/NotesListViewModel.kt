@@ -96,7 +96,6 @@ class NotesListViewModel(
                             errorResourceId = parseHttpError(it)
                         )
                 }.collect {
-                    delay(1000)
                     stateFlow.value =
                         stateFlow.value.copy(
                             loading = false,

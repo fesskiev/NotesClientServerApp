@@ -2,9 +2,7 @@ package com.fesskiev.compose.ui.utils
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.preferencesKey
+import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.createDataStore
 import com.fesskiev.compose.ui.utils.Constants.ThemeMode.SYSTEM
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +15,7 @@ class DataStoreManager(context: Context) {
     private val dataStore: DataStore<Preferences> = context.createDataStore(name = "settings")
 
     companion object {
-        private val THEME_MODE = preferencesKey<String>("theme_mode")
+        private val THEME_MODE = stringPreferencesKey("theme_mode")
     }
 
     suspend fun setThemeMode(themeMode: String) {

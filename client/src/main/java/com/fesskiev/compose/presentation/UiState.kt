@@ -27,11 +27,7 @@ data class NotesListUiState(
     val page: Int = 1,
     @StringRes
     val errorResourceId: Int? = null,
-) {
-    override fun toString(): String {
-        return "NotesListUiState(loading=$loading, paging=$paging, needLoadMore=$needLoadMore, notes size=${notes?.size}, page=$page, errorResourceId=$errorResourceId)"
-    }
-}
+)
 
 data class DeleteNoteState(
     val notes: List<Note>? = null,
