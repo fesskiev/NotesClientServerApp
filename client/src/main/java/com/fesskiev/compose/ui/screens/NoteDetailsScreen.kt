@@ -12,6 +12,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.fesskiev.compose.BuildConfig
 import com.fesskiev.compose.R
 import com.fesskiev.compose.presentation.NoteDetailsUiState
 import com.fesskiev.compose.presentation.NoteDetailsViewModel
@@ -64,9 +65,10 @@ fun NoteDetails(note: Note) {
         Spacer(Modifier.preferredHeight(20.dp))
         Text(text = note.description, style = MaterialTheme.typography.body1)
         Spacer(Modifier.preferredHeight(25.dp))
-        note.pictureUrl?.let {
+        note.pictureName?.let {
+            val url = "http://" + BuildConfig.HOST + ":" + BuildConfig.PORT + "/" + it
             CoilImage(
-                data = it,
+                data = url,
                 fadeIn = true,
                 contentScale = ContentScale.Crop,
                 loading = { ProgressBar() },

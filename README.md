@@ -16,13 +16,6 @@ also supports JWT Authentication. The common module is shared code that uses bot
 * [Exposed] - ORM framework
 * [H2] - database
 
-### ToDo
-Android:
-* Upload images
-* Database cache
-
-Server:
-* Store Images
 
 ### Run Server
  Android Studio\

@@ -7,19 +7,14 @@ import kotlinx.coroutines.flow.flow
 
 class EditNoteUseCase(private val repository: Repository) {
 
-    fun editNote(
-        noteUid: Int,
-        title: String,
-        description: String,
-        pictureUrl: String?
-    ): Flow<EditNoteState> = flow {
+    fun editNote(noteUid: Int, title: String, description: String): Flow<EditNoteState> = flow {
         if (title.isEmpty()) {
             return@flow emit(EditNoteState(isEmptyTitle = true))
         }
         if (description.isEmpty()) {
             return@flow emit(EditNoteState(isEmptyDescription = true))
         }
-        repository.editNote(noteUid, title, description, pictureUrl)
+        repository.editNote(noteUid, title, description)
         emit(EditNoteState(success = true))
     }
 }

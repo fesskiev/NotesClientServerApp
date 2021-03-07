@@ -8,17 +8,16 @@ object NotesTable : Table() {
     val userUid = integer("userUid")
     val title = varchar("title", 255)
     val description = varchar("description", 255)
-    val pictureUrl = varchar("pictureUrl", 255).nullable()
+    val pictureName = varchar("pictureName", 255).nullable()
     val time = long("time")
     override val primaryKey = PrimaryKey(noteUid)
 }
 
-suspend fun insertNote(uidValue: Int, titleValue: String, descriptionValue: String, pictureUrlValue: String?): Note? = DatabaseFactory.dbQuery {
+suspend fun insertNote(uidValue: Int, titleValue: String, descriptionValue: String): Note? = DatabaseFactory.dbQuery {
     val insertStatement = NotesTable.insert {
         it[userUid] = uidValue
         it[title] = titleValue
         it[description] = descriptionValue
-        it[pictureUrl] = pictureUrlValue
         it[time] = System.currentTimeMillis()
     }
     val result = insertStatement.resultedValues?.get(0)
@@ -32,11 +31,16 @@ suspend fun insertNote(uidValue: Int, titleValue: String, descriptionValue: Stri
 suspend fun selectNotes(uidValue: Int, page: Int): List<Note> = DatabaseFactory.dbQuery {
     val limit = 10
     val offset = (page - 1) * 10
-    NotesTable.select {
-        (NotesTable.userUid eq uidValue)
-    }.limit(limit, offset.toLong()).map {
-        toNote(it)
-    }
+    NotesTable.select { (NotesTable.userUid eq uidValue) }
+        .orderBy(NotesTable.time to SortOrder.DESC)
+        .limit(limit, offset.toLong())
+        .map { toNote(it) }
+}
+
+suspend fun selectNoteById(uidValue: Int): Note? = DatabaseFactory.dbQuery {
+    NotesTable.select {(NotesTable.noteUid eq uidValue) }
+        .map { toNote(it) }
+        .firstOrNull()
 }
 
 suspend fun deleteNote(note: Note): Boolean = DatabaseFactory.dbQuery {
@@ -49,7 +53,7 @@ suspend fun updateNote(note: Note): Boolean = DatabaseFactory.dbQuery {
     NotesTable.update({ NotesTable.noteUid eq note.noteUid }) {
         it[title] = note.title
         it[description] = note.description
-        it[pictureUrl] = note.pictureUrl
+        it[pictureName] = note.pictureName
     } > 0
 }
 
@@ -58,6 +62,6 @@ private fun toNote(row: ResultRow): Note = Note(
     row[NotesTable.userUid],
     row[NotesTable.title],
     row[NotesTable.description],
-    row[NotesTable.pictureUrl],
+    row[NotesTable.pictureName],
     row[NotesTable.time],
 )

@@ -50,7 +50,7 @@ fun provideKtorClient(networkManager: NetworkManager): HttpClient = HttpClient(O
     }
 }
 
-class AppInterceptor(val networkManager: NetworkManager) : Interceptor {
+class AppInterceptor(private val networkManager: NetworkManager) : Interceptor {
 
     private var jwtAuth: JWTAuth? = null
     private var session: String? = null

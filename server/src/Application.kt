@@ -1,6 +1,5 @@
 package com.fesskiev
 
-import com.fesskiev.Database.SERVER_URL
 import com.fesskiev.Headers.SESSION
 import com.fesskiev.ServerErrorCodes.INTERNAL_SERVER_ERROR
 import com.fesskiev.auth.JWTManager
@@ -22,12 +21,8 @@ import io.ktor.serialization.*
 import io.ktor.server.netty.*
 import io.ktor.sessions.*
 import kotlinx.serialization.json.Json
+import org.slf4j.event.Level
 
-/**
- * https://ktor.io/docs/quickstart-index.html
- * https://www.raywenderlich.com/7265034-ktor-rest-api-for-mobile
- * https://github.com/JetBrains/kotlinconf-app
- */
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 fun Application.module() {
@@ -36,12 +31,13 @@ fun Application.module() {
         header<UserSession>(SESSION)
     }
 
-    DatabaseFactory.init(url = SERVER_URL)
+    DatabaseFactory.init(url = DATABASE_DIR_PATH)
     val jwtManager = JWTManager()
     val repository = RepositoryImpl()
 
     install(StatusPages) {
         exception<Throwable> {
+            print(it.printStackTrace())
             call.respond(InternalServerError, ServerError(INTERNAL_SERVER_ERROR))
         }
     }
@@ -63,6 +59,9 @@ fun Application.module() {
                 user
             }
         }
+    }
+    install(CallLogging) {
+        level = Level.INFO
     }
     routing {
         notes(repository)

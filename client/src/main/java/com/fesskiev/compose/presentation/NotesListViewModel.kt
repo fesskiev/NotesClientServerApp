@@ -1,14 +1,11 @@
 package com.fesskiev.compose.presentation
 
-
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fesskiev.compose.data.remote.parseHttpError
 import com.fesskiev.compose.domain.DeleteNoteUseCase
 import com.fesskiev.compose.domain.NotesListUseCase
 import com.fesskiev.model.Note
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect

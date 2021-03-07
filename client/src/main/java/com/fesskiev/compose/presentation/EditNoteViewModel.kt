@@ -18,9 +18,9 @@ class EditNoteViewModel(
 
     val stateFlow = MutableStateFlow(EditNoteUiState())
 
-    fun editNote(noteUid: Int, title: String, description: String, pictureUrl: String?) {
+    fun editNote(noteUid: Int, title: String, description: String) {
         viewModelScope.launch {
-            editNoteUseCase.editNote(noteUid, title, description, pictureUrl)
+            editNoteUseCase.editNote(noteUid, title, description)
                 .onStart {
                     stateFlow.value = stateFlow.value.copy(loading = true, errorResourceId = null)
                 }

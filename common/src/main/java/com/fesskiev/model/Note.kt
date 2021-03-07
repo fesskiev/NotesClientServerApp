@@ -8,6 +8,6 @@ data class Note(
     val userUid: Int,
     val title: String,
     val description: String,
-    val pictureUrl: String?,
+    val pictureName: String?,
     val time: Long
 )

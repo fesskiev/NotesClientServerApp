@@ -44,7 +44,7 @@ suspend fun selectUserByEmail(emailValue: String): User? =
     }
 
 
-private fun toUser(row: ResultRow): User? = User(
+private fun toUser(row: ResultRow): User = User(
     row[UsersTable.uid],
     row[UsersTable.email],
     row[UsersTable.displayName],

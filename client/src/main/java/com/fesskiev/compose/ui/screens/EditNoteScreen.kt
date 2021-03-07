@@ -31,7 +31,6 @@ fun EditNoteScreen(
 ) {
     val titleState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     val descriptionState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    val pictureUrlState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     val uiState = viewModel.stateFlow.collectAsState().value
     onActive {
         viewModel.getNoteByUid(noteUid)
@@ -40,7 +39,6 @@ fun EditNoteScreen(
         val note = uiState.note
         titleState.value = TextFieldValue(note.title)
         descriptionState.value = TextFieldValue(note.description)
-        pictureUrlState.value = TextFieldValue(note.pictureUrl ?: "")
     }
     val titleLabel = when {
         uiState.editNoteState.isEmptyTitle -> stringResource(R.string.error_empty_title)
@@ -65,13 +63,11 @@ fun EditNoteScreen(
                     descriptionLabel,
                     titleState,
                     descriptionState,
-                    pictureUrlState,
                     uiState, onEditClick = {
                         viewModel.editNote(
                             noteUid,
                             titleState.value.text,
-                            descriptionState.value.text,
-                            pictureUrlState.value.text
+                            descriptionState.value.text
                         )
                     }
                 )
@@ -87,7 +83,6 @@ fun EditNoteContent(
     descriptionLabel: String,
     titleState: MutableState<TextFieldValue>,
     descriptionState: MutableState<TextFieldValue>,
-    pictureUrlState: MutableState<TextFieldValue>,
     uiState: EditNoteUiState,
     onEditClick: () -> Unit
 ) {
@@ -115,13 +110,6 @@ fun EditNoteContent(
                         .fillMaxWidth()
                         .padding(top = 8.dp),
                     isErrorValue = uiState.editNoteState.isEmptyDescription,
-                )
-                AsciiTextField(
-                    label = stringResource(R.string.note_picture_url),
-                    textFieldState = pictureUrlState,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp)
                 )
                 Button(
                     modifier = Modifier

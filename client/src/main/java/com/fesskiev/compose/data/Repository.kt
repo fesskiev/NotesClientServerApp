@@ -2,6 +2,7 @@ package com.fesskiev.compose.data
 
 import com.fesskiev.model.JWTAuth
 import com.fesskiev.model.Note
+import java.io.File
 
 interface Repository {
 
@@ -9,14 +10,9 @@ interface Repository {
 
     suspend fun getNoteById(noteUid: Int): Note
 
-    suspend fun addNote(title: String, description: String, pictureUrl: String?): Note
+    suspend fun addNote(title: String, description: String): Note
 
-    suspend fun editNote(
-        noteUid: Int,
-        title: String,
-        description: String,
-        pictureUrl: String?
-    ): Boolean
+    suspend fun editNote(noteUid: Int, title: String, description: String): Boolean
 
     suspend fun deleteNote(note: Note): Boolean
 
@@ -25,4 +21,6 @@ interface Repository {
     suspend fun login(email: String, password: String): JWTAuth
 
     suspend fun logout()
+
+    suspend fun addImage(note: Note, file: File): Note
 }

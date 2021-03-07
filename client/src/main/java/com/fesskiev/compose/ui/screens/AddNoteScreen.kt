@@ -1,17 +1,17 @@
 package com.fesskiev.compose.ui.screens
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import android.graphics.Bitmap
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.AmbientContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -22,14 +22,32 @@ import com.fesskiev.compose.ui.components.AppBackToolbar
 import com.fesskiev.compose.ui.components.AppScaffold
 import com.fesskiev.compose.ui.components.AsciiTextField
 import com.fesskiev.compose.ui.components.ProgressBar
-import kotlinx.coroutines.launch
+import com.fesskiev.compose.ui.utils.getBitmapFromIntent
+import com.fesskiev.compose.ui.utils.pickImageChooserIntent
+import com.fesskiev.compose.ui.utils.registerForActivityResult
 import org.koin.androidx.compose.getViewModel
+import androidx.compose.runtime.*
+import androidx.compose.ui.layout.ContentScale
+import dev.chrisbanes.accompanist.coil.CoilImage
+import java.io.File
 
 @Composable
-fun AddNoteScreen(navController: NavHostController, viewModel: AddNoteViewModel = getViewModel()) {
+fun AddNoteScreen(
+    navController: NavHostController,
+    viewModel: AddNoteViewModel = getViewModel()
+) {
     val titleState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     val descriptionState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    val pictureUrlState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
+    var pair by remember { mutableStateOf<Pair<Bitmap, File>?>(null) }
+    val context = AmbientContext.current
+    val launcher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            result.data?.let { data ->
+                context.getBitmapFromIntent(data)?.let {
+                    pair = it
+                }
+            }
+        }
     val uiState = viewModel.stateFlow.collectAsState().value
     if (uiState.addNoteState.success) {
         navController.popBackStack()
@@ -44,16 +62,26 @@ fun AddNoteScreen(navController: NavHostController, viewModel: AddNoteViewModel 
                 AddNoteContent(
                     titleState,
                     descriptionState,
-                    pictureUrlState,
+                    pair?.first,
                     uiState,
-                    onAddClick = {
+                    onPickImageClick = {
+                        launcher.launch(context.pickImageChooserIntent(title = "Pick Image"))
+                    })
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = {
                         viewModel.addNote(
                             titleState.value.text,
                             descriptionState.value.text,
-                            pictureUrlState.value.text
+                            pair?.second
                         )
-                    })
-            }, errorResourceId = uiState.errorResourceId
+                    }
+                ) {
+                    Image(imageVector = vectorResource(R.drawable.ic_add))
+                }
+            },
+            errorResourceId = uiState.errorResourceId
         )
     }
 }
@@ -62,9 +90,9 @@ fun AddNoteScreen(navController: NavHostController, viewModel: AddNoteViewModel 
 fun AddNoteContent(
     titleState: MutableState<TextFieldValue>,
     descriptionState: MutableState<TextFieldValue>,
-    pictureUrlState: MutableState<TextFieldValue>,
+    bitmap: Bitmap?,
     uiState: AddNoteUiState,
-    onAddClick: () -> Unit
+    onPickImageClick: () -> Unit
 ) {
     when {
         uiState.loading -> ProgressBar()
@@ -96,24 +124,29 @@ fun AddNoteContent(
                     textFieldState = descriptionState,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(250.dp)
                         .padding(top = 8.dp),
                     isErrorValue = uiState.addNoteState.isEmptyDescription,
                 )
-                AsciiTextField(
-                    label = stringResource(R.string.note_picture_url),
-                    textFieldState = pictureUrlState,
+                Image(
                     modifier = Modifier
-                        .fillMaxWidth()
                         .padding(top = 8.dp)
+                        .size(36.dp, 36.dp)
+                        .align(Alignment.End)
+                        .clickable {
+                            onPickImageClick()
+                        },
+                    imageVector = vectorResource(R.drawable.ic_image)
                 )
-                Button(
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .height(48.dp)
-                        .align(Alignment.End),
-                    onClick = onAddClick
-                ) {
-                    Text(stringResource(R.string.submit))
+                bitmap?.let {
+                    CoilImage(
+                        data = it,
+                        fadeIn = true,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(200.dp, 200.dp)
+                            .align(Alignment.Start)
+                    )
                 }
             }
         }

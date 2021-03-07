@@ -9,14 +9,15 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import java.io.File
 
 class AddNoteViewModel(private val useCase: AddNoteUseCase) : ViewModel() {
 
     val stateFlow = MutableStateFlow(AddNoteUiState())
 
-    fun addNote(title: String, description: String, pictureUrl: String?) {
+    fun addNote(title: String, description: String, file: File?) {
         viewModelScope.launch {
-            useCase.addNote(title, description, pictureUrl)
+            useCase.addNote(title, description, file)
                 .onStart {
                     stateFlow.value = stateFlow.value.copy(loading = true, errorResourceId = null)
                 }
