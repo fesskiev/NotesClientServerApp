@@ -64,17 +64,10 @@ fun AuthScreen(navController: NavController, viewModel: AuthViewModel = getViewM
                         isErrorPassword = isErrorPassword,
                         isErrorDisplayName = isErrorDisplayName,
                         registrationOnClick = {
-                            viewModel.registration(
-                                email = email,
-                                displayName = displayName,
-                                password = password
-                            )
+                            viewModel.registration(email, displayName, password)
                         },
                         loginOnClick = {
-                            viewModel.login(
-                                email = email,
-                                password = password
-                            )
+                            viewModel.login(email, password)
                         },
                         toggleFormOnClick = { isLoginForm = !isLoginForm },
                         displayNameOnChange = { displayName = it },
