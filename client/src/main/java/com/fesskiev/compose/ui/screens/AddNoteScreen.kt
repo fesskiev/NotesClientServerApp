@@ -27,6 +27,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import com.fesskiev.compose.ui.utils.stateSaver
 import dev.chrisbanes.accompanist.coil.CoilImage
 import java.io.File
 
@@ -35,9 +36,9 @@ fun AddNoteScreen(
     navController: NavHostController,
     viewModel: AddNoteViewModel = getViewModel()
 ) {
-    var title by rememberSaveable { mutableStateOf("") }
-    var description by rememberSaveable { mutableStateOf("") }
-    var pair by remember { mutableStateOf<Pair<Bitmap, File>?>(null) }
+    var title by rememberSaveable(saver = stateSaver()) { mutableStateOf("") }
+    var description by rememberSaveable(saver = stateSaver()) { mutableStateOf("") }
+    var pair by rememberSaveable(saver = stateSaver()) { mutableStateOf<Pair<Bitmap, File>?>(null) }
     val context = LocalContext.current
     val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             result.data?.let { data ->

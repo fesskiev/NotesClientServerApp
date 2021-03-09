@@ -19,14 +19,15 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import com.fesskiev.compose.presentation.AuthViewModel
 import com.fesskiev.compose.ui.components.*
+import com.fesskiev.compose.ui.utils.stateSaver
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun AuthScreen(navController: NavController, viewModel: AuthViewModel = getViewModel()) {
-    var displayName by rememberSaveable { mutableStateOf("test") }
-    var email by rememberSaveable { mutableStateOf("test@i.ua") }
-    var password by rememberSaveable { mutableStateOf("123456") }
-    var isLoginForm by rememberSaveable { mutableStateOf(true) }
+    var displayName by rememberSaveable(saver = stateSaver()) { mutableStateOf("test") }
+    var email by rememberSaveable(saver = stateSaver()) { mutableStateOf("test@i.ua") }
+    var password by rememberSaveable(saver = stateSaver()) { mutableStateOf("123456") }
+    var isLoginForm by rememberSaveable(saver = stateSaver()) { mutableStateOf(true) }
 
     val uiState = viewModel.stateFlow.collectAsState().value
     when {

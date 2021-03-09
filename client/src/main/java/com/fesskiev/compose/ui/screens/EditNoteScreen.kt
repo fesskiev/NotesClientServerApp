@@ -17,6 +17,7 @@ import com.fesskiev.compose.R
 import com.fesskiev.compose.presentation.EditNoteUiState
 import com.fesskiev.compose.presentation.EditNoteViewModel
 import com.fesskiev.compose.ui.components.*
+import com.fesskiev.compose.ui.utils.stateSaver
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -25,8 +26,8 @@ fun EditNoteScreen(
     viewModel: EditNoteViewModel = getViewModel(),
     noteUid: Int
 ) {
-    var title by rememberSaveable { mutableStateOf("") }
-    var description by rememberSaveable { mutableStateOf("") }
+    var title by rememberSaveable(saver = stateSaver()) { mutableStateOf("") }
+    var description by rememberSaveable(saver = stateSaver()) { mutableStateOf("") }
     val uiState = viewModel.stateFlow.collectAsState().value
     LaunchedEffect(noteUid) {
         viewModel.getNoteByUid(noteUid)
