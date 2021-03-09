@@ -1,18 +1,15 @@
 package com.fesskiev.compose.ui.screens
 
 import android.graphics.Bitmap
+import androidx.activity.compose.registerForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.AmbientContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.fesskiev.compose.R
@@ -24,10 +21,12 @@ import com.fesskiev.compose.ui.components.AsciiTextField
 import com.fesskiev.compose.ui.components.ProgressBar
 import com.fesskiev.compose.ui.utils.getBitmapFromIntent
 import com.fesskiev.compose.ui.utils.pickImageChooserIntent
-import com.fesskiev.compose.ui.utils.registerForActivityResult
 import org.koin.androidx.compose.getViewModel
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import dev.chrisbanes.accompanist.coil.CoilImage
 import java.io.File
 
@@ -36,12 +35,11 @@ fun AddNoteScreen(
     navController: NavHostController,
     viewModel: AddNoteViewModel = getViewModel()
 ) {
-    val titleState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    val descriptionState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
+    var title by rememberSaveable { mutableStateOf("") }
+    var description by rememberSaveable { mutableStateOf("") }
     var pair by remember { mutableStateOf<Pair<Bitmap, File>?>(null) }
-    val context = AmbientContext.current
-    val launcher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    val context = LocalContext.current
+    val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             result.data?.let { data ->
                 context.getBitmapFromIntent(data)?.let {
                     pair = it
@@ -58,27 +56,24 @@ fun AddNoteScreen(
                     navController.popBackStack()
                 }
             },
-            bodyContent = {
-                AddNoteContent(
-                    titleState,
-                    descriptionState,
-                    pair?.first,
-                    uiState,
+            content = {
+                AddNoteContent(uiState, title, description, pair?.first,
                     onPickImageClick = {
                         launcher.launch(context.pickImageChooserIntent(title = "Pick Image"))
-                    })
+                    },
+                    titleOnChange = { title = it },
+                    descriptionOnChange = { description = it })
             },
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        viewModel.addNote(
-                            titleState.value.text,
-                            descriptionState.value.text,
-                            pair?.second
-                        )
+                        viewModel.addNote(title, description, pair?.second)
                     }
                 ) {
-                    Image(imageVector = vectorResource(R.drawable.ic_add))
+                    Image(
+                        painter = painterResource(R.drawable.ic_add),
+                        contentDescription = ""
+                    )
                 }
             },
             errorResourceId = uiState.errorResourceId
@@ -88,11 +83,13 @@ fun AddNoteScreen(
 
 @Composable
 fun AddNoteContent(
-    titleState: MutableState<TextFieldValue>,
-    descriptionState: MutableState<TextFieldValue>,
-    bitmap: Bitmap?,
     uiState: AddNoteUiState,
-    onPickImageClick: () -> Unit
+    title: String,
+    description: String,
+    bitmap: Bitmap?,
+    onPickImageClick: () -> Unit,
+    titleOnChange: (String) -> Unit,
+    descriptionOnChange: (String) -> Unit
 ) {
     when {
         uiState.loading -> ProgressBar()
@@ -113,20 +110,22 @@ fun AddNoteContent(
             ) {
                 AsciiTextField(
                     label = titleLabel,
-                    textFieldState = titleState,
+                    value = title,
+                    onValueChange = titleOnChange,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
-                    isErrorValue = uiState.addNoteState.isEmptyTitle
+                    isError = uiState.addNoteState.isEmptyTitle
                 )
                 AsciiTextField(
                     label = descriptionLabel,
-                    textFieldState = descriptionState,
+                    value = description,
+                    onValueChange = descriptionOnChange,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(250.dp)
                         .padding(top = 8.dp),
-                    isErrorValue = uiState.addNoteState.isEmptyDescription,
+                    isError = uiState.addNoteState.isEmptyDescription,
                 )
                 Image(
                     modifier = Modifier
@@ -136,11 +135,13 @@ fun AddNoteContent(
                         .clickable {
                             onPickImageClick()
                         },
-                    imageVector = vectorResource(R.drawable.ic_image)
+                    painter = painterResource(R.drawable.ic_image),
+                    contentDescription = ""
                 )
                 bitmap?.let {
                     CoilImage(
                         data = it,
+                        contentDescription = "",
                         fadeIn = true,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier

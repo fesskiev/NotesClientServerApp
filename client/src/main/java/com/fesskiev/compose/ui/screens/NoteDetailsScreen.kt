@@ -4,8 +4,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.onActive
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -30,7 +31,7 @@ fun NoteDetailsScreen(
     noteUid: Int
 ) {
     val uiState = viewModel.stateFlow.collectAsState().value
-    onActive {
+    LaunchedEffect(noteUid) {
         viewModel.getNoteByUid(noteUid)
     }
     AppScaffold(
@@ -39,7 +40,7 @@ fun NoteDetailsScreen(
                 navController.popBackStack()
             }
         },
-        bodyContent = {
+        content = {
             NoteDetailsContent(uiState)
         },
         errorResourceId = uiState.errorResourceId
@@ -60,19 +61,20 @@ fun NoteDetails(note: Note) {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.preferredHeight(25.dp))
+        Spacer(Modifier.height(25.dp))
         Text(text = note.title, style = MaterialTheme.typography.h5)
-        Spacer(Modifier.preferredHeight(20.dp))
+        Spacer(Modifier.height(20.dp))
         Text(text = note.description, style = MaterialTheme.typography.body1)
-        Spacer(Modifier.preferredHeight(25.dp))
+        Spacer(Modifier.height(25.dp))
         note.pictureName?.let {
             val url = "http://" + BuildConfig.HOST + ":" + BuildConfig.PORT + "/" + it
             CoilImage(
                 data = url,
+                contentDescription = "",
                 fadeIn = true,
                 contentScale = ContentScale.Crop,
                 loading = { ProgressBar() },
-                modifier = Modifier.preferredSize(300.dp)
+                modifier = Modifier.size(300.dp)
             )
         }
     }

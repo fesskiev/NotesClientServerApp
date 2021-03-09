@@ -2,18 +2,19 @@ package com.fesskiev.compose.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
-import androidx.compose.ui.layout.WithConstraints
-import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.fesskiev.compose.R
@@ -43,7 +44,6 @@ fun NotesListScreen(
             }
         }
     }
-
 }
 
 @Composable
@@ -54,15 +54,17 @@ fun NoteItem(
     onNoteEditClick: (Note) -> Unit
 ) {
     val height = 100.dp
-    WithConstraints {
+    BoxWithConstraints {
         val max = 0f
         val min = -160f
         val offsetPositionX = remember { mutableStateOf(0f) }
         Box(
-            Modifier.draggable(orientation = Orientation.Horizontal) { delta ->
-                val newValue = offsetPositionX.value + delta
-                offsetPositionX.value = newValue.coerceIn(min, max)
-            }
+            Modifier.draggable(
+                orientation = Orientation.Horizontal,
+                state = rememberDraggableState { delta ->
+                    val newValue = offsetPositionX.value + delta
+                    offsetPositionX.value = newValue.coerceIn(min, max)
+                })
         ) {
             Row(
                 horizontalArrangement = Arrangement.End,
@@ -72,7 +74,8 @@ fun NoteItem(
                     .height(height)
             ) {
                 Image(
-                    imageVector = vectorResource(R.drawable.ic_delete),
+                    painter = painterResource(R.drawable.ic_delete),
+                    contentDescription = "",
                     modifier = Modifier
                         .padding(horizontal = 20.dp)
                         .clickable(
@@ -82,7 +85,8 @@ fun NoteItem(
                         )
                 )
                 Image(
-                    imageVector = vectorResource(R.drawable.ic_edit),
+                    painter = painterResource(R.drawable.ic_edit),
+                    contentDescription = "",
                     modifier = Modifier
                         .padding(horizontal = 20.dp)
                         .clickable(
@@ -106,7 +110,7 @@ fun NoteItem(
                         .padding(start = 8.dp)
                 ) {
                     Text(text = note.title, style = MaterialTheme.typography.h6)
-                    Spacer(Modifier.preferredHeight(8.dp))
+                    Spacer(Modifier.height(8.dp))
                     Text(text = formatDate(note.time), style = MaterialTheme.typography.body2)
                 }
             }

@@ -14,7 +14,7 @@ fun ProgressBar() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        CircularProgressIndicator(modifier = Modifier.preferredSize(64.dp, 64.dp))
+        CircularProgressIndicator(modifier = Modifier.size(64.dp, 64.dp))
     }
 }
 
@@ -25,6 +25,6 @@ fun PagingProgressBar() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        CircularProgressIndicator(modifier = Modifier.preferredSize(32.dp, 32.dp))
+        CircularProgressIndicator(modifier = Modifier.size(32.dp, 32.dp))
     }
 }

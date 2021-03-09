@@ -39,7 +39,7 @@ fun SettingsScreen(
                     AppBackToolbar(stringResource(R.string.settings)) {
                         navController.popBackStack()
                     }
-                }, bodyContent = {
+                }, content = {
                     SettingsContent(
                         uiState,
                         onHidePopupClick = { viewModel.hideThemeModePopup() },
@@ -71,7 +71,7 @@ private fun SettingsContent(
         }
         Row(
             modifier = Modifier
-                .preferredHeight(64.dp)
+                .height(64.dp)
                 .clickable(onClick = onShowPopupClick),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -117,7 +117,7 @@ private fun ThemePopup(
         onDismissRequest = { onDismissClick() }
     ) {
         Card(
-            modifier = Modifier.preferredSize(width = 220.dp, height = 140.dp)
+            modifier = Modifier.size(width = 220.dp, height = 140.dp)
         ) {
             Column(verticalArrangement = Arrangement.Center) {
                 arrayOf(
@@ -140,7 +140,7 @@ private fun ThemePopup(
                     RadioButtonRow(text = theme.text, selected = theme.selected, onClick = {
                         onThemeClick(theme.themeMode)
                     })
-                    Spacer(Modifier.preferredHeight(12.dp))
+                    Spacer(Modifier.height(12.dp))
                 }
             }
         }

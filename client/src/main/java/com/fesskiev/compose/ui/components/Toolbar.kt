@@ -14,7 +14,7 @@ fun AppBackToolbar(title: String, backOnClick: () -> Unit) {
     TopAppBar(title = { Text(title) },
             navigationIcon = {
                 IconButton(onClick = { backOnClick() }) {
-                    Icon(Icons.Filled.ArrowBack)
+                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "")
                 }
             })
 }
@@ -24,7 +24,7 @@ fun AppHamburgerToolbar(title: String, hamburgerOnClick: () -> Unit) {
     TopAppBar(title = { Text(title) },
             navigationIcon = {
                 IconButton(onClick = { hamburgerOnClick() }) {
-                    Icon(Icons.Filled.Menu)
+                    Icon(imageVector = Icons.Filled.Menu, contentDescription = "")
                 }
             })
 }

@@ -6,15 +6,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.onActive
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.fesskiev.compose.R
@@ -29,16 +25,16 @@ fun EditNoteScreen(
     viewModel: EditNoteViewModel = getViewModel(),
     noteUid: Int
 ) {
-    val titleState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    val descriptionState = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
+    var title by rememberSaveable { mutableStateOf("") }
+    var description by rememberSaveable { mutableStateOf("") }
     val uiState = viewModel.stateFlow.collectAsState().value
-    onActive {
+    LaunchedEffect(noteUid) {
         viewModel.getNoteByUid(noteUid)
     }
     if (uiState.note != null) {
         val note = uiState.note
-        titleState.value = TextFieldValue(note.title)
-        descriptionState.value = TextFieldValue(note.description)
+        title = note.title
+        description = note.description
     }
     val titleLabel = when {
         uiState.editNoteState.isEmptyTitle -> stringResource(R.string.error_empty_title)
@@ -57,20 +53,18 @@ fun EditNoteScreen(
                     navController.popBackStack()
                 }
             },
-            bodyContent = {
+            content = {
                 EditNoteContent(
+                    uiState,
                     titleLabel,
                     descriptionLabel,
-                    titleState,
-                    descriptionState,
-                    uiState, onEditClick = {
-                        viewModel.editNote(
-                            noteUid,
-                            titleState.value.text,
-                            descriptionState.value.text
-                        )
-                    }
-                )
+                    title,
+                    description,
+                    onEditClick = {
+                        viewModel.editNote(noteUid, title, description)
+                    },
+                    titleOnChange = { title = it },
+                    descriptionOnChange = { description = it })
             },
             errorResourceId = uiState.errorResourceId
         )
@@ -79,12 +73,14 @@ fun EditNoteScreen(
 
 @Composable
 fun EditNoteContent(
+    uiState: EditNoteUiState,
     titleLabel: String,
     descriptionLabel: String,
-    titleState: MutableState<TextFieldValue>,
-    descriptionState: MutableState<TextFieldValue>,
-    uiState: EditNoteUiState,
-    onEditClick: () -> Unit
+    title: String,
+    description: String,
+    onEditClick: () -> Unit,
+    titleOnChange: (String) -> Unit,
+    descriptionOnChange: (String) -> Unit
 ) {
     when {
         uiState.loading -> ProgressBar()
@@ -97,19 +93,21 @@ fun EditNoteContent(
             ) {
                 AsciiTextField(
                     label = titleLabel,
-                    textFieldState = titleState,
+                    value = title,
+                    onValueChange = titleOnChange,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
-                    isErrorValue = uiState.editNoteState.isEmptyTitle
+                    isError = uiState.editNoteState.isEmptyTitle
                 )
                 AsciiTextField(
                     label = descriptionLabel,
-                    textFieldState = descriptionState,
+                    value = description,
+                    onValueChange = descriptionOnChange,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
-                    isErrorValue = uiState.editNoteState.isEmptyDescription,
+                    isError = uiState.editNoteState.isEmptyDescription,
                 )
                 Button(
                     modifier = Modifier

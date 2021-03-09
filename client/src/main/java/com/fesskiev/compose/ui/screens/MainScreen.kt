@@ -2,11 +2,9 @@ package com.fesskiev.compose.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.onActive
+import androidx.compose.runtime.*
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.navigate
 import com.fesskiev.compose.R
@@ -14,24 +12,30 @@ import com.fesskiev.compose.presentation.NotesListUiState
 import com.fesskiev.compose.presentation.NotesListViewModel
 import com.fesskiev.compose.ui.components.*
 import com.fesskiev.model.Note
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun MainScreen(navController: NavHostController, viewModel: NotesListViewModel = getViewModel()) {
+    val scope = rememberCoroutineScope()
     val uiState = viewModel.stateFlow.collectAsState().value
-    onActive {
+    LaunchedEffect(0) {
         viewModel.getNotes(uiState.page)
     }
     AppScaffold(
+        scope = scope,
         topBar = {
             AppHamburgerToolbar(title = stringResource(R.string.app_name), hamburgerOnClick = {
-                it.drawerState.open()
+                scope.launch {
+                    it.drawerState.open()
+                }
             })
         }, drawerContent = {
             AppDrawer(onSettingsClick = {
-                it.drawerState.close(onClosed = {
+                scope.launch {
+                    it.drawerState.close()
                     navController.navigate("settings")
-                })
+                }
             })
         },
         floatingActionButton = {
@@ -40,10 +44,10 @@ fun MainScreen(navController: NavHostController, viewModel: NotesListViewModel =
                     navController.navigate("add_note")
                 }
             ) {
-                Image(imageVector = vectorResource(R.drawable.ic_plus_one))
+                Image(painter = painterResource(R.drawable.ic_plus_one), contentDescription = "")
             }
         },
-        bodyContent = {
+        content = {
             MainContent(
                 uiState,
                 onNoteClick = { navController.navigate("note_details/${it.noteUid}") },

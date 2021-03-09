@@ -9,19 +9,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AppScaffold(
+    scope: CoroutineScope = rememberCoroutineScope(),
     topBar: @Composable (ScaffoldState) -> Unit = { },
     drawerContent: @Composable (ScaffoldState) -> Unit = { },
-    bodyContent: @Composable (PaddingValues) -> Unit,
+    content: @Composable (PaddingValues) -> Unit,
     floatingActionButton: @Composable () -> Unit = { },
     @StringRes errorResourceId: Int? = null
 ) {
     val scaffoldState = rememberScaffoldState()
-    val scope = rememberCoroutineScope()
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
@@ -38,7 +38,7 @@ fun AppScaffold(
         drawerContent = {
             drawerContent(scaffoldState)
         },
-        bodyContent = bodyContent,
+        content = content,
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = floatingActionButton
     )
