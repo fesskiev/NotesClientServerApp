@@ -1,13 +1,12 @@
 package com.fesskiev.compose.ui.screens
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -17,7 +16,6 @@ import com.fesskiev.compose.R
 import com.fesskiev.compose.presentation.EditNoteUiState
 import com.fesskiev.compose.presentation.EditNoteViewModel
 import com.fesskiev.compose.ui.components.*
-import com.fesskiev.compose.ui.utils.stateSaver
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -26,24 +24,9 @@ fun EditNoteScreen(
     viewModel: EditNoteViewModel = getViewModel(),
     noteUid: Int
 ) {
-    var title by rememberSaveable(saver = stateSaver()) { mutableStateOf("") }
-    var description by rememberSaveable(saver = stateSaver()) { mutableStateOf("") }
     val uiState = viewModel.stateFlow.collectAsState().value
     LaunchedEffect(noteUid) {
         viewModel.getNoteByUid(noteUid)
-    }
-    if (uiState.note != null) {
-        val note = uiState.note
-        title = note.title
-        description = note.description
-    }
-    val titleLabel = when {
-        uiState.editNoteState.isEmptyTitle -> stringResource(R.string.error_empty_title)
-        else -> stringResource(R.string.note_title)
-    }
-    val descriptionLabel = when {
-        uiState.editNoteState.isEmptyDescription -> stringResource(R.string.error_empty_desc)
-        else -> stringResource(R.string.note_description)
     }
     if (uiState.editNoteState.success) {
         navController.popBackStack()
@@ -57,15 +40,11 @@ fun EditNoteScreen(
             content = {
                 EditNoteContent(
                     uiState,
-                    titleLabel,
-                    descriptionLabel,
-                    title,
-                    description,
                     onEditClick = {
-                        viewModel.editNote(noteUid, title, description)
+                        viewModel.editNote(noteUid, uiState.title, uiState.description)
                     },
-                    titleOnChange = { title = it },
-                    descriptionOnChange = { description = it })
+                    titleOnChange = { viewModel.changeTitle(it) },
+                    descriptionOnChange = { viewModel.changeDescription(it) })
             },
             errorResourceId = uiState.errorResourceId
         )
@@ -75,10 +54,6 @@ fun EditNoteScreen(
 @Composable
 fun EditNoteContent(
     uiState: EditNoteUiState,
-    titleLabel: String,
-    descriptionLabel: String,
-    title: String,
-    description: String,
     onEditClick: () -> Unit,
     titleOnChange: (String) -> Unit,
     descriptionOnChange: (String) -> Unit
@@ -86,28 +61,35 @@ fun EditNoteContent(
     when {
         uiState.loading -> ProgressBar()
         else -> {
+            val titleLabel = when {
+                uiState.editNoteState.isEmptyTitle -> stringResource(R.string.error_empty_title)
+                else -> stringResource(R.string.note_title)
+            }
+            val descriptionLabel = when {
+                uiState.editNoteState.isEmptyDescription -> stringResource(R.string.error_empty_desc)
+                else -> stringResource(R.string.note_description)
+            }
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Spacer(Modifier.height(4.dp))
                 AsciiTextField(
                     label = titleLabel,
-                    value = title,
+                    value = uiState.title,
+                    textStyle = MaterialTheme.typography.subtitle1,
                     onValueChange = titleOnChange,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
                     isError = uiState.editNoteState.isEmptyTitle
                 )
+                Spacer(Modifier.height(20.dp))
                 AsciiTextField(
                     label = descriptionLabel,
-                    value = description,
+                    value = uiState.description,
+                    textStyle = MaterialTheme.typography.body2,
                     onValueChange = descriptionOnChange,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
                     isError = uiState.editNoteState.isEmptyDescription,
                 )
                 Button(

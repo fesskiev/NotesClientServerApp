@@ -4,10 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fesskiev.compose.data.remote.parseHttpError
 import com.fesskiev.compose.domain.AddNoteUseCase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -19,11 +16,18 @@ class AddNoteViewModel(private val useCase: AddNoteUseCase) : ViewModel() {
         viewModelScope.launch {
             useCase.addNote(title, description, file)
                 .onStart {
-                    stateFlow.value = stateFlow.value.copy(loading = true, errorResourceId = null)
+                    stateFlow.value = stateFlow.value.copy(
+                        loading = true,
+                        addNoteState = AddNoteState.Default,
+                        errorResourceId = null
+                    )
                 }
                 .catch {
                     stateFlow.value =
-                        stateFlow.value.copy(loading = false, errorResourceId = parseHttpError(it))
+                        stateFlow.value.copy(
+                            loading = false,
+                            errorResourceId = parseHttpError(it)
+                        )
                 }.collect {
                     stateFlow.value = stateFlow.value.copy(
                         loading = false,
@@ -32,5 +36,23 @@ class AddNoteViewModel(private val useCase: AddNoteUseCase) : ViewModel() {
                     )
                 }
         }
+    }
+
+    fun changeTitle(title: String) {
+        stateFlow.value = stateFlow.value.copy(
+            loading = false,
+            title = title,
+            addNoteState = AddNoteState.Default,
+            errorResourceId = null
+        )
+    }
+
+    fun changeDescription(description: String) {
+        stateFlow.value = stateFlow.value.copy(
+            loading = false,
+            description = description,
+            addNoteState = AddNoteState.Default,
+            errorResourceId = null
+        )
     }
 }

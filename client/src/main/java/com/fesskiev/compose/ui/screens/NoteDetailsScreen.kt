@@ -1,6 +1,8 @@
 package com.fesskiev.compose.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -58,12 +60,15 @@ fun NoteDetailsContent(uiState: NoteDetailsUiState) {
 @Composable
 fun NoteDetails(note: Note) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(25.dp))
+        Spacer(Modifier.height(9.dp))
         Text(text = note.title, style = MaterialTheme.typography.h5)
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(25.dp))
         Text(text = note.description, style = MaterialTheme.typography.body1)
         Spacer(Modifier.height(25.dp))
         note.pictureName?.let {

@@ -22,11 +22,18 @@ class EditNoteViewModel(
         viewModelScope.launch {
             editNoteUseCase.editNote(noteUid, title, description)
                 .onStart {
-                    stateFlow.value = stateFlow.value.copy(loading = true, errorResourceId = null)
+                    stateFlow.value = stateFlow.value.copy(
+                        loading = true,
+                        editNoteState = EditNoteState.Default,
+                        errorResourceId = null
+                    )
                 }
                 .catch {
                     stateFlow.value =
-                        stateFlow.value.copy(loading = false, errorResourceId = parseHttpError(it))
+                        stateFlow.value.copy(
+                            loading = false,
+                            errorResourceId = parseHttpError(it)
+                        )
                 }.collect {
                     stateFlow.value = stateFlow.value.copy(
                         loading = false,
@@ -41,15 +48,46 @@ class EditNoteViewModel(
         viewModelScope.launch {
             getNoteByIdUseCase.getNoteByUid(noteUid)
                 .onStart {
-                    stateFlow.value = stateFlow.value.copy(loading = true, errorResourceId = null)
+                    stateFlow.value = stateFlow.value.copy(
+                        loading = true,
+                        title = "",
+                        description = "",
+                        editNoteState = EditNoteState.Default,
+                        errorResourceId = null
+                    )
                 }
                 .catch {
                     stateFlow.value =
-                        stateFlow.value.copy(loading = false, errorResourceId = parseHttpError(it))
+                        stateFlow.value.copy(
+                            loading = false,
+                            errorResourceId = parseHttpError(it)
+                        )
                 }.collect {
-                    stateFlow.value =
-                        stateFlow.value.copy(loading = false, note = it, errorResourceId = null)
+                    stateFlow.value = stateFlow.value.copy(
+                        loading = false,
+                        title = it.title,
+                        description = it.description,
+                        errorResourceId = null
+                    )
                 }
         }
+    }
+
+    fun changeTitle(title: String) {
+        stateFlow.value = stateFlow.value.copy(
+            loading = false,
+            title = title,
+            editNoteState = EditNoteState.Default,
+            errorResourceId = null
+        )
+    }
+
+    fun changeDescription(description: String) {
+        stateFlow.value = stateFlow.value.copy(
+            loading = false,
+            description = description,
+            editNoteState = EditNoteState.Default,
+            errorResourceId = null
+        )
     }
 }

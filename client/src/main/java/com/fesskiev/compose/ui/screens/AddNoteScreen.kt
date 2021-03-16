@@ -3,10 +3,11 @@ package com.fesskiev.compose.ui.screens
 import android.graphics.Bitmap
 import androidx.activity.compose.registerForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -24,9 +25,13 @@ import com.fesskiev.compose.ui.utils.pickImageChooserIntent
 import org.koin.androidx.compose.getViewModel
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import com.fesskiev.compose.ui.theme.Grey
 import com.fesskiev.compose.ui.utils.stateSaver
 import dev.chrisbanes.accompanist.coil.CoilImage
 import java.io.File
@@ -36,48 +41,79 @@ fun AddNoteScreen(
     navController: NavHostController,
     viewModel: AddNoteViewModel = getViewModel()
 ) {
-    var title by rememberSaveable(saver = stateSaver()) { mutableStateOf("") }
-    var description by rememberSaveable(saver = stateSaver()) { mutableStateOf("") }
-    var pair by rememberSaveable(saver = stateSaver()) { mutableStateOf<Pair<Bitmap, File>?>(null) }
+    var imageData by rememberSaveable(saver = stateSaver()) {
+        mutableStateOf<Pair<Bitmap?, File>?>(
+            null
+        )
+    }
     val context = LocalContext.current
-    val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    val launcher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             result.data?.let { data ->
                 context.getBitmapFromIntent(data)?.let {
-                    pair = it
+                    imageData = it
                 }
             }
         }
     val uiState = viewModel.stateFlow.collectAsState().value
-    if (uiState.addNoteState.success) {
-        navController.popBackStack()
-    } else {
-        AppScaffold(
-            topBar = {
-                AppBackToolbar(stringResource(R.string.add_note)) {
-                    navController.popBackStack()
-                }
-            },
-            content = {
-                AddNoteContent(uiState, title, description, pair?.first,
-                    onPickImageClick = {
-                        launcher.launch(context.pickImageChooserIntent(title = "Pick Image"))
-                    },
-                    titleOnChange = { title = it },
-                    descriptionOnChange = { description = it })
-            },
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
-                        viewModel.addNote(title, description, pair?.second)
+    when {
+        uiState.addNoteState.success -> navController.popBackStack()
+        else -> {
+            AppScaffold(
+                topBar = {
+                    AppBackToolbar(
+                        title = stringResource(R.string.add_note),
+                        actions = {
+                            AppToolbarButtons(
+                                addNoteOnClick = {
+                                    viewModel.addNote(
+                                        uiState.title,
+                                        uiState.description,
+                                        imageData?.second
+                                    )
+                                },
+                                pickImageOnClick = {
+                                    launcher.launch(context.pickImageChooserIntent(title = "Pick Image"))
+                                })
+                        }) {
+                        navController.popBackStack()
                     }
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_add),
-                        contentDescription = ""
+                },
+                content = {
+                    AddNoteContent(
+                        uiState,
+                        imageData?.first,
+                        imageData?.second,
+                        titleOnChange = { viewModel.changeTitle(it) },
+                        descriptionOnChange = { viewModel.changeDescription(it) },
+                        deleteImageOnClick = { imageData = null }
                     )
-                }
-            },
-            errorResourceId = uiState.errorResourceId
+                },
+                errorResourceId = uiState.errorResourceId
+            )
+        }
+    }
+}
+
+@Composable
+fun AppToolbarButtons(addNoteOnClick: () -> Unit, pickImageOnClick: () -> Unit) {
+    Row(
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            painter = painterResource(R.drawable.ic_add),
+            contentDescription = "",
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .clickable(onClick = addNoteOnClick)
+        )
+        Image(
+            painter = painterResource(R.drawable.ic_image),
+            contentDescription = "",
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .clickable(onClick = pickImageOnClick)
         )
     }
 }
@@ -85,12 +121,11 @@ fun AddNoteScreen(
 @Composable
 fun AddNoteContent(
     uiState: AddNoteUiState,
-    title: String,
-    description: String,
     bitmap: Bitmap?,
-    onPickImageClick: () -> Unit,
+    file: File?,
     titleOnChange: (String) -> Unit,
-    descriptionOnChange: (String) -> Unit
+    descriptionOnChange: (String) -> Unit,
+    deleteImageOnClick: () -> Unit
 ) {
     when {
         uiState.loading -> ProgressBar()
@@ -105,54 +140,85 @@ fun AddNoteContent(
             }
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Spacer(Modifier.height(4.dp))
                 AsciiTextField(
                     label = titleLabel,
-                    value = title,
+                    value = uiState.title,
+                    textStyle = MaterialTheme.typography.subtitle1,
                     onValueChange = titleOnChange,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
                     isError = uiState.addNoteState.isEmptyTitle
                 )
+                Spacer(Modifier.height(20.dp))
                 AsciiTextField(
                     label = descriptionLabel,
-                    value = description,
+                    value = uiState.description,
+                    textStyle = MaterialTheme.typography.body2,
                     onValueChange = descriptionOnChange,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp)
-                        .padding(top = 8.dp),
                     isError = uiState.addNoteState.isEmptyDescription,
                 )
-                Image(
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .size(36.dp, 36.dp)
-                        .align(Alignment.End)
-                        .clickable {
-                            onPickImageClick()
-                        },
-                    painter = painterResource(R.drawable.ic_image),
-                    contentDescription = ""
-                )
-                bitmap?.let {
-                    CoilImage(
-                        data = it,
-                        contentDescription = "",
-                        fadeIn = true,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(200.dp, 200.dp)
-                            .align(Alignment.Start)
-                    )
+                if (bitmap != null && file != null) {
+                    Spacer(Modifier.height(25.dp))
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Bottom,
+                        horizontalAlignment = Alignment.Start,
+                    ) {
+                        ImageAttachment(bitmap, file, deleteImageOnClick = deleteImageOnClick)
+                    }
                 }
             }
         }
     }
 }
 
+@Composable
+fun ImageAttachment(bitmap: Bitmap, file: File, deleteImageOnClick: () -> Unit) {
+    Box {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .clip(RoundedCornerShape(8.dp, 8.dp, 8.dp, 8.dp))
+                .background(color = Grey),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CoilImage(
+                data = bitmap,
+                contentDescription = "",
+                fadeIn = true,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(100.dp, 100.dp)
+            )
+            Text(
+                text = file.name,
+                modifier = Modifier.padding(4.dp),
+                style = MaterialTheme.typography.body2.copy(color = Color.Black)
+            )
+        }
+        Image(
+            painter = painterResource(R.drawable.ic_cancel),
+            contentDescription = "",
+            modifier = Modifier
+                .size(46.dp, 46.dp)
+                .align(Alignment.TopEnd)
+                .clickable {
+                    deleteImageOnClick()
+                }
+        )
+    }
+}
+
+
+@Preview
+@Composable
+fun ImageAttachmentPreview() {
+    val file = File("./image.png")
+    val bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.RGB_565)
+    ImageAttachment(bitmap, file, deleteImageOnClick = {})
+}
 

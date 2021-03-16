@@ -5,9 +5,13 @@ import com.fesskiev.model.Note
 
 data class AuthUiState(
     val loading: Boolean = false,
+    val displayName: String = "",
+    val email: String = "",
+    val password: String = "",
+    val isLoginFormShow: Boolean = true,
     val authState: AuthState = AuthState(),
     @StringRes
-    val errorResourceId: Int? = null,
+    val errorResourceId: Int? = null
 )
 
 data class AuthState(
@@ -16,8 +20,12 @@ data class AuthState(
     val isEmptyEmailError: Boolean = false,
     val isEmptyDisplayNameError: Boolean = false,
     val isValidateEmailError: Boolean = false,
-    val isValidatePasswordError: Boolean = false,
-)
+    val isValidatePasswordError: Boolean = false
+) {
+    companion object {
+        val Default = AuthState()
+    }
+}
 
 data class NotesListUiState(
     val loading: Boolean = false,
@@ -26,47 +34,58 @@ data class NotesListUiState(
     val notes: List<Note>? = null,
     val page: Int = 1,
     @StringRes
-    val errorResourceId: Int? = null,
+    val errorResourceId: Int? = null
 )
 
 data class DeleteNoteState(
     val notes: List<Note>? = null,
     @StringRes
-    val errorResourceId: Int? = null,
+    val errorResourceId: Int? = null
 )
 
 data class AddNoteUiState(
     val loading: Boolean = false,
+    val title: String = "",
+    val description: String = "",
     val addNoteState: AddNoteState = AddNoteState(),
     @StringRes
-    val errorResourceId: Int? = null,
+    val errorResourceId: Int? = null
 )
 
 data class AddNoteState(
     val success: Boolean = false,
     val isEmptyTitle: Boolean = false,
-    val isEmptyDescription: Boolean = false,
-)
+    val isEmptyDescription: Boolean = false
+) {
+    companion object {
+        val Default = AddNoteState()
+    }
+}
 
 data class EditNoteUiState(
     val loading: Boolean = false,
-    val note: Note? = null,
+    val title: String = "",
+    val description: String = "",
     val editNoteState: EditNoteState = EditNoteState(),
     @StringRes
-    val errorResourceId: Int? = null,
+    val errorResourceId: Int? = null
 )
 
 data class EditNoteState(
     val success: Boolean = false,
     val isEmptyTitle: Boolean = false,
-    val isEmptyDescription: Boolean = false,
-)
+    val isEmptyDescription: Boolean = false
+) {
+    companion object {
+        val Default = EditNoteState()
+    }
+}
 
 data class NoteDetailsUiState(
     val loading: Boolean = false,
     val note: Note? = null,
     @StringRes
-    val errorResourceId: Int? = null,
+    val errorResourceId: Int? = null
 )
 
 data class SettingsUiState(

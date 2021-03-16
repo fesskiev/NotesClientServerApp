@@ -6,8 +6,8 @@ import org.jetbrains.exposed.sql.*
 object NotesTable : Table() {
     val noteUid = integer("noteUid").autoIncrement()
     val userUid = integer("userUid")
-    val title = varchar("title", 255)
-    val description = varchar("description", 255)
+    val title = text("title")
+    val description = text("description", )
     val pictureName = varchar("pictureName", 255).nullable()
     val time = long("time")
     override val primaryKey = PrimaryKey(noteUid)

@@ -24,7 +24,7 @@ class AuthViewModel(
                 .onStart {
                     stateFlow.value = stateFlow.value.copy(
                         loading = true,
-                        authState = AuthState(),
+                        authState = AuthState.Default,
                         errorResourceId = null
                     )
                 }
@@ -32,12 +32,15 @@ class AuthViewModel(
                     stateFlow.value =
                         stateFlow.value.copy(
                             loading = false,
-                            authState = AuthState(),
                             errorResourceId = parseHttpError(it)
                         )
                 }.collect {
                     stateFlow.value =
-                        stateFlow.value.copy(loading = false, authState = it, errorResourceId = null)
+                        stateFlow.value.copy(
+                            loading = false,
+                            authState = it,
+                            errorResourceId = null
+                        )
                 }
         }
     }
@@ -48,7 +51,7 @@ class AuthViewModel(
                 .onStart {
                     stateFlow.value = stateFlow.value.copy(
                         loading = true,
-                        authState = AuthState(),
+                        authState = AuthState.Default,
                         errorResourceId = null
                     )
                 }
@@ -56,13 +59,55 @@ class AuthViewModel(
                     stateFlow.value =
                         stateFlow.value.copy(
                             loading = false,
-                            authState = AuthState(),
                             errorResourceId = parseHttpError(it)
                         )
                 }.collect {
                     stateFlow.value =
-                        stateFlow.value.copy(loading = false, authState = it, errorResourceId = null)
+                        stateFlow.value.copy(
+                            loading = false,
+                            authState = it,
+                            errorResourceId = null
+                        )
                 }
         }
+    }
+
+    fun toggleForm() {
+        stateFlow.value = stateFlow.value.copy(
+            loading = false,
+            displayName = "",
+            email = "",
+            password = "",
+            isLoginFormShow = !stateFlow.value.isLoginFormShow,
+            authState = AuthState.Default,
+            errorResourceId = null
+        )
+    }
+
+    fun changeDisplayName(displayName: String) {
+        stateFlow.value = stateFlow.value.copy(
+            loading = false,
+            displayName = displayName,
+            authState = AuthState.Default,
+            errorResourceId = null
+        )
+    }
+
+    fun changeEmail(email: String) {
+        stateFlow.value = stateFlow.value.copy(
+            loading = false,
+            email = email,
+            authState = AuthState.Default,
+            errorResourceId = null
+        )
+    }
+
+    fun changePassword(password: String) {
+        stateFlow.value = stateFlow.value.copy(
+            loading = false,
+            password = password,
+            authState = AuthState.Default,
+            errorResourceId = null
+        )
     }
 }

@@ -14,7 +14,12 @@ private val LightColors = lightColors(
     secondary = BlueLight700,
     secondaryVariant = BlueLight900,
     onSecondary = Color.White,
-    error = Red800
+    error = Red800,
+    background = Color.White,
+    surface = Color.White,
+    onBackground = Color.Black,
+    onSurface = Color.Black,
+    onError = Color.White
 )
 
 private val DarkColors = darkColors(
@@ -23,8 +28,15 @@ private val DarkColors = darkColors(
     onPrimary = Color.Black,
     secondary = BlueLight300,
     onSecondary = Color.White,
-    error = Red300
+    error = Red300,
+    background = Color.Black,
+    surface = Color.Black,
+    onBackground = Color.White,
+    onSurface = Color.White,
+    onError = Color.Black
 )
+
+val Grey = Color(0xFFCACACA)
 
 @Composable
 fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
