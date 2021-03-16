@@ -34,12 +34,15 @@ android {
     }
 
     compileOptions {
+        coreLibraryDesugaringEnabled true
+
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
         jvmTarget = '1.8'
+        useIR = true
     }
 
     buildFeatures {
@@ -54,8 +57,9 @@ android {
 
 dependencies {
     implementation project(":common")
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
     implementation "com.google.android.material:material:$material"
-    implementation "androidx.activity:activity-compose:$compose_activity"
+    implementation "androidx.activity:activity-compose:$compose_activity_version"
 
     implementation "io.insert-koin:koin-androidx-compose:$koin_version"
 
@@ -66,7 +70,7 @@ dependencies {
     implementation "androidx.compose.foundation:foundation:$compose_version"
     implementation "androidx.compose.material:material:$compose_version"
 
-    implementation "androidx.navigation:navigation-compose:$nav_compose_version"
+    implementation "androidx.navigation:navigation-compose:$compose_nav_version"
 
     implementation "io.ktor:ktor-client-okhttp:$ktor_version"
     implementation "io.ktor:ktor-client-serialization-jvm:$ktor_version"

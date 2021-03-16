@@ -7,7 +7,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +21,7 @@ import com.fesskiev.compose.presentation.NoteDetailsViewModel
 import com.fesskiev.compose.ui.components.AppBackToolbar
 import com.fesskiev.compose.ui.components.AppScaffold
 import com.fesskiev.compose.ui.components.ProgressBar
+import com.fesskiev.compose.ui.utils.formatDate
 import com.fesskiev.model.Note
 import dev.chrisbanes.accompanist.coil.CoilImage
 import org.koin.androidx.compose.getViewModel
@@ -66,6 +66,12 @@ fun NoteDetails(note: Note) {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(Modifier.height(9.dp))
+        Text(
+            text = formatDate(note.time),
+            modifier = Modifier.align(Alignment.End),
+            style = MaterialTheme.typography.body2
+        )
         Spacer(Modifier.height(9.dp))
         Text(text = note.title, style = MaterialTheme.typography.h5)
         Spacer(Modifier.height(25.dp))
