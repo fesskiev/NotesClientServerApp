@@ -32,6 +32,7 @@ object Headers {
 }
 
 object ServerErrorCodes {
+    const val UNKNOWN_SERVER_ERROR = -1
     const val INTERNAL_SERVER_ERROR = 0
     const val EMAIL_EMPTY = 1
     const val DISPLAY_NAME_EMPTY = 2
@@ -48,4 +49,6 @@ object ServerErrorCodes {
     const val NOTE_EMPTY = 13
     const val NOTE_TITLE_EMPTY = 14
     const val NOTE_DESCRIPTION_EMPTY = 15
+    const val EMAIL_INVALID = 16
+    const val PASSWORD_INVALID = 17
 }

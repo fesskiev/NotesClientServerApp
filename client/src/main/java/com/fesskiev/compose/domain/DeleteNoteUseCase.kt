@@ -1,21 +1,21 @@
 package com.fesskiev.compose.domain
 
-import com.fesskiev.compose.R
 import com.fesskiev.compose.data.Repository
-import com.fesskiev.compose.data.RepositoryImpl
-import com.fesskiev.compose.presentation.DeleteNoteState
+import com.fesskiev.compose.domain.exceptions.DeleteNoteException
 import com.fesskiev.model.Note
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 
 class DeleteNoteUseCase(private val repository: Repository) {
 
-    fun deleteNote(note: Note): Flow<DeleteNoteState> = flow {
-        val result = repository.deleteNote(note)
-        if (result) {
-            val notes = (repository as RepositoryImpl).notes
-            return@flow emit(DeleteNoteState(notes = notes))
+    suspend operator fun invoke(note: Note): Result<Unit> =
+        try {
+            val result = repository.deleteNote(note)
+            if (result) {
+                Result.Success(Unit)
+            } else {
+                throw DeleteNoteException()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.Failure(e)
         }
-        emit(DeleteNoteState(errorResourceId = R.string.error_delete_note))
-    }
 }

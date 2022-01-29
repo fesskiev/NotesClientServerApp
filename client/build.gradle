@@ -3,12 +3,12 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlinx-serialization'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
 
     defaultConfig {
         applicationId "com.fesskiev.compose"
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0"
 
@@ -72,11 +72,13 @@ dependencies {
 
     implementation "androidx.navigation:navigation-compose:$compose_nav_version"
 
+    implementation "androidx.paging:paging-compose:$paging"
+
     implementation "io.ktor:ktor-client-okhttp:$ktor_version"
     implementation "io.ktor:ktor-client-serialization-jvm:$ktor_version"
     implementation "io.ktor:ktor-client-logging-jvm:$ktor_version"
 
-    implementation "dev.chrisbanes.accompanist:accompanist-coil:$coil"
+    implementation "io.coil-kt:coil-compose:$coil_version"
 
     implementation "androidx.datastore:datastore-preferences:$datastore"
 

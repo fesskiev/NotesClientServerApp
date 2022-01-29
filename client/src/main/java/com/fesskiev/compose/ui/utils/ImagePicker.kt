@@ -3,24 +3,14 @@ package com.fesskiev.compose.ui.utils
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
-import android.os.Build
 import android.os.Parcelable
 import android.provider.MediaStore
 import java.io.File
-import kotlin.collections.ArrayList
 
-fun Context.getBitmapFromIntent(intent: Intent): Pair<Bitmap, File>? {
-    val uri = getPickImageResultUri(intent) ?: return null
-    val bitmap =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, uri))
-    } else {
-        MediaStore.Images.Media.getBitmap(contentResolver, uri)
-    }
-    return Pair(bitmap, File(uri.path))
+fun Context.getImageFileFromIntent(intent: Intent): File? {
+    val path = getPickImageResultUri(intent)?.path ?: return null
+    return File(path)
 }
 
 fun Context.pickImageChooserIntent(title: CharSequence): Intent? {

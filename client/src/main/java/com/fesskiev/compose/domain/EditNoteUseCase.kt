@@ -1,20 +1,30 @@
 package com.fesskiev.compose.domain
 
+import com.fesskiev.ServerErrorCodes.NOTE_DESCRIPTION_EMPTY
+import com.fesskiev.ServerErrorCodes.NOTE_TITLE_EMPTY
 import com.fesskiev.compose.data.Repository
-import com.fesskiev.compose.presentation.EditNoteState
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import com.fesskiev.compose.domain.exceptions.EditNoteException
+import com.fesskiev.compose.domain.exceptions.UserInputException
+import com.fesskiev.model.Note
 
 class EditNoteUseCase(private val repository: Repository) {
 
-    fun editNote(noteUid: Int, title: String, description: String): Flow<EditNoteState> = flow {
-        if (title.isEmpty()) {
-            return@flow emit(EditNoteState(isEmptyTitle = true))
+    suspend operator fun invoke(note: Note): Result<Unit> =
+        try {
+            if (note.title.isEmpty()) {
+                throw UserInputException(NOTE_TITLE_EMPTY)
+            }
+            if (note.description.isEmpty()) {
+                throw UserInputException(NOTE_DESCRIPTION_EMPTY)
+            }
+            val result = repository.editNote(note)
+            if (result) {
+                Result.Success(Unit)
+            } else {
+                throw EditNoteException()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.Failure(e)
         }
-        if (description.isEmpty()) {
-            return@flow emit(EditNoteState(isEmptyDescription = true))
-        }
-        repository.editNote(noteUid, title, description)
-        emit(EditNoteState(success = true))
-    }
 }

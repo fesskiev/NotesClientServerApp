@@ -1,10 +1,15 @@
 package com.fesskiev.compose.di
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import com.fesskiev.compose.data.Repository
 import com.fesskiev.compose.data.RepositoryImpl
 import com.fesskiev.compose.data.remote.provideKtorClient
 import com.fesskiev.compose.domain.*
-import com.fesskiev.compose.presentation.*
+import com.fesskiev.compose.paging.NotesSource
+import com.fesskiev.compose.presentation.AuthViewModel
+import com.fesskiev.compose.presentation.NotesViewModel
+import com.fesskiev.compose.presentation.SettingsViewModel
 import com.fesskiev.compose.ui.utils.DataStoreManager
 import com.fesskiev.compose.ui.utils.FieldValidator
 import com.fesskiev.compose.ui.utils.NetworkManager
@@ -14,9 +19,10 @@ import org.koin.dsl.module
 
 val appModule = module {
     single { NetworkManager(get()) }
-    factory { DataStoreManager(get()) }
+    single { DataStoreManager(get()) }
     factory { ThemeManager() }
     factory { FieldValidator() }
+    factory { Pager(PagingConfig(pageSize = 20)) { NotesSource(get()) } }
 }
 
 val repositoryModule = module {
@@ -24,19 +30,15 @@ val repositoryModule = module {
 }
 
 val viewModelModule = module {
-    viewModel { SettingsViewModel(get(), get()) }
-    viewModel { NoteDetailsViewModel(get()) }
-    viewModel { AddNoteViewModel(get()) }
-    viewModel { EditNoteViewModel(get(), get()) }
-    viewModel { NotesListViewModel(get(), get()) }
     viewModel { AuthViewModel(get(), get()) }
+    viewModel { NotesViewModel(get(), get(), get(), get()) }
+    viewModel { SettingsViewModel(get(), get()) }
 }
 
 val useCaseModule = module {
     factory { ThemeModeUseCase(get(), get()) }
-    factory { GetNoteByIdUseCase(get()) }
     factory { AddNoteUseCase(get()) }
-    factory { NotesListUseCase(get()) }
+    factory { GetNotesUseCase(get()) }
     factory { DeleteNoteUseCase(get()) }
     factory { EditNoteUseCase(get()) }
     factory { RegistrationUseCase(get(), get()) }

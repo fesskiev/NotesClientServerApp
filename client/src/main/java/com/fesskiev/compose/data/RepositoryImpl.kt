@@ -18,36 +18,27 @@ import com.fesskiev.Routes.REGISTRATION
 import com.fesskiev.model.JWTAuth
 import com.fesskiev.model.Note
 import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.features.*
 import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
-import io.ktor.http.content.*
-import io.ktor.util.*
 import io.ktor.utils.io.streams.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.File
 
 class RepositoryImpl(private val httpClient: HttpClient) : Repository {
 
-    val notes: MutableList<Note> = mutableListOf()
-    var isNotesCacheExpired: Boolean = true
-
     override suspend fun getNotes(page: Int): List<Note> = withContext(Dispatchers.IO) {
-        if (isNotesCacheExpired) {
-            val newNotes = httpClient.get<List<Note>>(GET_NOTES) {
-                url.parameters.append(PAGE, page.toString())
-            }
-            notes.addAll(newNotes)
-            isNotesCacheExpired = false
+        val newNotes = httpClient.get<List<Note>>(GET_NOTES) {
+            url.parameters.append(PAGE, page.toString())
         }
-        return@withContext notes
+        delay(2000)
+        return@withContext newNotes
     }
 
-    override suspend fun getNoteById(noteUid: Int): Note = notes.first { it.noteUid == noteUid }
+    override suspend fun getNoteById(noteUid: Int): Note = TODO()
 
     override suspend fun addNote(title: String, description: String): Note =
         withContext(Dispatchers.IO) {
@@ -57,15 +48,13 @@ class RepositoryImpl(private val httpClient: HttpClient) : Repository {
                     append(NOTE_DESCRIPTION, description)
                 })
             }
-            notes.add(0, newNote)
+            delay(2000)
             return@withContext newNote
         }
 
-
-    @KtorExperimentalAPI
     override suspend fun addImage(note: Note, file: File): Note =
         withContext(Dispatchers.IO) {
-            val formData =  formData {
+            val formData = formData {
                 val contentType = ContentType.MultiPart.FormData
                 append("image", InputProvider(file.length()) { file.inputStream().asInput() },
                     Headers.build {
@@ -77,31 +66,13 @@ class RepositoryImpl(private val httpClient: HttpClient) : Repository {
             val newNote = httpClient.submitFormWithBinaryData<Note>(ADD_NOTE_IMAGE, formData) {
                 parameter(NOTE_UID, note.noteUid)
             }
-
-            notes.forEachIndexed { index, it ->
-                if (it.noteUid == newNote.noteUid) {
-                    notes[index] = newNote
-                }
-            }
             return@withContext newNote
         }
 
-    override suspend fun editNote(noteUid: Int, title: String, description: String): Boolean =
+    override suspend fun editNote(note: Note): Boolean =
         withContext(Dispatchers.IO) {
-            val note = getNoteById(noteUid).copy(
-                noteUid = noteUid,
-                title = title,
-                description = description
-            )
             val edited = httpClient.put<Boolean>(EDIT_NOTE) {
                 body = defaultSerializer().write(note)
-            }
-            if (edited) {
-                notes.forEachIndexed { index, it ->
-                    if (it.noteUid == note.noteUid) {
-                        notes[index] = note
-                    }
-                }
             }
             return@withContext edited
         }
@@ -110,9 +81,7 @@ class RepositoryImpl(private val httpClient: HttpClient) : Repository {
         val deleted = httpClient.delete<Boolean>(DELETE_NOTE) {
             body = defaultSerializer().write(note)
         }
-        if (deleted) {
-            notes.remove(note)
-        }
+        delay(2000)
         return@withContext deleted
     }
 
@@ -142,7 +111,5 @@ class RepositoryImpl(private val httpClient: HttpClient) : Repository {
 
     override suspend fun logout(): Unit = withContext(Dispatchers.IO) {
         httpClient.post<Unit>(LOGOUT)
-        notes.clear()
-        isNotesCacheExpired = true
     }
 }

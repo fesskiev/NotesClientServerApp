@@ -1,34 +1,45 @@
 package com.fesskiev.compose.domain
 
+import com.fesskiev.ServerErrorCodes.DISPLAY_NAME_EMPTY
+import com.fesskiev.ServerErrorCodes.EMAIL_EMPTY
+import com.fesskiev.ServerErrorCodes.EMAIL_INVALID
+import com.fesskiev.ServerErrorCodes.PASSWORD_EMPTY
+import com.fesskiev.ServerErrorCodes.PASSWORD_INVALID
 import com.fesskiev.compose.data.Repository
-import com.fesskiev.compose.presentation.AuthState
+import com.fesskiev.compose.domain.exceptions.UserInputException
 import com.fesskiev.compose.ui.utils.FieldValidator
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import com.fesskiev.model.JWTAuth
 
 class RegistrationUseCase(
     private val repository: Repository,
     private val validator: FieldValidator
 ) {
 
-    fun registration(email: String, displayName: String, password: String): Flow<AuthState> =
-        flow {
+    suspend operator fun invoke(
+        email: String,
+        displayName: String,
+        password: String
+    ): Result<JWTAuth> =
+        try {
             if (validator.emptyDisplayName(displayName)) {
-                return@flow emit(AuthState(isEmptyDisplayNameError = true))
+                throw UserInputException(DISPLAY_NAME_EMPTY)
             }
             if (validator.emptyEmail(email)) {
-                return@flow emit(AuthState(isEmptyEmailError = true))
+                throw UserInputException(EMAIL_EMPTY)
             }
             if (validator.emptyPassword(password)) {
-                return@flow emit(AuthState(isEmptyPasswordError = true))
+                throw UserInputException(PASSWORD_EMPTY)
             }
             if (!validator.validateEmail(email)) {
-                return@flow emit(AuthState(isValidateEmailError = true))
+                throw UserInputException(EMAIL_INVALID)
             }
             if (!validator.validatePassword(password)) {
-                return@flow emit(AuthState(isValidatePasswordError = true))
+                throw UserInputException(PASSWORD_INVALID)
             }
-            repository.registration(email, displayName, password)
-            emit(AuthState(success = true))
+            val result = repository.registration(email, displayName, password)
+            Result.Success(result)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.Failure(e)
         }
 }

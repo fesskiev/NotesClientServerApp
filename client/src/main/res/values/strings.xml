@@ -19,7 +19,7 @@
     <string name="note_title">Title</string>
     <string name="note_description">Description</string>
     <string name="note_added">Note added</string>
-    <string name="empty_notes_list">Empty notes list</string>
+    <string name="empty_notes_list">Notes list is empty!</string>
     <string name="hide">Hide</string>
     <string name="theme">Theme</string>
     <string name="logout">Logout</string>

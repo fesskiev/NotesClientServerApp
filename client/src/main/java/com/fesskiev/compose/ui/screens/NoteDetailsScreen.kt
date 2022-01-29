@@ -1,59 +1,29 @@
 package com.fesskiev.compose.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import com.fesskiev.compose.BuildConfig
-import com.fesskiev.compose.R
-import com.fesskiev.compose.presentation.NoteDetailsUiState
-import com.fesskiev.compose.presentation.NoteDetailsViewModel
-import com.fesskiev.compose.ui.components.AppBackToolbar
-import com.fesskiev.compose.ui.components.AppScaffold
+import coil.compose.rememberImagePainter
+import coil.transform.CircleCropTransformation
+import com.fesskiev.compose.mvi.NotesUiState
 import com.fesskiev.compose.ui.components.ProgressBar
 import com.fesskiev.compose.ui.utils.formatDate
+import com.fesskiev.compose.ui.utils.toImageUrl
 import com.fesskiev.model.Note
-import dev.chrisbanes.accompanist.coil.CoilImage
-import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun NoteDetailsScreen(
-    navController: NavHostController,
-    viewModel: NoteDetailsViewModel = getViewModel(),
-    noteUid: Int
-) {
-    val uiState = viewModel.stateFlow.collectAsState().value
-    LaunchedEffect(noteUid) {
-        viewModel.getNoteByUid(noteUid)
-    }
-    AppScaffold(
-        topBar = {
-            AppBackToolbar(stringResource(R.string.note_details)) {
-                navController.popBackStack()
-            }
-        },
-        content = {
-            NoteDetailsContent(uiState)
-        },
-        errorResourceId = uiState.errorResourceId
-    )
-}
-
-@Composable
-fun NoteDetailsContent(uiState: NoteDetailsUiState) {
+fun NoteDetailsScreen(uiState: NotesUiState) {
     when {
         uiState.loading -> ProgressBar()
-        uiState.note != null -> NoteDetails(uiState.note)
+        uiState.selectedNote != null -> NoteDetails(uiState.selectedNote)
     }
 }
 
@@ -68,7 +38,7 @@ fun NoteDetails(note: Note) {
     ) {
         Spacer(Modifier.height(9.dp))
         Text(
-            text = formatDate(note.time),
+            text = note.time.formatDate(),
             modifier = Modifier.align(Alignment.End),
             style = MaterialTheme.typography.body2
         )
@@ -78,13 +48,17 @@ fun NoteDetails(note: Note) {
         Text(text = note.description, style = MaterialTheme.typography.body1)
         Spacer(Modifier.height(25.dp))
         note.pictureName?.let {
-            val url = "http://" + BuildConfig.HOST + ":" + BuildConfig.PORT + "/" + it
-            CoilImage(
-                data = url,
-                contentDescription = "",
-                fadeIn = true,
+            Image(
+                painter = rememberImagePainter(
+                    data =  it.toImageUrl(),
+                    onExecute = { _, _ ->  true },
+                    builder = {
+                        crossfade(true)
+                        transformations(CircleCropTransformation())
+                    }
+                ),
                 contentScale = ContentScale.Crop,
-                loading = { ProgressBar() },
+                contentDescription = null,
                 modifier = Modifier.size(300.dp)
             )
         }

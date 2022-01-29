@@ -1,24 +1,29 @@
 package com.fesskiev.compose.domain
 
+import com.fesskiev.ServerErrorCodes.NOTE_DESCRIPTION_EMPTY
+import com.fesskiev.ServerErrorCodes.NOTE_TITLE_EMPTY
 import com.fesskiev.compose.data.Repository
-import com.fesskiev.compose.presentation.AddNoteState
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import com.fesskiev.compose.domain.exceptions.UserInputException
+import com.fesskiev.model.Note
 import java.io.File
 
 class AddNoteUseCase(private val repository: Repository) {
 
-    fun addNote(title: String, description: String, file: File?): Flow<AddNoteState> = flow {
-        if (title.isEmpty()) {
-            return@flow emit(AddNoteState(isEmptyTitle = true))
+    suspend operator fun invoke(title: String, description: String, file: File?): Result<Note> =
+        try {
+            if (title.isEmpty()) {
+                throw UserInputException(NOTE_TITLE_EMPTY)
+            }
+            if (description.isEmpty()) {
+                throw UserInputException(NOTE_DESCRIPTION_EMPTY)
+            }
+            var note = repository.addNote(title, description)
+            file?.let {
+               note = repository.addImage(note, it)
+            }
+            Result.Success(note)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.Failure(e)
         }
-        if (description.isEmpty()) {
-            return@flow emit(AddNoteState(isEmptyDescription = true))
-        }
-        val note = repository.addNote(title, description)
-        file?.let {
-            repository.addImage(note, it)
-        }
-        emit(AddNoteState(success = true))
-    }
 }

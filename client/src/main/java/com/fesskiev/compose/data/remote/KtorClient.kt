@@ -74,10 +74,10 @@ class AppInterceptor(private val networkManager: NetworkManager) : Interceptor {
         val contentType = response.body?.contentType()
         if (body != null) {
             when (response.code) {
-                400 -> throw BadRequestException(parseServerError(body))
-                401 -> throw UnauthorizedException(parseServerError(body))
+                400 -> throw BadRequestException(body.parseServerErrorCode())
+                401 -> throw UnauthorizedException(body.parseServerErrorCode())
                 else -> when {
-                    url.endsWith(REGISTRATION) || url.endsWith(LOGIN) -> jwtAuth = parseJWT(body)
+                    url.endsWith(REGISTRATION) || url.endsWith(LOGIN) -> jwtAuth = body.parseJWT()
                     url.endsWith(LOGOUT) -> jwtAuth = null
                 }
             }

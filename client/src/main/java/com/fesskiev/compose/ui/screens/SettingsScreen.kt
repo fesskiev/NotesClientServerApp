@@ -2,53 +2,44 @@ package com.fesskiev.compose.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.navigate
 import com.fesskiev.compose.R
-import com.fesskiev.compose.presentation.SettingsUiState
+import com.fesskiev.compose.mvi.SettingsUiState
 import com.fesskiev.compose.presentation.SettingsViewModel
-import com.fesskiev.compose.ui.components.AppBackToolbar
-import com.fesskiev.compose.ui.components.AppScaffold
 import com.fesskiev.compose.ui.components.ProgressBar
-import com.fesskiev.compose.ui.utils.Constants.ThemeMode.DAY
-import com.fesskiev.compose.ui.utils.Constants.ThemeMode.NIGHT
-import com.fesskiev.compose.ui.utils.Constants.ThemeMode.SYSTEM
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun SettingsScreen(
-    navController: NavHostController,
-    viewModel: SettingsViewModel = getViewModel()
+    viewModel: SettingsViewModel = getViewModel(),
+    onShowThemeDialogClick: () -> Unit,
+    onLogoutClick: () -> Unit
 ) {
-    val uiState = viewModel.stateFlow.collectAsState().value
+    val uiState = viewModel.uiStateFlow.collectAsState().value
     when {
-        uiState.isLogout -> navController.navigate("auth")
+        uiState.isLogout -> {
+            LaunchedEffect(Unit) {
+                onLogoutClick()
+            }
+        }
         uiState.loading -> ProgressBar()
         else -> {
-            AppScaffold(
-                topBar = {
-                    AppBackToolbar(stringResource(R.string.settings)) {
-                        navController.popBackStack()
-                    }
-                }, content = {
-                    SettingsContent(
-                        uiState,
-                        onHidePopupClick = { viewModel.hideThemeModePopup() },
-                        onShowPopupClick = { viewModel.showThemeModePopup() },
-                        onThemeClick = { viewModel.setThemeMode(it) },
-                        onLogoutClick = { viewModel.logout() })
-                },
-                errorResourceId = uiState.errorResourceId
-            )
+            SettingsContent(
+                uiState,
+                onShowThemeDialogClick = onShowThemeDialogClick,
+                onLogoutClick = { viewModel.logout() })
+            if (uiState.errorResourceId != null) {
+
+            }
         }
     }
 }
@@ -56,23 +47,14 @@ fun SettingsScreen(
 @Composable
 private fun SettingsContent(
     uiState: SettingsUiState,
-    onHidePopupClick: () -> Unit,
-    onShowPopupClick: () -> Unit,
-    onThemeClick: (String) -> Unit,
+    onShowThemeDialogClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        if (uiState.isThemeModePopupShow) {
-            ThemePopup(
-                uiState = uiState,
-                onDismissClick = onHidePopupClick,
-                onThemeClick = onThemeClick
-            )
-        }
         Row(
             modifier = Modifier
                 .height(64.dp)
-                .clickable(onClick = onShowPopupClick),
+                .clickable(onClick = onShowThemeDialogClick),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -105,68 +87,3 @@ private fun SettingsContent(
         )
     }
 }
-
-@Composable
-private fun ThemePopup(
-    uiState: SettingsUiState,
-    onDismissClick: () -> Unit,
-    onThemeClick: (String) -> Unit
-) {
-    Popup(
-        alignment = Alignment.Center,
-        onDismissRequest = { onDismissClick() }
-    ) {
-        Card(
-            modifier = Modifier.size(width = 220.dp, height = 140.dp)
-        ) {
-            Column(verticalArrangement = Arrangement.Center) {
-                arrayOf(
-                    Theme(
-                        themeMode = NIGHT,
-                        text = stringResource(R.string.theme_night),
-                        selected = uiState.themeMode == NIGHT
-                    ),
-                    Theme(
-                        themeMode = DAY,
-                        text = stringResource(R.string.theme_day),
-                        selected = uiState.themeMode == DAY
-                    ),
-                    Theme(
-                        themeMode = SYSTEM,
-                        text = stringResource(R.string.theme_system),
-                        selected = uiState.themeMode == SYSTEM
-                    )
-                ).forEach { theme ->
-                    RadioButtonRow(text = theme.text, selected = theme.selected, onClick = {
-                        onThemeClick(theme.themeMode)
-                    })
-                    Spacer(Modifier.height(12.dp))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun RadioButtonRow(text: String, selected: Boolean, onClick: () -> Unit) {
-    Row(
-        horizontalArrangement = Arrangement.Start,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        RadioButton(
-            modifier = Modifier.padding(start = 12.dp),
-            selected = selected,
-            onClick = onClick
-        )
-        Text(
-            text = text,
-            modifier = Modifier
-                .padding(start = 12.dp)
-                .fillMaxWidth(),
-            style = MaterialTheme.typography.body1
-        )
-    }
-}
-
-
-data class Theme(val themeMode: String, val text: String, val selected: Boolean)

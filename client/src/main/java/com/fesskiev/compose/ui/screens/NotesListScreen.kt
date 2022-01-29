@@ -7,50 +7,59 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.Card
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.items
 import com.fesskiev.compose.R
+import com.fesskiev.compose.paging.isEmpty
 import com.fesskiev.compose.ui.components.PagingProgressBar
+import com.fesskiev.compose.ui.components.ProgressBar
 import com.fesskiev.model.Note
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NotesListScreen(
-    notes: List<Note>,
-    isPaging: Boolean,
-    isNeedLoadMore: Boolean,
+    notesItems: LazyPagingItems<Note>,
+    loading: Boolean,
     onNoteClick: (Note) -> Unit,
     onNoteDeleteClick: (Note) -> Unit,
-    onNoteEditClick: (Note) -> Unit,
-    onLoadMoreItems: () -> Unit
+    onNoteEditClick: (Note) -> Unit
 ) {
-    LazyVerticalGrid(
-        cells = GridCells.Adaptive(minSize = 164.dp)
-    ) {
-        itemsIndexed(notes) { index, note ->
-            NoteItem(note, onNoteClick, onNoteDeleteClick, onNoteEditClick)
-            if (isNeedLoadMore && notes.lastIndex == index) {
-                if (isPaging) {
-                    PagingProgressBar()
-                } else {
-                    onLoadMoreItems()
-                }
+    if (notesItems.isEmpty()) {
+        if (loading) {
+            ProgressBar()
+        } else {
+            EmptyNotesList()
+        }
+    } else {
+        LazyColumn {
+            items(notesItems) { note ->
+                NoteItem(note!!, onNoteClick, onNoteDeleteClick, onNoteEditClick)
+            }
+            if (loading) {
+                item { PagingProgressBar() }
             }
         }
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class,
-    ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalAnimationApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun NoteItem(
     note: Note,
@@ -58,12 +67,13 @@ fun NoteItem(
     onNoteDeleteClick: (Note) -> Unit,
     onNoteEditClick: (Note) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .padding(8.dp)
+            .fillMaxWidth()
             .combinedClickable(
-                onClick = { onNoteClick(note)},
+                onClick = { onNoteClick(note) },
                 onLongClick = { expanded = !expanded }
             ),
         elevation = 4.dp
@@ -88,6 +98,7 @@ fun NoteItem(
                             .padding(horizontal = 8.dp)
                             .clickable(
                                 onClick = {
+                                    expanded = !expanded
                                     onNoteDeleteClick(note)
                                 }
                             )
@@ -99,6 +110,7 @@ fun NoteItem(
                             .padding(horizontal = 8.dp)
                             .clickable(
                                 onClick = {
+                                    expanded = !expanded
                                     onNoteEditClick(note)
                                 }
                             )
@@ -106,6 +118,17 @@ fun NoteItem(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun EmptyNotesList() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = stringResource(R.string.empty_notes_list), style = MaterialTheme.typography.h5)
     }
 }
 

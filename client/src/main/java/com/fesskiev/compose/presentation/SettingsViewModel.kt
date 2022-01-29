@@ -4,11 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fesskiev.compose.data.remote.parseHttpError
 import com.fesskiev.compose.domain.LogoutUseCase
+import com.fesskiev.compose.domain.Result
 import com.fesskiev.compose.domain.ThemeModeUseCase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onStart
+import com.fesskiev.compose.mvi.SettingsUiState
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
@@ -16,19 +15,20 @@ class SettingsViewModel(
     private val themeModeUseCase: ThemeModeUseCase
 ) : ViewModel() {
 
-    val stateFlow = MutableStateFlow(SettingsUiState())
+    val uiStateFlow = MutableStateFlow(SettingsUiState())
 
     init {
         viewModelScope.launch {
             themeModeUseCase.getThemeMode()
-                .collect {
-                    stateFlow.value = stateFlow.value.copy(
-                        loading = false,
-                        isLogout = false,
-                        themeMode = it,
-                        isThemeModePopupShow = false,
-                        errorResourceId = null
-                    )
+                .collect { themeMode ->
+                    uiStateFlow.update {
+                        it.copy(
+                            loading = false,
+                            isLogout = false,
+                            themeMode = themeMode,
+                            errorResourceId = null
+                        )
+                    }
                 }
         }
     }
@@ -37,57 +37,57 @@ class SettingsViewModel(
         viewModelScope.launch {
             themeModeUseCase.setThemeMode(themeMode)
                 .onStart {
-                    stateFlow.value = stateFlow.value.copy(
-                        loading = false,
-                        isLogout = false,
-                        themeMode = themeMode,
-                        isThemeModePopupShow = false,
-                        errorResourceId = null
-                    )
-                }.catch {
-                    stateFlow.value =
-                        stateFlow.value.copy(
+                    uiStateFlow.update {
+                        it.copy(
                             loading = false,
                             isLogout = false,
-                            isThemeModePopupShow = false,
-                            errorResourceId = parseHttpError(it)
+                            themeMode = themeMode,
+                            errorResourceId = null
                         )
+                    }
+                }.catch { e ->
+                    uiStateFlow.update {
+                        it.copy(
+                            loading = false,
+                            isLogout = false,
+                            errorResourceId = parseHttpError(e)
+                        )
+                    }
+
                 }.collect()
         }
     }
 
-    fun hideThemeModePopup() {
-        stateFlow.value =
-            stateFlow.value.copy(loading = false, isLogout = false, isThemeModePopupShow = false)
-    }
-
-    fun showThemeModePopup() {
-        stateFlow.value =
-            stateFlow.value.copy(loading = false, isLogout = false, isThemeModePopupShow = true)
-    }
-
     fun logout() {
         viewModelScope.launch {
-            logoutUseCase.logout()
-                .onStart {
-                    stateFlow.value = stateFlow.value.copy(
+            uiStateFlow.apply {
+                update {
+                    it.copy(
                         loading = true,
                         isLogout = false,
-                        isThemeModePopupShow = false,
                         errorResourceId = null
                     )
                 }
-                .catch {
-                    stateFlow.value =
-                        stateFlow.value.copy(
-                            loading = false,
-                            isLogout = false,
-                            isThemeModePopupShow = false,
-                            errorResourceId = parseHttpError(it)
-                        )
-                }.collect {
-                    stateFlow.value = stateFlow.value.copy(loading = false, isLogout = true)
+                val result = logoutUseCase()
+                update { uiState ->
+                    when (result) {
+                        is Result.Success -> {
+                            uiState.copy(
+                                loading = false,
+                                isLogout = true,
+                                errorResourceId = null
+                            )
+                        }
+                        is Result.Failure -> {
+                            uiState.copy(
+                                loading = false,
+                                isLogout = false,
+                                errorResourceId = parseHttpError(result.e)
+                            )
+                        }
+                    }
                 }
+            }
         }
     }
 }

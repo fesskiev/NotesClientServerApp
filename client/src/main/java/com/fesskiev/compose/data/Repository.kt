@@ -12,7 +12,7 @@ interface Repository {
 
     suspend fun addNote(title: String, description: String): Note
 
-    suspend fun editNote(noteUid: Int, title: String, description: String): Boolean
+    suspend fun editNote(note: Note): Boolean
 
     suspend fun deleteNote(note: Note): Boolean
 

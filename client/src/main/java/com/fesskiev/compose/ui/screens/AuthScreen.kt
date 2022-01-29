@@ -5,25 +5,29 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.navigate
 import com.fesskiev.compose.R
-import androidx.compose.runtime.*
-import com.fesskiev.compose.presentation.AuthUiState
+import com.fesskiev.compose.mvi.AuthUiState
 import com.fesskiev.compose.presentation.AuthViewModel
 import com.fesskiev.compose.ui.components.*
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun AuthScreen(navController: NavController, viewModel: AuthViewModel = getViewModel()) {
-    val uiState = viewModel.stateFlow.collectAsState().value
+fun AuthScreen(viewModel: AuthViewModel = getViewModel(), authSuccess: () -> Unit) {
+    val uiState = viewModel.uiStateFlow.collectAsState().value
     when {
-        uiState.authState.success -> navController.navigate("main")
+        uiState.authUserInputState.success -> {
+            LaunchedEffect(Unit) {
+                authSuccess()
+            }
+        }
         uiState.loading -> ProgressBar()
         else -> {
             AppScaffold(
@@ -61,22 +65,25 @@ fun AuthForm(
     emailOnChange: (String) -> Unit,
     passwordOnChange: (String) -> Unit,
 ) {
-    var isErrorEmail =
-        uiState.authState.isEmptyEmailError || uiState.authState.isValidateEmailError
-    var isErrorPassword =
-        uiState.authState.isEmptyPasswordError || uiState.authState.isValidatePasswordError
-    var isErrorDisplayName = uiState.authState.isEmptyDisplayNameError
+    val isErrorEmail =
+        uiState.authUserInputState.isEmptyEmailError || uiState.authUserInputState.isValidateEmailError
+    val isErrorPassword =
+        uiState.authUserInputState.isEmptyPasswordError || uiState.authUserInputState.isValidatePasswordError
+    val isErrorDisplayName = uiState.authUserInputState.isEmptyDisplayNameError
     val emailLabel = when {
-        uiState.authState.isEmptyEmailError -> stringResource(R.string.error_empty_email)
-        uiState.authState.isValidateEmailError -> stringResource(R.string.error_validate_email)
+        uiState.authUserInputState.isEmptyEmailError -> stringResource(R.string.error_empty_email)
+        uiState.authUserInputState.isValidateEmailError -> stringResource(R.string.error_validate_email)
         else -> stringResource(R.string.email)
     }
     val passwordLabel = when {
-        uiState.authState.isEmptyPasswordError -> stringResource(R.string.error_empty_password)
-        uiState.authState.isValidatePasswordError -> stringResource(R.string.error_validate_password)
+        uiState.authUserInputState.isEmptyPasswordError -> stringResource(R.string.error_empty_password)
+        uiState.authUserInputState.isValidatePasswordError -> stringResource(R.string.error_validate_password)
         else -> stringResource(R.string.password)
     }
-    val displayNameLabel = stringResource(R.string.error_empty_display_name)
+    val displayNameLabel = when {
+        uiState.authUserInputState.isEmptyDisplayNameError -> stringResource(R.string.error_empty_display_name)
+        else -> stringResource(R.string.display_name)
+    }
 
     val isLoginFormShow = uiState.isLoginFormShow
 

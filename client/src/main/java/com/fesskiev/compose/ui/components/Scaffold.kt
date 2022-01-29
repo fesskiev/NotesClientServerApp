@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -17,9 +18,10 @@ fun AppScaffold(
     scope: CoroutineScope = rememberCoroutineScope(),
     topBar: @Composable (ScaffoldState) -> Unit = { },
     drawerContent: @Composable (ScaffoldState) -> Unit = { },
-    content: @Composable (PaddingValues) -> Unit,
     floatingActionButton: @Composable () -> Unit = { },
-    @StringRes errorResourceId: Int? = null
+    drawerGesturesEnabled: Boolean = true,
+    @StringRes errorResourceId: Int? = null,
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     val scaffoldState = rememberScaffoldState()
     Scaffold(
@@ -38,14 +40,17 @@ fun AppScaffold(
         drawerContent = {
             drawerContent(scaffoldState)
         },
+        drawerGesturesEnabled = drawerGesturesEnabled,
         content = content,
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = floatingActionButton
     )
     if (errorResourceId != null) {
         val message = stringResource(errorResourceId)
-        scope.launch {
-            scaffoldState.snackbarHostState.showSnackbar(message = message)
+        LaunchedEffect(errorResourceId) {
+            scope.launch {
+                scaffoldState.snackbarHostState.showSnackbar(message = message)
+            }
         }
     }
 }
