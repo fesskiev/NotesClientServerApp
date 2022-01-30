@@ -1,5 +1,6 @@
 package com.fesskiev.compose.ui.components
 
+import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,7 +17,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun AppScaffold(
     scope: CoroutineScope = rememberCoroutineScope(),
+    onBackPressed: () -> Unit = { },
     topBar: @Composable (ScaffoldState) -> Unit = { },
+    bottomBar: @Composable () -> Unit = {},
     drawerContent: @Composable (ScaffoldState) -> Unit = { },
     floatingActionButton: @Composable () -> Unit = { },
     drawerGesturesEnabled: Boolean = true,
@@ -24,11 +27,21 @@ fun AppScaffold(
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val scaffoldState = rememberScaffoldState()
+    BackHandler {
+        if (scaffoldState.drawerState.isOpen) {
+            scope.launch {
+                scaffoldState.drawerState.close()
+            }
+        } else {
+            onBackPressed()
+        }
+    }
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
             topBar(scaffoldState)
         },
+        bottomBar = bottomBar,
         snackbarHost = {
             SnackbarHost(it) { data ->
                 Snackbar(

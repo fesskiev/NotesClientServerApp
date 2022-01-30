@@ -18,16 +18,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.items
+import coil.compose.rememberImagePainter
 import com.fesskiev.compose.R
 import com.fesskiev.compose.paging.isEmpty
 import com.fesskiev.compose.ui.components.PagingProgressBar
 import com.fesskiev.compose.ui.components.ProgressBar
+import com.fesskiev.compose.ui.utils.formatDate
+import com.fesskiev.compose.ui.utils.toPictureUrl
 import com.fesskiev.model.Note
 
 @Composable
@@ -72,6 +75,7 @@ fun NoteItem(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
+            .defaultMinSize(minHeight = 64.dp)
             .combinedClickable(
                 onClick = { onNoteClick(note) },
                 onLongClick = { expanded = !expanded }
@@ -79,45 +83,89 @@ fun NoteItem(
         elevation = 4.dp
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
-            Text(text = note.title, style = MaterialTheme.typography.subtitle1)
+            Text(
+                text = note.title,
+                style = MaterialTheme.typography.subtitle1
+            )
             Spacer(Modifier.height(8.dp))
-            Text(text = note.description, style = MaterialTheme.typography.body2)
+            note.pictureName?.let {
+                NoteItemPicture(it.toPictureUrl())
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = note.time.formatDate(),
+                modifier = Modifier.align(Alignment.End),
+                style = MaterialTheme.typography.overline
+            )
             Spacer(Modifier.height(8.dp))
             AnimatedVisibility(visible = expanded) {
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_delete),
-                        contentDescription = "",
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp)
-                            .clickable(
-                                onClick = {
-                                    expanded = !expanded
-                                    onNoteDeleteClick(note)
-                                }
-                            )
-                    )
-                    Image(
-                        painter = painterResource(R.drawable.ic_edit),
-                        contentDescription = "",
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp)
-                            .clickable(
-                                onClick = {
-                                    expanded = !expanded
-                                    onNoteEditClick(note)
-                                }
-                            )
-                    )
-                }
+                NoteItemBottomMenu(
+                    note,
+                    onNoteDeleteClick,
+                    onNoteEditClick,
+                    toggleMenuVisibility = { expanded = !expanded }
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun NoteItemPicture(url: String) {
+    Image(
+        painter = rememberImagePainter(
+            data = url,
+            onExecute = { _, _ -> true },
+            builder = {
+                crossfade(true)
+            }
+        ),
+        contentScale = ContentScale.Crop,
+        contentDescription = null,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(350.dp),
+    )
+}
+
+@Composable
+private fun NoteItemBottomMenu(
+    note: Note,
+    onNoteDeleteClick: (Note) -> Unit,
+    onNoteEditClick: (Note) -> Unit,
+    toggleMenuVisibility: () -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+    ) {
+        Image(
+            painter = painterResource(R.drawable.ic_delete),
+            contentDescription = "",
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .clickable(
+                    onClick = {
+                        toggleMenuVisibility()
+                        onNoteDeleteClick(note)
+                    }
+                )
+        )
+        Image(
+            painter = painterResource(R.drawable.ic_edit),
+            contentDescription = "",
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .clickable(
+                    onClick = {
+                        toggleMenuVisibility()
+                        onNoteEditClick(note)
+                    }
+                )
+        )
     }
 }
 
@@ -130,11 +178,4 @@ fun EmptyNotesList() {
     ) {
         Text(text = stringResource(R.string.empty_notes_list), style = MaterialTheme.typography.h5)
     }
-}
-
-@Preview
-@Composable
-fun NoteItemPreview() {
-    val note = Note(1, 1, "title", "description", "url", System.currentTimeMillis())
-    NoteItem(note = note, onNoteClick = {}, onNoteDeleteClick = {}, onNoteEditClick = {})
 }

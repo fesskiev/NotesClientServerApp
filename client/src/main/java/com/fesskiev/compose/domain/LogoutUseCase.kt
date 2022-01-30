@@ -9,7 +9,6 @@ class LogoutUseCase(private val repository: Repository) {
             repository.logout()
             Result.Success(Unit)
         } catch (e: Exception) {
-            e.printStackTrace()
             Result.Failure(e)
         }
 }

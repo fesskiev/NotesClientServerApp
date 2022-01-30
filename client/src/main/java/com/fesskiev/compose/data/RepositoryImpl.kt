@@ -24,7 +24,6 @@ import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import io.ktor.utils.io.streams.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -34,7 +33,6 @@ class RepositoryImpl(private val httpClient: HttpClient) : Repository {
         val newNotes = httpClient.get<List<Note>>(GET_NOTES) {
             url.parameters.append(PAGE, page.toString())
         }
-        delay(2000)
         return@withContext newNotes
     }
 
@@ -48,7 +46,6 @@ class RepositoryImpl(private val httpClient: HttpClient) : Repository {
                     append(NOTE_DESCRIPTION, description)
                 })
             }
-            delay(2000)
             return@withContext newNote
         }
 
@@ -81,7 +78,6 @@ class RepositoryImpl(private val httpClient: HttpClient) : Repository {
         val deleted = httpClient.delete<Boolean>(DELETE_NOTE) {
             body = defaultSerializer().write(note)
         }
-        delay(2000)
         return@withContext deleted
     }
 

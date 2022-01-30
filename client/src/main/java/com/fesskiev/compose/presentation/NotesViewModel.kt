@@ -158,6 +158,17 @@ class NotesViewModel(
         return paging
     }
 
+    fun refresh() {
+        uiStateFlow.update {
+            it.copy(
+                loading = false,
+                refresh = true,
+                selectedNote = null,
+                errorResourceId = null
+            )
+        }
+    }
+
     fun openNoteDetails(note: Note) {
         uiStateFlow.update {
             it.copy(

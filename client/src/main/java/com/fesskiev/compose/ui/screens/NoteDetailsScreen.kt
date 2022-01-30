@@ -16,7 +16,7 @@ import coil.transform.CircleCropTransformation
 import com.fesskiev.compose.mvi.NotesUiState
 import com.fesskiev.compose.ui.components.ProgressBar
 import com.fesskiev.compose.ui.utils.formatDate
-import com.fesskiev.compose.ui.utils.toImageUrl
+import com.fesskiev.compose.ui.utils.toPictureUrl
 import com.fesskiev.model.Note
 
 @Composable
@@ -48,19 +48,24 @@ fun NoteDetails(note: Note) {
         Text(text = note.description, style = MaterialTheme.typography.body1)
         Spacer(Modifier.height(25.dp))
         note.pictureName?.let {
-            Image(
-                painter = rememberImagePainter(
-                    data =  it.toImageUrl(),
-                    onExecute = { _, _ ->  true },
-                    builder = {
-                        crossfade(true)
-                        transformations(CircleCropTransformation())
-                    }
-                ),
-                contentScale = ContentScale.Crop,
-                contentDescription = null,
-                modifier = Modifier.size(300.dp)
-            )
+            NoteDetailsPicture(it.toPictureUrl())
         }
     }
+}
+
+@Composable
+private fun NoteDetailsPicture(url: String) {
+    Image(
+        painter = rememberImagePainter(
+            data = url,
+            onExecute = { _, _ -> true },
+            builder = {
+                crossfade(true)
+                transformations(CircleCropTransformation())
+            }
+        ),
+        contentScale = ContentScale.Crop,
+        contentDescription = null,
+        modifier = Modifier.size(300.dp)
+    )
 }

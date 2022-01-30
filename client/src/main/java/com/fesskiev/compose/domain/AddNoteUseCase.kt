@@ -23,7 +23,6 @@ class AddNoteUseCase(private val repository: Repository) {
             }
             Result.Success(note)
         } catch (e: Exception) {
-            e.printStackTrace()
             Result.Failure(e)
         }
 }

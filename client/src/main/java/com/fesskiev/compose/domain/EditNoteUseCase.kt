@@ -24,7 +24,6 @@ class EditNoteUseCase(private val repository: Repository) {
                 throw EditNoteException()
             }
         } catch (e: Exception) {
-            e.printStackTrace()
             Result.Failure(e)
         }
 }

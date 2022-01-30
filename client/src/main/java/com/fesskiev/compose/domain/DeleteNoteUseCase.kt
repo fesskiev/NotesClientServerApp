@@ -15,7 +15,6 @@ class DeleteNoteUseCase(private val repository: Repository) {
                 throw DeleteNoteException()
             }
         } catch (e: Exception) {
-            e.printStackTrace()
             Result.Failure(e)
         }
 }

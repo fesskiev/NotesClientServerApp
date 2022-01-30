@@ -34,7 +34,7 @@ fun AppToolbar(
         title = { Text(stringResource(currentScreen.resourceId)) },
         navigationIcon = {
             when (currentScreen) {
-                is MainGraph.NotesListScreen -> {
+                is MainGraph.NotesListScreen, MainGraph.NotesSearchScreen -> {
                     IconButton(onClick = { onHamburgerClick() }) {
                         Icon(imageVector = Icons.Filled.Menu, contentDescription = "")
                     }

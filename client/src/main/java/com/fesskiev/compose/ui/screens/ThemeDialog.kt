@@ -7,27 +7,19 @@ import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.fesskiev.compose.R
 import com.fesskiev.compose.presentation.SettingsViewModel
 import com.fesskiev.compose.ui.utils.Constants
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun ThemeDialog(
-    viewModel: SettingsViewModel = getViewModel(),
-    onDismissClick: () -> Unit
-) {
+fun ThemeDialog(viewModel: SettingsViewModel = getViewModel()) {
     val uiState = viewModel.uiStateFlow.collectAsState().value
-    Dialog(
-        onDismissRequest = { onDismissClick() }
-    ) {
-        Card(
-            modifier = Modifier.size(width = 220.dp, height = 140.dp)
-        ) {
+        Card(modifier = Modifier.fillMaxWidth()) {
             Column(verticalArrangement = Arrangement.Center) {
                 arrayOf(
                     Theme(
@@ -49,18 +41,16 @@ fun ThemeDialog(
                     RadioButtonRow(text = theme.text, selected = theme.selected, onClick = {
                         viewModel.setThemeMode(theme.themeMode)
                     })
-                    Spacer(Modifier.height(12.dp))
                 }
             }
         }
-    }
 }
 
 @Composable
 private fun RadioButtonRow(text: String, selected: Boolean, onClick: () -> Unit) {
     Row(
         horizontalArrangement = Arrangement.Start,
-        modifier = Modifier.fillMaxWidth()
+        verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
             modifier = Modifier.padding(start = 12.dp),
@@ -69,9 +59,7 @@ private fun RadioButtonRow(text: String, selected: Boolean, onClick: () -> Unit)
         )
         Text(
             text = text,
-            modifier = Modifier
-                .padding(start = 12.dp)
-                .fillMaxWidth(),
+            modifier = Modifier.padding(start = 12.dp),
             style = MaterialTheme.typography.body1
         )
     }

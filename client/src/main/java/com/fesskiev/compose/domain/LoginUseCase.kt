@@ -28,7 +28,6 @@ class LoginUseCase(private val repository: Repository, private val validator: Fi
             val result = repository.login(email, password)
             Result.Success(result)
         } catch (e: Exception) {
-            e.printStackTrace()
             Result.Failure(e)
         }
 }

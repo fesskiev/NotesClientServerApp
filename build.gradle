@@ -4,7 +4,7 @@ buildscript {
     ext.logback_version= "1.2.3"
     ext.compose_version = '1.0.5'
     ext.compose_activity_version = '1.4.0'
-    ext.compose_nav_version = "2.4.0-rc01"
+    ext.compose_nav_version = "2.4.0"
     ext.material = '1.4.0'
     ext.koin_version = '3.1.4'
     ext.h2_version = "1.4.200"
@@ -13,6 +13,7 @@ buildscript {
     ext.coil_version = "1.4.0"
     ext.datastore = "1.0.0"
     ext.paging = "1.0.0-alpha14"
+    ext.swiperefresh = "0.24.1-alpha"
 
     repositories {
         google()

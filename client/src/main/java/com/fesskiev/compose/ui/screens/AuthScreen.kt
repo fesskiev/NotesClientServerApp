@@ -20,7 +20,7 @@ import com.fesskiev.compose.ui.components.*
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun AuthScreen(viewModel: AuthViewModel = getViewModel(), authSuccess: () -> Unit) {
+fun AuthScreen(viewModel: AuthViewModel = getViewModel(), onCloseAppClick : () -> Unit, authSuccess: () -> Unit) {
     val uiState = viewModel.uiStateFlow.collectAsState().value
     when {
         uiState.authUserInputState.success -> {
@@ -31,6 +31,7 @@ fun AuthScreen(viewModel: AuthViewModel = getViewModel(), authSuccess: () -> Uni
         uiState.loading -> ProgressBar()
         else -> {
             AppScaffold(
+                onBackPressed = onCloseAppClick,
                 content = {
                     AuthForm(
                         uiState,

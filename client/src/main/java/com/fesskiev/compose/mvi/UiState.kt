@@ -88,6 +88,7 @@ fun AddNoteUserInputState.copyWithUserInputError(e: Exception): AddNoteUserInput
 
 data class NotesUiState(
     val loading: Boolean = false,
+    val refresh: Boolean = false,
     val selectedNote: Note? = null,
     val editNoteUiState: EditNoteUiState = EditNoteUiState(),
     val addNoteUiState: AddNoteUiState = AddNoteUiState(),

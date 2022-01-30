@@ -6,8 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -15,10 +14,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.dialog
-import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.*
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.fesskiev.compose.R
@@ -36,11 +36,13 @@ import com.fesskiev.compose.ui.navigation.currentScreenByRoute
 import com.fesskiev.compose.ui.utils.getImageFileFromIntent
 import com.fesskiev.compose.ui.utils.pickImageChooserIntent
 import com.fesskiev.model.Note
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun MainScreen(viewModel: NotesViewModel = getViewModel()) {
+fun MainScreen(viewModel: NotesViewModel = getViewModel(), onCloseAppClick: () -> Unit,) {
     val context = LocalContext.current
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -56,42 +58,20 @@ fun MainScreen(viewModel: NotesViewModel = getViewModel()) {
     MainScaffold(
         uiState = uiState,
         noteItems = noteItems,
-        onNoteClick = {
-            viewModel.openNoteDetails(it)
-        },
-        onNoteEditClick = {
-            viewModel.openEditNoteScreen(it)
-        },
-        onEditNoteChangedTitle = {
-            viewModel.changeEditNoteTitle(it)
-        },
-        onEditNoteChangedDescription = {
-            viewModel.changeEditNoteDescription(it)
-        },
-        onNoteEditedClick = {
-            viewModel.editNote()
-        },
-        onAddNoteClick = {
-            viewModel.addNote()
-        },
-        onAddNoteChangedTitle = {
-            viewModel.changeAddNoteTitle(it)
-        },
-        onAddNoteChangedDescription = {
-            viewModel.changeAddNoteDescription(it)
-        },
-        onNoteDelete = {
-            viewModel.deleteNote(it)
-        },
-        onDeleteImageClick = {
-            viewModel.deleteAddNoteImage()
-        },
-        onFabClick = {
-            viewModel.openAddNoteScreen()
-        },
-        onPickImageClick = {
-            launcher.launch(context.pickImageChooserIntent(title = "Pick Image"))
-        }
+        onCloseAppClick = onCloseAppClick,
+        onRefresh = { viewModel.refresh() },
+        onNoteClick = { viewModel.openNoteDetails(it) },
+        onNoteEditClick = { viewModel.openEditNoteScreen(it) },
+        onEditNoteChangedTitle = { viewModel.changeEditNoteTitle(it) },
+        onEditNoteChangedDescription = { viewModel.changeEditNoteDescription(it) },
+        onNoteEditedClick = { viewModel.editNote() },
+        onAddNoteClick = { viewModel.addNote() },
+        onAddNoteChangedTitle = { viewModel.changeAddNoteTitle(it) },
+        onAddNoteChangedDescription = { viewModel.changeAddNoteDescription(it) },
+        onNoteDelete = { viewModel.deleteNote(it) },
+        onDeleteImageClick = { viewModel.deleteAddNoteImage() },
+        onFabClick = { viewModel.openAddNoteScreen() },
+        onPickImageClick = { launcher.launch(context.pickImageChooserIntent(title = "Pick Image")) }
     )
 }
 
@@ -99,6 +79,8 @@ fun MainScreen(viewModel: NotesViewModel = getViewModel()) {
 fun MainScaffold(
     uiState: NotesUiState,
     noteItems: LazyPagingItems<Note>,
+    onCloseAppClick: () -> Unit,
+    onRefresh: () -> Unit,
     onNoteClick: (Note) -> Unit,
     onNoteEditClick: (Note) -> Unit,
     onEditNoteChangedTitle: (String) -> Unit,
@@ -119,6 +101,9 @@ fun MainScaffold(
     val currentScreen = navController.currentRoute()?.currentScreenByRoute()
     AppScaffold(
         scope = scope,
+        onBackPressed = {
+            navController.navigate(MainGraph.ExitDialog.route)
+        },
         topBar = {
             if (currentScreen != null) {
                 AppToolbar(
@@ -134,6 +119,12 @@ fun MainScaffold(
                     onAddNoteClick = onAddNoteClick,
                     onPickImageClick = onPickImageClick
                 )
+            }
+        },
+        bottomBar = {
+            if (currentScreen != null && (currentScreen is MainGraph.NotesListScreen || currentScreen is MainGraph.NotesSearchScreen)
+            ) {
+                BottomBar(navController)
             }
         },
         drawerContent = {
@@ -168,21 +159,28 @@ fun MainScaffold(
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
         Box(modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())) {
-            NavHost(navController = navController, startDestination = MainGraph.NotesListScreen.route) {
+            NavHost(
+                navController = navController,
+                startDestination = MainGraph.NotesListScreen.route
+            ) {
                 composable(MainGraph.NotesListScreen.route) {
-                    NotesListScreen(
+                    SwipeRefreshNotesList(
+                        uiState,
                         noteItems,
-                        noteItems.isLoading(),
+                        onRefresh = onRefresh,
                         onNoteClick = {
                             onNoteClick(it)
                             navController.navigate(MainGraph.NoteDetailsScreen.route)
                         },
-                        onNoteDeleteClick = onNoteDelete,
                         onNoteEditClick = {
                             onNoteEditClick(it)
                             navController.navigate(MainGraph.EditNoteScreen.route)
-                        }
+                        },
+                        onNoteDelete
                     )
+                }
+                composable(MainGraph.NotesSearchScreen.route) {
+                    NotesSearchScreen()
                 }
                 composable(MainGraph.EditNoteScreen.route) {
                     EditNoteScreen(
@@ -216,14 +214,75 @@ fun MainScaffold(
                     )
                 }
                 dialog(MainGraph.SettingsThemeDialog.route) {
-                    ThemeDialog(
-                        onDismissClick = {
-                            navController.popBackStack()
-                        }
-                    )
+                    ThemeDialog()
+                }
+                dialog(MainGraph.ExitDialog.route) {
+                    ExitDialog(onCloseAppClick = onCloseAppClick)
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun BottomBar(navController: NavHostController) {
+    val items = listOf(
+        MainGraph.NotesListScreen,
+        MainGraph.NotesSearchScreen,
+    )
+    BottomNavigation {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentDestination = navBackStackEntry?.destination
+        items.forEach { screen ->
+            BottomNavigationItem(
+                icon = {
+                    Icon(
+                        painter = painterResource(screen.iconId),
+                        contentDescription = null
+                    )
+                },
+                label = { Text(stringResource(screen.label)) },
+                selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                onClick = {
+                    navController.navigate(screen.route) {
+                        // Pop up to the start destination of the graph to
+                        // avoid building up a large stack of destinations
+                        // on the back stack as users select items
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        // Avoid multiple copies of the same destination when
+                        // reselecting the same item
+                        launchSingleTop = true
+                        // Restore state when reselecting a previously selected item
+                        restoreState = true
+                    }
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun SwipeRefreshNotesList(
+    uiState: NotesUiState,
+    noteItems: LazyPagingItems<Note>,
+    onRefresh: () -> Unit,
+    onNoteClick: (Note) -> Unit,
+    onNoteEditClick: (Note) -> Unit,
+    onNoteDelete: (Note) -> Unit
+) {
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing = uiState.refresh),
+        onRefresh = onRefresh,
+    ) {
+        NotesListScreen(
+            noteItems,
+            noteItems.isLoading(),
+            onNoteClick = onNoteClick,
+            onNoteDeleteClick = onNoteDelete,
+            onNoteEditClick = onNoteEditClick
+        )
     }
 }
 

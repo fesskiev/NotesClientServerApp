@@ -80,6 +80,8 @@ dependencies {
 
     implementation "io.coil-kt:coil-compose:$coil_version"
 
+    implementation "com.google.accompanist:accompanist-swiperefresh:$swiperefresh"
+
     implementation "androidx.datastore:datastore-preferences:$datastore"
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"

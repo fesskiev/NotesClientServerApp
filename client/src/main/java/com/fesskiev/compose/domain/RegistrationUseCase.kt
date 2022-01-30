@@ -39,7 +39,6 @@ class RegistrationUseCase(
             val result = repository.registration(email, displayName, password)
             Result.Success(result)
         } catch (e: Exception) {
-            e.printStackTrace()
             Result.Failure(e)
         }
 }
