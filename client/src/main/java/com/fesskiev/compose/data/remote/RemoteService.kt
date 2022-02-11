@@ -1,10 +1,10 @@
-package com.fesskiev.compose.data
+package com.fesskiev.compose.data.remote
 
 import com.fesskiev.model.JWTAuth
 import com.fesskiev.model.Note
 import java.io.File
 
-interface Repository {
+interface RemoteService {
 
     suspend fun getNotes(page: Int): List<Note>
 

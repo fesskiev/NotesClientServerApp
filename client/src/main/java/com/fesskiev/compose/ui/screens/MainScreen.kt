@@ -7,10 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -19,12 +16,8 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.fesskiev.compose.R
-import com.fesskiev.compose.mvi.NotesUiState
-import com.fesskiev.compose.paging.getHttpErrorResourceOrNull
-import com.fesskiev.compose.paging.isLoading
+import com.fesskiev.compose.state.NotesUiState
 import com.fesskiev.compose.presentation.NotesViewModel
 import com.fesskiev.compose.ui.components.AppDrawer
 import com.fesskiev.compose.ui.components.AppScaffold
@@ -42,7 +35,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun MainScreen(viewModel: NotesViewModel = getViewModel(), onCloseAppClick: () -> Unit,) {
+fun MainScreen(viewModel: NotesViewModel = getViewModel(), onCloseAppClick: () -> Unit) {
     val context = LocalContext.current
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -52,14 +45,18 @@ fun MainScreen(viewModel: NotesViewModel = getViewModel(), onCloseAppClick: () -
                 }
             }
         }
-    val noteItems: LazyPagingItems<Note> = viewModel.notesPagingStateFlow.collectAsLazyPagingItems()
+
+    LaunchedEffect(Unit) {
+        viewModel.getFirstPageOfNotes()
+    }
     val uiState by viewModel.uiStateFlow.collectAsState()
 
     MainScaffold(
         uiState = uiState,
-        noteItems = noteItems,
-        onCloseAppClick = onCloseAppClick,
         onRefresh = { viewModel.refresh() },
+        onLoadMore = { viewModel.loadMore() },
+        onRetryClick = { viewModel.loadMore() },
+        onCloseAppClick = onCloseAppClick,
         onNoteClick = { viewModel.openNoteDetails(it) },
         onNoteEditClick = { viewModel.openEditNoteScreen(it) },
         onEditNoteChangedTitle = { viewModel.changeEditNoteTitle(it) },
@@ -78,9 +75,10 @@ fun MainScreen(viewModel: NotesViewModel = getViewModel(), onCloseAppClick: () -
 @Composable
 fun MainScaffold(
     uiState: NotesUiState,
-    noteItems: LazyPagingItems<Note>,
-    onCloseAppClick: () -> Unit,
     onRefresh: () -> Unit,
+    onLoadMore: () -> Unit,
+    onRetryClick: () -> Unit,
+    onCloseAppClick: () -> Unit,
     onNoteClick: (Note) -> Unit,
     onNoteEditClick: (Note) -> Unit,
     onEditNoteChangedTitle: (String) -> Unit,
@@ -153,9 +151,9 @@ fun MainScaffold(
                 }
             }
         },
-        errorResourceId = uiState.errorResourceId ?: noteItems.getHttpErrorResourceOrNull()
+        error = uiState.error
     ) { innerPadding ->
-        if (uiState.loading) {
+        if (uiState.refresh) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
         Box(modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())) {
@@ -165,8 +163,7 @@ fun MainScaffold(
             ) {
                 composable(MainGraph.NotesListScreen.route) {
                     SwipeRefreshNotesList(
-                        uiState,
-                        noteItems,
+                        uiState = uiState,
                         onRefresh = onRefresh,
                         onNoteClick = {
                             onNoteClick(it)
@@ -176,7 +173,9 @@ fun MainScaffold(
                             onNoteEditClick(it)
                             navController.navigate(MainGraph.EditNoteScreen.route)
                         },
-                        onNoteDelete
+                        onNoteDelete,
+                        onLoadMore = onLoadMore,
+                        onRetryClick = onRetryClick
                     )
                 }
                 composable(MainGraph.NotesSearchScreen.route) {
@@ -266,22 +265,24 @@ private fun BottomBar(navController: NavHostController) {
 @Composable
 private fun SwipeRefreshNotesList(
     uiState: NotesUiState,
-    noteItems: LazyPagingItems<Note>,
     onRefresh: () -> Unit,
     onNoteClick: (Note) -> Unit,
     onNoteEditClick: (Note) -> Unit,
-    onNoteDelete: (Note) -> Unit
+    onNoteDelete: (Note) -> Unit,
+    onLoadMore: () -> Unit,
+    onRetryClick: () -> Unit
 ) {
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing = uiState.refresh),
         onRefresh = onRefresh,
     ) {
         NotesListScreen(
-            noteItems,
-            noteItems.isLoading(),
+            uiState,
             onNoteClick = onNoteClick,
             onNoteDeleteClick = onNoteDelete,
-            onNoteEditClick = onNoteEditClick
+            onNoteEditClick = onNoteEditClick,
+            onLoadMore = onLoadMore,
+            onRetryClick = onRetryClick
         )
     }
 }

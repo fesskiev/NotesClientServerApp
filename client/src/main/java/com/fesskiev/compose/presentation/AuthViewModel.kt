@@ -6,9 +6,10 @@ import com.fesskiev.compose.data.remote.parseHttpError
 import com.fesskiev.compose.domain.LoginUseCase
 import com.fesskiev.compose.domain.RegistrationUseCase
 import com.fesskiev.compose.domain.Result
-import com.fesskiev.compose.mvi.AuthUiState
-import com.fesskiev.compose.mvi.AuthUserInputState
-import com.fesskiev.compose.mvi.copyWithUserInputError
+import com.fesskiev.compose.state.AuthUiState
+import com.fesskiev.compose.state.AuthUserInputState
+import com.fesskiev.compose.state.ErrorState
+import com.fesskiev.compose.state.copyWithUserInputError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -27,7 +28,7 @@ class AuthViewModel(
                     uiState.copy(
                         loading = true,
                         authUserInputState = AuthUserInputState(),
-                        errorResourceId = null
+                        error = null
                     )
                 }
                 val result = registrationUseCase(email, displayName, password)
@@ -37,7 +38,7 @@ class AuthViewModel(
                             uiState.copy(
                                 loading = false,
                                 authUserInputState = AuthUserInputState(success = true),
-                                errorResourceId = null
+                                error = null
 
                             )
                         }
@@ -45,7 +46,7 @@ class AuthViewModel(
                             uiState.copy(
                                 loading = false,
                                 authUserInputState = AuthUserInputState().copyWithUserInputError(result.e),
-                                errorResourceId = parseHttpError(result.e)
+                                error = ErrorState(errorResourceId = parseHttpError(result.e))
                             )
                         }
                     }
@@ -61,7 +62,7 @@ class AuthViewModel(
                     uiState.copy(
                         loading = true,
                         authUserInputState = AuthUserInputState(),
-                        errorResourceId = null
+                        error = null
                     )
                 }
                 val result = loginUseCase(email, password)
@@ -71,7 +72,7 @@ class AuthViewModel(
                             uiState.copy(
                                 loading = false,
                                 authUserInputState = AuthUserInputState(success = true),
-                                errorResourceId = null
+                                error = null
 
                             )
                         }
@@ -79,7 +80,7 @@ class AuthViewModel(
                             uiState.copy(
                                 loading = false,
                                 authUserInputState = AuthUserInputState().copyWithUserInputError(result.e),
-                                errorResourceId = parseHttpError(result.e)
+                                error = ErrorState(errorResourceId = parseHttpError(result.e))
                             )
                         }
                     }
@@ -97,7 +98,7 @@ class AuthViewModel(
                 password = "",
                 isLoginFormShow = !it.isLoginFormShow,
                 authUserInputState = AuthUserInputState(),
-                errorResourceId = null
+                error= null
             )
         }
     }
@@ -108,7 +109,7 @@ class AuthViewModel(
                 loading = false,
                 displayName = displayName,
                 authUserInputState = AuthUserInputState(),
-                errorResourceId = null
+                error = null
             )
         }
     }
@@ -119,7 +120,7 @@ class AuthViewModel(
                 loading = false,
                 email = email,
                 authUserInputState = AuthUserInputState(),
-                errorResourceId = null
+                error = null
             )
         }
     }
@@ -130,7 +131,7 @@ class AuthViewModel(
                 loading = false,
                 password = password,
                 authUserInputState = AuthUserInputState(),
-                errorResourceId = null
+                error = null
             )
         }
     }

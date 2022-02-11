@@ -8,25 +8,21 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.items
 import coil.compose.rememberImagePainter
 import com.fesskiev.compose.R
-import com.fesskiev.compose.paging.isEmpty
+import com.fesskiev.compose.state.NotesUiState
 import com.fesskiev.compose.ui.components.PagingProgressBar
 import com.fesskiev.compose.ui.components.ProgressBar
 import com.fesskiev.compose.ui.utils.formatDate
@@ -35,26 +31,61 @@ import com.fesskiev.model.Note
 
 @Composable
 fun NotesListScreen(
-    notesItems: LazyPagingItems<Note>,
-    loading: Boolean,
+    uiState: NotesUiState,
     onNoteClick: (Note) -> Unit,
     onNoteDeleteClick: (Note) -> Unit,
-    onNoteEditClick: (Note) -> Unit
+    onNoteEditClick: (Note) -> Unit,
+    onLoadMore: () -> Unit,
+    onRetryClick: () -> Unit
 ) {
-    if (notesItems.isEmpty()) {
-        if (loading) {
-            ProgressBar()
-        } else {
-            EmptyNotesList()
+    val scrollState = rememberLazyListState()
+    val notes = uiState.notes
+    when {
+        notes == null -> {
+            if (uiState.loading) {
+                ProgressBar()
+            }
         }
-    } else {
-        LazyColumn {
-            items(notesItems) { note ->
-                NoteItem(note!!, onNoteClick, onNoteDeleteClick, onNoteEditClick)
+        notes.isEmpty() -> EmptyNotesList()
+        else -> {
+            LazyColumn(modifier = Modifier.fillMaxSize(), state = scrollState) {
+                items(notes) { note ->
+                    NoteItem(note, onNoteClick, onNoteDeleteClick, onNoteEditClick)
+                }
+                if (uiState.error != null) {
+                    item {
+                        RetryButton(onRetryClick = onRetryClick)
+                    }
+                } else if (uiState.loadMore) {
+                    item {
+                        PagingProgressBar()
+                    }
+                }
             }
-            if (loading) {
-                item { PagingProgressBar() }
-            }
+        }
+    }
+    if (scrollState.isScrolledToTheEnd() &&
+        !uiState.endOfPaginationReached &&
+        !uiState.loadMore &&
+        uiState.error == null
+    ) {
+        LaunchedEffect(Unit) {
+            onLoadMore()
+        }
+    }
+}
+
+@Composable
+fun RetryButton(onRetryClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        OutlinedButton(onClick = onRetryClick) {
+            Text(text = stringResource(R.string.retry))
         }
     }
 }
@@ -179,3 +210,6 @@ fun EmptyNotesList() {
         Text(text = stringResource(R.string.empty_notes_list), style = MaterialTheme.typography.h5)
     }
 }
+
+fun LazyListState.isScrolledToTheEnd(): Boolean =
+    layoutInfo.visibleItemsInfo.lastOrNull()?.index == layoutInfo.totalItemsCount - 1

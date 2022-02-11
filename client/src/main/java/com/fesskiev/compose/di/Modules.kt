@@ -1,12 +1,9 @@
 package com.fesskiev.compose.di
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import com.fesskiev.compose.data.Repository
-import com.fesskiev.compose.data.RepositoryImpl
+import com.fesskiev.compose.data.remote.RemoteService
+import com.fesskiev.compose.data.remote.RemoteServiceImpl
 import com.fesskiev.compose.data.remote.provideKtorClient
 import com.fesskiev.compose.domain.*
-import com.fesskiev.compose.paging.NotesSource
 import com.fesskiev.compose.presentation.AuthViewModel
 import com.fesskiev.compose.presentation.NotesViewModel
 import com.fesskiev.compose.presentation.SettingsViewModel
@@ -22,11 +19,10 @@ val appModule = module {
     single { DataStoreManager(get()) }
     factory { ThemeManager() }
     factory { FieldValidator() }
-    factory { Pager(PagingConfig(pageSize = 20)) { NotesSource(get()) } }
 }
 
 val repositoryModule = module {
-    single { RepositoryImpl(get()) as Repository }
+    single { RemoteServiceImpl(get()) as RemoteService }
 }
 
 val viewModelModule = module {

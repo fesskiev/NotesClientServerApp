@@ -17,8 +17,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.fesskiev.compose.R
-import com.fesskiev.compose.mvi.AddNoteUiState
-import com.fesskiev.compose.mvi.NotesUiState
+import com.fesskiev.compose.state.AddNoteUiState
+import com.fesskiev.compose.state.NotesUiState
 import com.fesskiev.compose.ui.components.AsciiTextField
 import com.fesskiev.compose.ui.components.ProgressBar
 import com.fesskiev.compose.ui.theme.Grey

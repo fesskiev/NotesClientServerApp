@@ -13,7 +13,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.fesskiev.compose.R
-import com.fesskiev.compose.mvi.SettingsUiState
+import com.fesskiev.compose.state.SettingsUiState
 import com.fesskiev.compose.presentation.SettingsViewModel
 import com.fesskiev.compose.ui.components.ProgressBar
 import org.koin.androidx.compose.getViewModel
@@ -37,7 +37,7 @@ fun SettingsScreen(
                 uiState,
                 onShowThemeDialogClick = onShowThemeDialogClick,
                 onLogoutClick = { viewModel.logout() })
-            if (uiState.errorResourceId != null) {
+            if (uiState.error != null) {
 
             }
         }

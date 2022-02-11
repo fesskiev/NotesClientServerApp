@@ -1,4 +1,4 @@
-package com.fesskiev.compose.data
+package com.fesskiev.compose.data.remote
 
 import com.fesskiev.HTTPParameters.DISPLAY_NAME
 import com.fesskiev.HTTPParameters.EMAIL
@@ -22,17 +22,20 @@ import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
+import io.ktor.utils.io.core.internal.*
 import io.ktor.utils.io.streams.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.File
 
-class RepositoryImpl(private val httpClient: HttpClient) : Repository {
+class RemoteServiceImpl(private val httpClient: HttpClient) : RemoteService {
 
     override suspend fun getNotes(page: Int): List<Note> = withContext(Dispatchers.IO) {
         val newNotes = httpClient.get<List<Note>>(GET_NOTES) {
             url.parameters.append(PAGE, page.toString())
         }
+        delay(2000)
         return@withContext newNotes
     }
 
@@ -46,9 +49,11 @@ class RepositoryImpl(private val httpClient: HttpClient) : Repository {
                     append(NOTE_DESCRIPTION, description)
                 })
             }
+            delay(2000)
             return@withContext newNote
         }
 
+    @OptIn(DangerousInternalIoApi::class)
     override suspend fun addImage(note: Note, file: File): Note =
         withContext(Dispatchers.IO) {
             val formData = formData {

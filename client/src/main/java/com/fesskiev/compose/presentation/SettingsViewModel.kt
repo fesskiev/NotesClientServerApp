@@ -6,7 +6,8 @@ import com.fesskiev.compose.data.remote.parseHttpError
 import com.fesskiev.compose.domain.LogoutUseCase
 import com.fesskiev.compose.domain.Result
 import com.fesskiev.compose.domain.ThemeModeUseCase
-import com.fesskiev.compose.mvi.SettingsUiState
+import com.fesskiev.compose.state.ErrorState
+import com.fesskiev.compose.state.SettingsUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -26,7 +27,7 @@ class SettingsViewModel(
                             loading = false,
                             isLogout = false,
                             themeMode = themeMode,
-                            errorResourceId = null
+                            error = null
                         )
                     }
                 }
@@ -42,7 +43,7 @@ class SettingsViewModel(
                             loading = false,
                             isLogout = false,
                             themeMode = themeMode,
-                            errorResourceId = null
+                            error = null
                         )
                     }
                 }.catch { e ->
@@ -50,7 +51,7 @@ class SettingsViewModel(
                         it.copy(
                             loading = false,
                             isLogout = false,
-                            errorResourceId = parseHttpError(e)
+                            error = ErrorState(errorResourceId = parseHttpError(e))
                         )
                     }
 
@@ -65,7 +66,7 @@ class SettingsViewModel(
                     it.copy(
                         loading = true,
                         isLogout = false,
-                        errorResourceId = null
+                        error = null
                     )
                 }
                 val result = logoutUseCase()
@@ -75,14 +76,14 @@ class SettingsViewModel(
                             uiState.copy(
                                 loading = false,
                                 isLogout = true,
-                                errorResourceId = null
+                                error = null
                             )
                         }
                         is Result.Failure -> {
                             uiState.copy(
                                 loading = false,
                                 isLogout = false,
-                                errorResourceId = parseHttpError(result.e)
+                                error = ErrorState(errorResourceId = parseHttpError(result.e))
                             )
                         }
                     }

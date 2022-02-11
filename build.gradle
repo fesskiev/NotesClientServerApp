@@ -1,8 +1,8 @@
 buildscript {
-    ext.kotlin_version = "1.5.31"
+    ext.kotlin_version = "1.6.10"
     ext.ktor_version= "1.5.2"
     ext.logback_version= "1.2.3"
-    ext.compose_version = '1.0.5'
+    ext.compose_version = '1.1.0'
     ext.compose_activity_version = '1.4.0'
     ext.compose_nav_version = "2.4.0"
     ext.material = '1.4.0'
@@ -11,9 +11,8 @@ buildscript {
     ext.exposed_version = "0.25.1"
     ext.coroutines_version = "1.5.2"
     ext.coil_version = "1.4.0"
-    ext.datastore = "1.0.0"
-    ext.paging = "1.0.0-alpha14"
-    ext.swiperefresh = "0.24.1-alpha"
+    ext.datastore_version = "1.0.0"
+    ext.swiperefresh_version = "0.24.1-alpha"
 
     repositories {
         google()
@@ -22,7 +21,7 @@ buildscript {
         maven { url 'https://kotlin.bintray.com/ktor' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.0'
+        classpath 'com.android.tools.build:gradle:7.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
     }

@@ -2,18 +2,13 @@ package com.fesskiev.compose.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.*
 import com.fesskiev.compose.data.remote.parseHttpError
-import com.fesskiev.compose.domain.AddNoteUseCase
-import com.fesskiev.compose.domain.DeleteNoteUseCase
-import com.fesskiev.compose.domain.EditNoteUseCase
-import com.fesskiev.compose.domain.Result
-import com.fesskiev.compose.mvi.*
+import com.fesskiev.compose.domain.*
+import com.fesskiev.compose.state.*
+import com.fesskiev.compose.ui.utils.plusTop
+import com.fesskiev.compose.ui.utils.replace
 import com.fesskiev.model.Note
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -21,15 +16,102 @@ class NotesViewModel(
     private val deleteNoteUseCase: DeleteNoteUseCase,
     private val addNoteUseCase: AddNoteUseCase,
     private val editNoteUseCase: EditNoteUseCase,
-    notesPager: Pager<Int, Note>
+    private val getNotesUseCase: GetNotesUseCase
 ) : ViewModel() {
 
-    private val action = MutableStateFlow<Action>(Action.Idle)
     val uiStateFlow = MutableStateFlow(NotesUiState())
-    val notesPagingStateFlow: Flow<PagingData<Note>> = notesPager
-        .flow
-        .cachedIn(viewModelScope)
-        .combine(action) { pagingData, action -> reducer(pagingData, action) }
+
+    fun getFirstPageOfNotes() {
+        viewModelScope.launch {
+            uiStateFlow.apply {
+                update { uiState ->
+                    uiState.copy(
+                        loading = true,
+                        page = 1,
+                    )
+                }
+                update { uiState ->
+                    when (val result = getNotesUseCase(uiState.page)) {
+                        is Result.Success -> {
+                            uiState.copy(
+                                loading = false,
+                                endOfPaginationReached = result.data.isEmpty(),
+                                page = uiState.page + 1,
+                                notes = result.data
+                            )
+                        }
+                        is Result.Failure -> {
+                            uiState.copy(
+                                loading = false,
+                                error = ErrorState(errorResourceId = parseHttpError(result.e))
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun loadMore() {
+        viewModelScope.launch {
+            uiStateFlow.apply {
+                update { uiState ->
+                    uiState.copy(
+                        loadMore = true
+                    )
+                }
+                update { uiState ->
+                    when (val result = getNotesUseCase(uiState.page)) {
+                        is Result.Success -> {
+                            uiState.copy(
+                                loadMore = false,
+                                endOfPaginationReached = result.data.isEmpty(),
+                                page = uiState.page + 1,
+                                notes = uiState.notes?.plus(result.data)
+                            )
+                        }
+                        is Result.Failure -> {
+                            uiState.copy(
+                                loadMore = false,
+                                error = ErrorState(errorResourceId = parseHttpError(result.e))
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun refresh() {
+        viewModelScope.launch {
+            uiStateFlow.apply {
+                update { uiState ->
+                    uiState.copy(
+                        refresh = true,
+                        page = 1,
+                    )
+                }
+                update { uiState ->
+                    when (val result = getNotesUseCase(uiState.page)) {
+                        is Result.Success -> {
+                            uiState.copy(
+                                refresh = false,
+                                endOfPaginationReached = result.data.isEmpty(),
+                                page = uiState.page + 1,
+                                notes = result.data
+                            )
+                        }
+                        is Result.Failure -> {
+                            uiState.copy(
+                                refresh = false,
+                                error = ErrorState(errorResourceId = parseHttpError(result.e))
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     fun addNote() {
         viewModelScope.launch {
@@ -39,16 +121,20 @@ class NotesViewModel(
                 }
                 val addNoteState = value.addNoteUiState
                 val result =
-                    addNoteUseCase(addNoteState.title, addNoteState.description, addNoteState.imageFile)
+                    addNoteUseCase(
+                        addNoteState.title,
+                        addNoteState.description,
+                        addNoteState.imageFile
+                    )
                 update { uiState ->
                     when (result) {
                         is Result.Success -> {
-                            dispatchAction(Action.AddNote(result.data))
                             uiState.copy(
                                 loading = false,
                                 selectedNote = null,
+                                notes = uiState.notes?.plusTop(result.data),
                                 addNoteUiState = AddNoteUiState(success = true),
-                                errorResourceId = null
+                                error = null
                             )
                         }
                         is Result.Failure -> {
@@ -60,7 +146,7 @@ class NotesViewModel(
                                         result.e
                                     )
                                 ),
-                                errorResourceId = parseHttpError(result.e)
+                                error = ErrorState(errorResourceId = parseHttpError(result.e))
                             )
                         }
                     }
@@ -87,19 +173,19 @@ class NotesViewModel(
                 update { uiState ->
                     when (result) {
                         is Result.Success -> {
-                            dispatchAction(Action.EditNote(note))
                             uiState.copy(
                                 loading = false,
                                 selectedNote = null,
+                                notes = uiState.notes?.replace(note) { it.noteUid == note.noteUid },
                                 editNoteUiState = EditNoteUiState(success = true),
-                                errorResourceId = null
+                                error = null
                             )
                         }
                         is Result.Failure -> {
                             uiState.copy(
                                 loading = false,
                                 selectedNote = null,
-                                errorResourceId = parseHttpError(result.e)
+                                error = ErrorState(errorResourceId = parseHttpError(result.e))
                             )
                         }
                     }
@@ -118,54 +204,22 @@ class NotesViewModel(
                 update { uiState ->
                     when (result) {
                         is Result.Success -> {
-                            dispatchAction(Action.DeleteNote(note))
                             uiState.copy(
                                 loading = false,
                                 selectedNote = null,
-                                errorResourceId = null
+                                notes = uiState.notes?.minus(note),
+                                error = null
                             )
                         }
                         is Result.Failure -> {
                             uiState.copy(
                                 loading = false,
-                                errorResourceId = parseHttpError(result.e)
+                                error = ErrorState(errorResourceId = parseHttpError(result.e))
                             )
                         }
                     }
                 }
             }
-        }
-    }
-
-    private fun reducer(paging: PagingData<Note>, action: Action): PagingData<Note> {
-        when (action) {
-            is Action.DeleteNote -> return paging.filter { action.note.noteUid != it.noteUid }
-            is Action.AddNote -> {
-                return paging.insertHeaderItem(item = action.note)
-            }
-            is Action.EditNote -> {
-                return paging.map {
-                    if (action.note.noteUid == it.noteUid) {
-                        return@map it.copy(
-                            title = action.note.title,
-                            description = action.note.description
-                        )
-                    }
-                    return@map it
-                }
-            }
-        }
-        return paging
-    }
-
-    fun refresh() {
-        uiStateFlow.update {
-            it.copy(
-                loading = false,
-                refresh = true,
-                selectedNote = null,
-                errorResourceId = null
-            )
         }
     }
 
@@ -174,7 +228,7 @@ class NotesViewModel(
             it.copy(
                 loading = false,
                 selectedNote = note,
-                errorResourceId = null
+                error = null
             )
         }
     }
@@ -185,7 +239,7 @@ class NotesViewModel(
                 loading = false,
                 selectedNote = null,
                 addNoteUiState = AddNoteUiState(success = false),
-                errorResourceId = null
+                error = null
             )
         }
     }
@@ -200,7 +254,7 @@ class NotesViewModel(
                     title = note.title,
                     description = note.description
                 ),
-                errorResourceId = null
+                error = null
             )
         }
     }
@@ -210,7 +264,7 @@ class NotesViewModel(
             it.copy(
                 loading = false,
                 editNoteUiState = it.editNoteUiState.copy(title = title),
-                errorResourceId = null
+                error = null
             )
         }
     }
@@ -220,7 +274,7 @@ class NotesViewModel(
             it.copy(
                 loading = false,
                 editNoteUiState = it.editNoteUiState.copy(description = description),
-                errorResourceId = null
+                error = null
             )
         }
     }
@@ -231,7 +285,7 @@ class NotesViewModel(
                 loading = false,
                 selectedNote = null,
                 addNoteUiState = it.addNoteUiState.copy(imageFile = null),
-                errorResourceId = null
+                error = null
             )
         }
     }
@@ -242,7 +296,7 @@ class NotesViewModel(
                 loading = false,
                 selectedNote = null,
                 addNoteUiState = it.addNoteUiState.copy(imageFile = imageFile),
-                errorResourceId = null
+                error = null
             )
         }
     }
@@ -253,7 +307,7 @@ class NotesViewModel(
                 loading = false,
                 selectedNote = null,
                 addNoteUiState = it.addNoteUiState.copy(title = title),
-                errorResourceId = null
+                error = null
             )
         }
     }
@@ -264,13 +318,9 @@ class NotesViewModel(
                 loading = false,
                 selectedNote = null,
                 addNoteUiState = it.addNoteUiState.copy(description = description),
-                errorResourceId = null
+                error = null
             )
         }
-    }
-
-    private fun dispatchAction(action: Action) {
-        this.action.value = action
     }
 }
 

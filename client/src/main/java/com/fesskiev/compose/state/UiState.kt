@@ -1,4 +1,4 @@
-package com.fesskiev.compose.mvi
+package com.fesskiev.compose.state
 
 import androidx.annotation.StringRes
 import com.fesskiev.ServerErrorCodes.DISPLAY_NAME_EMPTY
@@ -11,16 +11,16 @@ import com.fesskiev.ServerErrorCodes.PASSWORD_INVALID
 import com.fesskiev.compose.domain.exceptions.UserInputException
 import com.fesskiev.model.Note
 import java.io.File
+import kotlin.random.Random
 
 data class AuthUiState(
     val loading: Boolean = false,
     val displayName: String = "",
-    val email: String = "",
-    val password: String = "",
+    val email: String = "test15@i.ua",
+    val password: String = "123456",
     val isLoginFormShow: Boolean = true,
     val authUserInputState: AuthUserInputState = AuthUserInputState(),
-    @StringRes
-    val errorResourceId: Int? = null
+    val error: ErrorState? = null
 )
 
 data class AuthUserInputState(
@@ -51,8 +51,7 @@ data class SettingsUiState(
     val loading: Boolean = false,
     val isLogout: Boolean = false,
     val themeMode: String = "",
-    @StringRes
-    val errorResourceId: Int? = null
+    val error: ErrorState? = null
 )
 
 data class EditNoteUiState(
@@ -87,11 +86,24 @@ fun AddNoteUserInputState.copyWithUserInputError(e: Exception): AddNoteUserInput
     }
 
 data class NotesUiState(
+    val notes: List<Note>? = null,
+    val page: Int = -1,
     val loading: Boolean = false,
     val refresh: Boolean = false,
+    val loadMore: Boolean = false,
+    val endOfPaginationReached: Boolean = false,
     val selectedNote: Note? = null,
     val editNoteUiState: EditNoteUiState = EditNoteUiState(),
     val addNoteUiState: AddNoteUiState = AddNoteUiState(),
+    val error: ErrorState? = null
+) {
+    override fun toString(): String {
+        return "NotesUiState(page=$page, size=${notes?.size} loading=$loading, loadMore=$loadMore, refresh=$refresh, endPagination=$endOfPaginationReached)"
+    }
+}
+
+data class ErrorState(
+    val id: Int = Random.nextInt(),
     @StringRes
     val errorResourceId: Int? = null
 )

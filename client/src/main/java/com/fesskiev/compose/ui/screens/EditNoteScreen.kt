@@ -12,8 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.fesskiev.compose.R
-import com.fesskiev.compose.mvi.EditNoteUiState
-import com.fesskiev.compose.mvi.NotesUiState
+import com.fesskiev.compose.state.EditNoteUiState
+import com.fesskiev.compose.state.NotesUiState
 import com.fesskiev.compose.ui.components.AsciiTextField
 import com.fesskiev.compose.ui.components.ProgressBar
 

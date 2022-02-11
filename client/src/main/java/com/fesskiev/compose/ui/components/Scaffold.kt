@@ -1,7 +1,6 @@
 package com.fesskiev.compose.ui.components
 
 import androidx.activity.compose.BackHandler
-import androidx.annotation.StringRes
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.*
@@ -11,6 +10,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.fesskiev.compose.state.ErrorState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -23,7 +23,7 @@ fun AppScaffold(
     drawerContent: @Composable (ScaffoldState) -> Unit = { },
     floatingActionButton: @Composable () -> Unit = { },
     drawerGesturesEnabled: Boolean = true,
-    @StringRes errorResourceId: Int? = null,
+    error: ErrorState? = null,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val scaffoldState = rememberScaffoldState()
@@ -58,9 +58,9 @@ fun AppScaffold(
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = floatingActionButton
     )
-    if (errorResourceId != null) {
-        val message = stringResource(errorResourceId)
-        LaunchedEffect(errorResourceId) {
+    if (error != null) {
+        val message = error.errorResourceId?.let { stringResource(it) } ?: ""
+        LaunchedEffect(error.id) {
             scope.launch {
                 scaffoldState.snackbarHostState.showSnackbar(message = message)
             }
