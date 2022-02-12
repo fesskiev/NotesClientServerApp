@@ -13,14 +13,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
-import com.fesskiev.compose.state.NotesUiState
+import com.fesskiev.compose.state.NotesListUiState
 import com.fesskiev.compose.ui.components.ProgressBar
 import com.fesskiev.compose.ui.utils.formatDate
 import com.fesskiev.compose.ui.utils.toPictureUrl
 import com.fesskiev.model.Note
 
 @Composable
-fun NoteDetailsScreen(uiState: NotesUiState) {
+fun NoteDetailsScreen(uiState: NotesListUiState) {
     when {
         uiState.loading -> ProgressBar()
         uiState.selectedNote != null -> NoteDetails(uiState.selectedNote)

@@ -26,11 +26,7 @@ fun SettingsScreen(
 ) {
     val uiState = viewModel.uiStateFlow.collectAsState().value
     when {
-        uiState.isLogout -> {
-            LaunchedEffect(Unit) {
-                onLogoutClick()
-            }
-        }
+        uiState.isLogout -> LaunchedEffect(Unit) { onLogoutClick() }
         uiState.loading -> ProgressBar()
         else -> {
             SettingsContent(

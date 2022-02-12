@@ -12,7 +12,7 @@ import com.fesskiev.compose.ui.theme.AppTheme
 
 class MainActivity : AppCompatActivity() {
 
-    private val closeAppClick : () -> Unit = { finish() }
+    private val closeAppClick: () -> Unit = { finish() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,8 +20,16 @@ class MainActivity : AppCompatActivity() {
             AppTheme {
                 val navController = rememberNavController()
                 NavHost(navController, startDestination = AuthGraph.route) {
-                    authGraph(navController, onCloseAppClick = closeAppClick)
-                    mainGraph(onCloseAppClick = closeAppClick)
+                    authGraph(
+                        navController,
+                        onCloseAppClick = closeAppClick
+                    )
+                    mainGraph(
+                        onCloseAppClick = closeAppClick,
+                        onLogoutClick = {
+                            navController.navigate(AuthGraph.route)
+                        }
+                    )
                 }
             }
         }

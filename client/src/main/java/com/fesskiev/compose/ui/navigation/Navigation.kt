@@ -21,13 +21,19 @@ fun NavGraphBuilder.authGraph(navController: NavHostController, onCloseAppClick:
     }
 }
 
-fun NavGraphBuilder.mainGraph(onCloseAppClick: () -> Unit) {
+fun NavGraphBuilder.mainGraph(
+    onLogoutClick: () -> Unit,
+    onCloseAppClick: () -> Unit
+) {
     navigation(
         route = MainGraph.route,
         startDestination = MainGraph.MainScreen.route,
     ) {
         composable(MainGraph.MainScreen.route) {
-            MainScreen(onCloseAppClick = onCloseAppClick)
+            MainScreen(
+                onCloseAppClick = onCloseAppClick,
+                onLogoutClick = onLogoutClick
+            )
         }
     }
 }

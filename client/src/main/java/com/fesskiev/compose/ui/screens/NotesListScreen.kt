@@ -22,7 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.fesskiev.compose.R
-import com.fesskiev.compose.state.NotesUiState
+import com.fesskiev.compose.state.NotesListUiState
 import com.fesskiev.compose.ui.components.PagingProgressBar
 import com.fesskiev.compose.ui.components.ProgressBar
 import com.fesskiev.compose.ui.utils.formatDate
@@ -31,7 +31,7 @@ import com.fesskiev.model.Note
 
 @Composable
 fun NotesListScreen(
-    uiState: NotesUiState,
+    uiState: NotesListUiState,
     onNoteClick: (Note) -> Unit,
     onNoteDeleteClick: (Note) -> Unit,
     onNoteEditClick: (Note) -> Unit,
@@ -49,29 +49,21 @@ fun NotesListScreen(
         notes.isEmpty() -> EmptyNotesList()
         else -> {
             LazyColumn(modifier = Modifier.fillMaxSize(), state = scrollState) {
-                items(notes) { note ->
-                    NoteItem(note, onNoteClick, onNoteDeleteClick, onNoteEditClick)
-                }
+                items(notes) { note -> NoteItem(note, onNoteClick, onNoteDeleteClick, onNoteEditClick) }
                 if (uiState.error != null) {
-                    item {
-                        RetryButton(onRetryClick = onRetryClick)
-                    }
-                } else if (uiState.loadMore) {
-                    item {
-                        PagingProgressBar()
-                    }
+                    item { RetryButton(onRetryClick = onRetryClick) }
+                } else if (uiState.paging.loadMore) {
+                    item { PagingProgressBar() }
                 }
             }
         }
     }
     if (scrollState.isScrolledToTheEnd() &&
-        !uiState.endOfPaginationReached &&
-        !uiState.loadMore &&
+        !uiState.paging.endOfPaginationReached &&
+        !uiState.paging.loadMore &&
         uiState.error == null
     ) {
-        LaunchedEffect(Unit) {
-            onLoadMore()
-        }
+        LaunchedEffect(Unit) { onLoadMore() }
     }
 }
 

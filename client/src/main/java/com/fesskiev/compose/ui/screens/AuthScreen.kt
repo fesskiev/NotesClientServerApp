@@ -23,11 +23,7 @@ import org.koin.androidx.compose.getViewModel
 fun AuthScreen(viewModel: AuthViewModel = getViewModel(), onCloseAppClick : () -> Unit, authSuccess: () -> Unit) {
     val uiState = viewModel.uiStateFlow.collectAsState().value
     when {
-        uiState.authUserInputState.success -> {
-            LaunchedEffect(Unit) {
-                authSuccess()
-            }
-        }
+        uiState.authUserInputState.success -> LaunchedEffect(Unit) { authSuccess() }
         uiState.loading -> ProgressBar()
         else -> {
             AppScaffold(

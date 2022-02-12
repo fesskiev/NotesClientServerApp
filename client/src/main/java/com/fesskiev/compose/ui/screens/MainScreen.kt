@@ -1,5 +1,6 @@
 package com.fesskiev.compose.ui.screens
 
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -17,12 +18,13 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.fesskiev.compose.R
-import com.fesskiev.compose.state.NotesUiState
+import com.fesskiev.compose.state.NotesListUiState
 import com.fesskiev.compose.presentation.NotesViewModel
+import com.fesskiev.compose.state.AddNoteUiState
+import com.fesskiev.compose.state.EditNoteUiState
 import com.fesskiev.compose.ui.components.AppDrawer
 import com.fesskiev.compose.ui.components.AppScaffold
 import com.fesskiev.compose.ui.components.AppToolbar
-import com.fesskiev.compose.ui.navigation.AuthGraph
 import com.fesskiev.compose.ui.navigation.MainGraph
 import com.fesskiev.compose.ui.navigation.currentRoute
 import com.fesskiev.compose.ui.navigation.currentScreenByRoute
@@ -35,7 +37,11 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun MainScreen(viewModel: NotesViewModel = getViewModel(), onCloseAppClick: () -> Unit) {
+fun MainScreen(
+    viewModel: NotesViewModel = getViewModel(),
+    onLogoutClick: () -> Unit,
+    onCloseAppClick: () -> Unit
+) {
     val context = LocalContext.current
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -46,17 +52,22 @@ fun MainScreen(viewModel: NotesViewModel = getViewModel(), onCloseAppClick: () -
             }
         }
 
-    LaunchedEffect(Unit) {
-        viewModel.getFirstPageOfNotes()
-    }
-    val uiState by viewModel.uiStateFlow.collectAsState()
+    val notesListUiState by viewModel.notesListUiState.collectAsState()
+    Log.wtf("state_list", notesListUiState.toString())
+    val addNoteUiState by viewModel.addNoteUiState.collectAsState()
+    Log.wtf("state_add", addNoteUiState.toString())
+    val editNoteUiState by viewModel.editNoteUiState.collectAsState()
+    Log.wtf("state_edit", editNoteUiState.toString())
 
     MainScaffold(
-        uiState = uiState,
+        notesListUiState = notesListUiState,
+        addNoteUiState = addNoteUiState,
+        editNoteUiState = editNoteUiState,
         onRefresh = { viewModel.refresh() },
         onLoadMore = { viewModel.loadMore() },
         onRetryClick = { viewModel.loadMore() },
         onCloseAppClick = onCloseAppClick,
+        onLogoutClick = onLogoutClick,
         onNoteClick = { viewModel.openNoteDetails(it) },
         onNoteEditClick = { viewModel.openEditNoteScreen(it) },
         onEditNoteChangedTitle = { viewModel.changeEditNoteTitle(it) },
@@ -74,11 +85,14 @@ fun MainScreen(viewModel: NotesViewModel = getViewModel(), onCloseAppClick: () -
 
 @Composable
 fun MainScaffold(
-    uiState: NotesUiState,
+    notesListUiState: NotesListUiState,
+    addNoteUiState: AddNoteUiState,
+    editNoteUiState: EditNoteUiState,
     onRefresh: () -> Unit,
     onLoadMore: () -> Unit,
     onRetryClick: () -> Unit,
     onCloseAppClick: () -> Unit,
+    onLogoutClick: () -> Unit,
     onNoteClick: (Note) -> Unit,
     onNoteEditClick: (Note) -> Unit,
     onEditNoteChangedTitle: (String) -> Unit,
@@ -151,9 +165,9 @@ fun MainScaffold(
                 }
             }
         },
-        error = uiState.error
+        error = notesListUiState.error
     ) { innerPadding ->
-        if (uiState.refresh) {
+        if (notesListUiState.refresh) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
         Box(modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())) {
@@ -163,7 +177,7 @@ fun MainScaffold(
             ) {
                 composable(MainGraph.NotesListScreen.route) {
                     SwipeRefreshNotesList(
-                        uiState = uiState,
+                        uiState = notesListUiState,
                         onRefresh = onRefresh,
                         onNoteClick = {
                             onNoteClick(it)
@@ -183,7 +197,7 @@ fun MainScaffold(
                 }
                 composable(MainGraph.EditNoteScreen.route) {
                     EditNoteScreen(
-                        uiState = uiState,
+                        uiState = editNoteUiState,
                         onEditedNoteClick = onNoteEditedClick,
                         onEditNoteChangedTitle = onEditNoteChangedTitle,
                         onEditNoteChangedDescription = onEditNoteChangedDescription,
@@ -194,7 +208,7 @@ fun MainScaffold(
                 }
                 composable(MainGraph.AddNoteScreen.route) {
                     AddNoteScreen(
-                        uiState = uiState,
+                        uiState = addNoteUiState,
                         onAddNoteChangedTitle = onAddNoteChangedTitle,
                         onAddNoteChangedDescription = onAddNoteChangedDescription,
                         onDeleteImageClick = onDeleteImageClick,
@@ -204,12 +218,12 @@ fun MainScaffold(
                     )
                 }
                 composable(MainGraph.NoteDetailsScreen.route) {
-                    NoteDetailsScreen(uiState = uiState)
+                    NoteDetailsScreen(uiState = notesListUiState)
                 }
                 composable(MainGraph.SettingsScreen.route) {
                     SettingsScreen(
                         onShowThemeDialogClick = { navController.navigate(MainGraph.SettingsThemeDialog.route) },
-                        onLogoutClick = { navController.navigate(AuthGraph.route) }
+                        onLogoutClick = onLogoutClick
                     )
                 }
                 dialog(MainGraph.SettingsThemeDialog.route) {
@@ -264,7 +278,7 @@ private fun BottomBar(navController: NavHostController) {
 
 @Composable
 private fun SwipeRefreshNotesList(
-    uiState: NotesUiState,
+    uiState: NotesListUiState,
     onRefresh: () -> Unit,
     onNoteClick: (Note) -> Unit,
     onNoteEditClick: (Note) -> Unit,
@@ -277,7 +291,7 @@ private fun SwipeRefreshNotesList(
         onRefresh = onRefresh,
     ) {
         NotesListScreen(
-            uiState,
+            uiState = uiState,
             onNoteClick = onNoteClick,
             onNoteDeleteClick = onNoteDelete,
             onNoteEditClick = onNoteEditClick,

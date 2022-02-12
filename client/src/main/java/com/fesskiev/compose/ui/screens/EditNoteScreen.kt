@@ -7,19 +7,19 @@ import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.fesskiev.compose.R
 import com.fesskiev.compose.state.EditNoteUiState
-import com.fesskiev.compose.state.NotesUiState
 import com.fesskiev.compose.ui.components.AsciiTextField
 import com.fesskiev.compose.ui.components.ProgressBar
 
 @Composable
 fun EditNoteScreen(
-    uiState: NotesUiState,
+    uiState: EditNoteUiState,
     onEditedNoteClick: () -> Unit,
     onEditNoteChangedTitle: (String) -> Unit,
     onEditNoteChangedDescription: (String) -> Unit,
@@ -27,10 +27,10 @@ fun EditNoteScreen(
 ) {
     when {
         uiState.loading -> ProgressBar()
-        uiState.editNoteUiState.success -> onScreenClose()
+        uiState.success -> { LaunchedEffect(Unit) { onScreenClose() } }
         else -> {
             EditNoteContent(
-                uiState = uiState.editNoteUiState,
+                uiState = uiState,
                 onEditedClick = { onEditedNoteClick() },
                 onChangedTitle = { onEditNoteChangedTitle(it) },
                 onChangedDescription = { onEditNoteChangedDescription(it) }

@@ -16,8 +16,8 @@ import kotlin.random.Random
 data class AuthUiState(
     val loading: Boolean = false,
     val displayName: String = "",
-    val email: String = "test15@i.ua",
-    val password: String = "123456",
+    val email: String = "",
+    val password: String = "",
     val isLoginFormShow: Boolean = true,
     val authUserInputState: AuthUserInputState = AuthUserInputState(),
     val error: ErrorState? = null
@@ -55,17 +55,21 @@ data class SettingsUiState(
 )
 
 data class EditNoteUiState(
+    val loading: Boolean = false,
     val success: Boolean = false,
     val title: String = "",
-    val description: String = ""
+    val description: String = "",
+    val error: ErrorState? = null
 )
 
 data class AddNoteUiState(
+    val loading: Boolean = false,
     val success: Boolean = false,
     val imageFile: File? = null,
     val addNoteUserInputState: AddNoteUserInputState = AddNoteUserInputState(),
     val title: String = "",
-    val description: String = ""
+    val description: String = "",
+    val error: ErrorState? = null
 )
 
 data class AddNoteUserInputState(
@@ -85,27 +89,32 @@ fun AddNoteUserInputState.copyWithUserInputError(e: Exception): AddNoteUserInput
         else -> this
     }
 
-data class NotesUiState(
+data class NotesListUiState(
     val notes: List<Note>? = null,
-    val page: Int = -1,
     val loading: Boolean = false,
     val refresh: Boolean = false,
-    val loadMore: Boolean = false,
-    val endOfPaginationReached: Boolean = false,
+    val paging: PagingState = PagingState(),
     val selectedNote: Note? = null,
-    val editNoteUiState: EditNoteUiState = EditNoteUiState(),
-    val addNoteUiState: AddNoteUiState = AddNoteUiState(),
     val error: ErrorState? = null
 ) {
+
     override fun toString(): String {
-        return "NotesUiState(page=$page, size=${notes?.size} loading=$loading, loadMore=$loadMore, refresh=$refresh, endPagination=$endOfPaginationReached)"
+        val listState = "list: size=${notes?.size}, loading=$loading, refresh=$refresh, selectedNote=$selectedNote)"
+        val pagingState = "paging: next page=${paging.page}, more=${paging.loadMore}, endReached=${paging.endOfPaginationReached}"
+        val errorState = "error: id=${error?.errorResourceId}"
+        return listState + "\n" + pagingState + "\n" + errorState
     }
 }
+
+data class PagingState(
+    val page: Int = -1,
+    val loadMore: Boolean = false,
+    val endOfPaginationReached: Boolean = false,
+)
 
 data class ErrorState(
     val id: Int = Random.nextInt(),
     @StringRes
     val errorResourceId: Int? = null
 )
-
 

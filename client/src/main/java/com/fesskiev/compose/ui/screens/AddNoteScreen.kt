@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -13,12 +14,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.fesskiev.compose.R
 import com.fesskiev.compose.state.AddNoteUiState
-import com.fesskiev.compose.state.NotesUiState
 import com.fesskiev.compose.ui.components.AsciiTextField
 import com.fesskiev.compose.ui.components.ProgressBar
 import com.fesskiev.compose.ui.theme.Grey
@@ -26,7 +25,7 @@ import java.io.File
 
 @Composable
 fun AddNoteScreen(
-    uiState: NotesUiState,
+    uiState: AddNoteUiState,
     onAddNoteChangedTitle: (String) -> Unit,
     onAddNoteChangedDescription: (String) -> Unit,
     onDeleteImageClick: () -> Unit,
@@ -34,10 +33,10 @@ fun AddNoteScreen(
 ) {
     when {
         uiState.loading -> ProgressBar()
-        uiState.addNoteUiState.success -> onScreenClose()
+        uiState.success -> LaunchedEffect(Unit) { onScreenClose() }
         else -> {
             AddNoteContent(
-                uiState = uiState.addNoteUiState,
+                uiState = uiState,
                 onChangedTitle = { onAddNoteChangedTitle(it) },
                 onChangedDescription = { onAddNoteChangedDescription(it) },
                 onDeleteImageClick = { onDeleteImageClick() }
@@ -139,13 +138,5 @@ fun ImageAttachment(imageFile: File, deleteImageOnClick: () -> Unit) {
                 }
         )
     }
-}
-
-
-@Preview
-@Composable
-fun ImageAttachmentPreview() {
-    val file = File("./image.png")
-    ImageAttachment(file, deleteImageOnClick = {})
 }
 

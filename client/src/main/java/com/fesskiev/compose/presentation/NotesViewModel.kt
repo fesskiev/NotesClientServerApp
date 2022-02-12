@@ -19,24 +19,33 @@ class NotesViewModel(
     private val getNotesUseCase: GetNotesUseCase
 ) : ViewModel() {
 
-    val uiStateFlow = MutableStateFlow(NotesUiState())
+    val notesListUiState = MutableStateFlow(NotesListUiState())
+    val addNoteUiState = MutableStateFlow(AddNoteUiState())
+    val editNoteUiState = MutableStateFlow(EditNoteUiState())
 
-    fun getFirstPageOfNotes() {
+
+    init {
+        getFirstPageOfNotes()
+    }
+
+    private fun getFirstPageOfNotes() {
         viewModelScope.launch {
-            uiStateFlow.apply {
+            notesListUiState.apply {
                 update { uiState ->
                     uiState.copy(
                         loading = true,
-                        page = 1,
+                        paging = uiState.paging.copy(page = 1),
                     )
                 }
                 update { uiState ->
-                    when (val result = getNotesUseCase(uiState.page)) {
+                    when (val result = getNotesUseCase(uiState.paging.page)) {
                         is Result.Success -> {
                             uiState.copy(
                                 loading = false,
-                                endOfPaginationReached = result.data.isEmpty(),
-                                page = uiState.page + 1,
+                                paging = uiState.paging.copy(
+                                    endOfPaginationReached = result.data.isEmpty(),
+                                    page = uiState.paging.page + 1
+                                ),
                                 notes = result.data
                             )
                         }
@@ -54,25 +63,27 @@ class NotesViewModel(
 
     fun loadMore() {
         viewModelScope.launch {
-            uiStateFlow.apply {
+            notesListUiState.apply {
                 update { uiState ->
                     uiState.copy(
-                        loadMore = true
+                        paging = uiState.paging.copy(loadMore = true),
                     )
                 }
                 update { uiState ->
-                    when (val result = getNotesUseCase(uiState.page)) {
+                    when (val result = getNotesUseCase(uiState.paging.page)) {
                         is Result.Success -> {
                             uiState.copy(
-                                loadMore = false,
-                                endOfPaginationReached = result.data.isEmpty(),
-                                page = uiState.page + 1,
+                                paging = uiState.paging.copy(
+                                    loadMore = false,
+                                    endOfPaginationReached = result.data.isEmpty(),
+                                    page = uiState.paging.page + 1,
+                                ),
                                 notes = uiState.notes?.plus(result.data)
                             )
                         }
                         is Result.Failure -> {
                             uiState.copy(
-                                loadMore = false,
+                                paging = uiState.paging.copy(loadMore = false),
                                 error = ErrorState(errorResourceId = parseHttpError(result.e))
                             )
                         }
@@ -84,20 +95,22 @@ class NotesViewModel(
 
     fun refresh() {
         viewModelScope.launch {
-            uiStateFlow.apply {
+            notesListUiState.apply {
                 update { uiState ->
                     uiState.copy(
                         refresh = true,
-                        page = 1,
+                        paging = uiState.paging.copy(page = 1)
                     )
                 }
                 update { uiState ->
-                    when (val result = getNotesUseCase(uiState.page)) {
+                    when (val result = getNotesUseCase(uiState.paging.page)) {
                         is Result.Success -> {
                             uiState.copy(
                                 refresh = false,
-                                endOfPaginationReached = result.data.isEmpty(),
-                                page = uiState.page + 1,
+                                paging = uiState.paging.copy(
+                                    endOfPaginationReached = result.data.isEmpty(),
+                                    page = uiState.paging.page + 1,
+                                ),
                                 notes = result.data
                             )
                         }
@@ -115,40 +128,40 @@ class NotesViewModel(
 
     fun addNote() {
         viewModelScope.launch {
-            uiStateFlow.apply {
-                update { uiState ->
-                    uiState.copy(loading = true)
+            addNoteUiState.update {
+                it.copy(
+                    loading = true,
+                    error = null
+                )
+            }
+            val addNoteState = addNoteUiState.value
+            val result =
+                addNoteUseCase(
+                    addNoteState.title,
+                    addNoteState.description,
+                    addNoteState.imageFile
+                )
+            when (result) {
+                is Result.Success -> {
+                    addNoteUiState.update {
+                        it.copy(
+                            loading = false,
+                            success = true
+                        )
+                    }
+                    notesListUiState.update {
+                        it.copy(notes = it.notes?.plusTop(result.data))
+                    }
                 }
-                val addNoteState = value.addNoteUiState
-                val result =
-                    addNoteUseCase(
-                        addNoteState.title,
-                        addNoteState.description,
-                        addNoteState.imageFile
-                    )
-                update { uiState ->
-                    when (result) {
-                        is Result.Success -> {
-                            uiState.copy(
-                                loading = false,
-                                selectedNote = null,
-                                notes = uiState.notes?.plusTop(result.data),
-                                addNoteUiState = AddNoteUiState(success = true),
-                                error = null
-                            )
-                        }
-                        is Result.Failure -> {
-                            uiState.copy(
-                                loading = false,
-                                selectedNote = null,
-                                addNoteUiState = uiState.addNoteUiState.copy(
-                                    addNoteUserInputState = AddNoteUserInputState().copyWithUserInputError(
-                                        result.e
-                                    )
-                                ),
-                                error = ErrorState(errorResourceId = parseHttpError(result.e))
-                            )
-                        }
+                is Result.Failure -> {
+                    addNoteUiState.update {
+                        it.copy(
+                            loading = false,
+                            addNoteUserInputState = AddNoteUserInputState().copyWithUserInputError(
+                                result.e
+                            ),
+                            error = ErrorState(errorResourceId = parseHttpError(result.e))
+                        )
                     }
                 }
             }
@@ -157,37 +170,41 @@ class NotesViewModel(
 
     fun editNote() {
         viewModelScope.launch {
-            uiStateFlow.apply {
-                update { uiState ->
-                    uiState.copy(loading = true)
-                }
-                val selectedNote = value.selectedNote!!
-                val title = value.editNoteUiState.title
-                val description = value.editNoteUiState.description
-
-                val note = selectedNote.copy(
-                    title = title,
-                    description = description
+            editNoteUiState.update {
+                it.copy(
+                    loading = true,
+                    error = null
                 )
-                val result = editNoteUseCase(note)
-                update { uiState ->
-                    when (result) {
-                        is Result.Success -> {
-                            uiState.copy(
-                                loading = false,
-                                selectedNote = null,
-                                notes = uiState.notes?.replace(note) { it.noteUid == note.noteUid },
-                                editNoteUiState = EditNoteUiState(success = true),
-                                error = null
-                            )
-                        }
-                        is Result.Failure -> {
-                            uiState.copy(
-                                loading = false,
-                                selectedNote = null,
-                                error = ErrorState(errorResourceId = parseHttpError(result.e))
-                            )
-                        }
+            }
+            val selectedNote = notesListUiState.value.selectedNote!!
+            val title = editNoteUiState.value.title
+            val description = editNoteUiState.value.description
+            val note = selectedNote.copy(
+                title = title,
+                description = description
+            )
+            when (val result = editNoteUseCase(note)) {
+                is Result.Success -> {
+                    editNoteUiState.update {
+                        it.copy(
+                            loading = false,
+                            success = true,
+                            error = null
+                        )
+                    }
+                    notesListUiState.update {
+                        it.copy(
+                            selectedNote = null,
+                            notes = it.notes?.replace(note) { n -> n.noteUid == note.noteUid },
+                        )
+                    }
+                }
+                is Result.Failure -> {
+                    editNoteUiState.update {
+                        it.copy(
+                            loading = false,
+                            error = ErrorState(errorResourceId = parseHttpError(result.e))
+                        )
                     }
                 }
             }
@@ -196,9 +213,12 @@ class NotesViewModel(
 
     fun deleteNote(note: Note) {
         viewModelScope.launch {
-            uiStateFlow.apply {
+            notesListUiState.apply {
                 update { uiState ->
-                    uiState.copy(loading = true)
+                    uiState.copy(
+                        loading = true,
+                        error = null
+                    )
                 }
                 val result = deleteNoteUseCase(note)
                 update { uiState ->
@@ -206,7 +226,6 @@ class NotesViewModel(
                         is Result.Success -> {
                             uiState.copy(
                                 loading = false,
-                                selectedNote = null,
                                 notes = uiState.notes?.minus(note),
                                 error = null
                             )
@@ -224,103 +243,54 @@ class NotesViewModel(
     }
 
     fun openNoteDetails(note: Note) {
-        uiStateFlow.update {
+        notesListUiState.update {
             it.copy(
                 loading = false,
                 selectedNote = note,
-                error = null
-            )
-        }
-    }
-
-    fun openAddNoteScreen() {
-        uiStateFlow.update {
-            it.copy(
-                loading = false,
-                selectedNote = null,
-                addNoteUiState = AddNoteUiState(success = false),
                 error = null
             )
         }
     }
 
     fun openEditNoteScreen(note: Note) {
-        uiStateFlow.update {
+        editNoteUiState.update {
             it.copy(
                 loading = false,
-                selectedNote = note,
-                editNoteUiState = EditNoteUiState(
-                    success = false,
-                    title = note.title,
-                    description = note.description
-                ),
+                success = false,
+                title = note.title,
+                description = note.description,
                 error = null
             )
         }
+        notesListUiState.update { it.copy(selectedNote = note) }
     }
 
     fun changeEditNoteTitle(title: String) {
-        uiStateFlow.update {
-            it.copy(
-                loading = false,
-                editNoteUiState = it.editNoteUiState.copy(title = title),
-                error = null
-            )
-        }
+        editNoteUiState.update { it.copy(title = title) }
     }
 
     fun changeEditNoteDescription(description: String) {
-        uiStateFlow.update {
-            it.copy(
-                loading = false,
-                editNoteUiState = it.editNoteUiState.copy(description = description),
-                error = null
-            )
-        }
+        editNoteUiState.update { it.copy(description = description) }
+    }
+
+    fun openAddNoteScreen() {
+        addNoteUiState.update { AddNoteUiState() }
     }
 
     fun deleteAddNoteImage() {
-        uiStateFlow.update {
-            it.copy(
-                loading = false,
-                selectedNote = null,
-                addNoteUiState = it.addNoteUiState.copy(imageFile = null),
-                error = null
-            )
-        }
+        addNoteUiState.update { it.copy(imageFile = null) }
     }
 
     fun attachAddNoteImage(imageFile: File) {
-        uiStateFlow.update {
-            it.copy(
-                loading = false,
-                selectedNote = null,
-                addNoteUiState = it.addNoteUiState.copy(imageFile = imageFile),
-                error = null
-            )
-        }
+        addNoteUiState.update { it.copy(imageFile = imageFile) }
     }
 
     fun changeAddNoteTitle(title: String) {
-        uiStateFlow.update {
-            it.copy(
-                loading = false,
-                selectedNote = null,
-                addNoteUiState = it.addNoteUiState.copy(title = title),
-                error = null
-            )
-        }
+        addNoteUiState.update { it.copy(title = title) }
     }
 
     fun changeAddNoteDescription(description: String) {
-        uiStateFlow.update {
-            it.copy(
-                loading = false,
-                selectedNote = null,
-                addNoteUiState = it.addNoteUiState.copy(description = description),
-                error = null
-            )
-        }
+        addNoteUiState.update { it.copy(description = description) }
     }
 }
 
