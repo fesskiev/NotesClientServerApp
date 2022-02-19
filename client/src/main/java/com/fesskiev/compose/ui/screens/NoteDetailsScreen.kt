@@ -13,11 +13,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
+import com.fesskiev.compose.model.Note
 import com.fesskiev.compose.state.NotesListUiState
 import com.fesskiev.compose.ui.components.ProgressBar
 import com.fesskiev.compose.ui.utils.formatDate
 import com.fesskiev.compose.ui.utils.toPictureUrl
-import com.fesskiev.model.Note
 
 @Composable
 fun NoteDetailsScreen(uiState: NotesListUiState) {

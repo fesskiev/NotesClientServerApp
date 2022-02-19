@@ -1,6 +1,5 @@
 # NotesClientServerApp
 
-Main idea of this project is use the same modern technologies for development both client and server side. 
 The app contains three modules: client, server and common. Client module is an Android app that consists of registration,
 login and main screen where user can perform typical CRUD operations. Android app developed with 
 a declarative UI and unidirectional architecture. The Server module is a backend app that supports CRUD operations too via REST API,
@@ -13,8 +12,10 @@ also supports JWT Authentication. The common module is shared code that uses bot
 * [Jetpack Compose] - declarative UI toolkit
 * [Jetpack Compose Navigation] - navigation between composables
 * [Koin] - DI framework
-* [Exposed] - ORM framework
-* [H2] - database
+* [SQLDelight] - SQLDelight generates typesafe kotlin APIs from your SQL statements 
+
+* [Exposed] - ORM framework (server side)
+* [H2] - database (server side)
 
 
 ### Run Server
@@ -25,11 +26,8 @@ click the "+" button\
 In 'Name' enter any server name\
 'Use classpath of module' choose 'NotesClientServerApp.server'\
 'Main class' choose 'ApplicationKt'\
-
 add 'STORAGE_DIR_PATH' to 'Environment field'\
-
 click 'Apply'
-
 
 
 ### License
@@ -41,6 +39,7 @@ MIT
 [Jetpack Compose]: <https://developer.android.com/jetpack/compose>
 [Jetpack Compose Navigation]: <https://developer.android.com/jetpack/compose/navigatione>
 [Koin]: <https://insert-koin.io/>
+[SQLDelight]: <https://github.com/cashapp/sqldelight>
 [Exposed]: <https://github.com/JetBrains/Exposed>
 [H2]: <https://www.h2database.com/html/main.html>
 

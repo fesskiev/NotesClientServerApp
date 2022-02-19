@@ -25,15 +25,20 @@ class App : Application() {
             androidContext(this@App)
             modules(appModules)
         }
-        applyTheme()
+
+        initAsync()
     }
 
-    private fun applyTheme() {
+    private fun initAsync() {
         MainScope().launch {
-            dataStoreManager.getThemeMode()
-                .collect {
-                    themeManager.applyNewTheme(it)
-                }
+            applyTheme()
         }
+    }
+
+    private suspend fun applyTheme() {
+        dataStoreManager.getThemeMode()
+            .collect {
+                themeManager.applyNewTheme(it)
+            }
     }
 }

@@ -1,10 +1,10 @@
 package com.fesskiev.compose.domain
 
-import com.fesskiev.compose.data.remote.RemoteService
+import com.fesskiev.compose.data.remote.NetworkSource
 import com.fesskiev.compose.domain.exceptions.DeleteNoteException
-import com.fesskiev.model.Note
+import com.fesskiev.compose.model.Note
 
-class DeleteNoteUseCase(private val repository: RemoteService) {
+class DeleteNoteUseCase(private val repository: NetworkSource) {
 
     suspend operator fun invoke(note: Note): Result<Unit> =
         try {

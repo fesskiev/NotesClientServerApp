@@ -1,6 +1,13 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlinx-serialization'
+apply plugin: 'com.squareup.sqldelight'
+
+sqldelight {
+    SqlDelight {
+        packageName = "com.fesskiev.compose"
+    }
+}
 
 android {
     compileSdkVersion 31
@@ -13,6 +20,11 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    sourceSets{
+        main { java.srcDirs = ['src/main/java'] }
+        test { java.srcDirs = ['src/test/java'] }
     }
 
     flavorDimensions "default"
@@ -75,6 +87,7 @@ dependencies {
     implementation "io.ktor:ktor-client-okhttp:$ktor_version"
     implementation "io.ktor:ktor-client-serialization-jvm:$ktor_version"
     implementation "io.ktor:ktor-client-logging-jvm:$ktor_version"
+    implementation "io.ktor:ktor-auth:$ktor_version"
 
     implementation "io.coil-kt:coil-compose:$coil_version"
 
@@ -84,4 +97,10 @@ dependencies {
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+
+    implementation "com.squareup.sqldelight:runtime:$sql_delight_version"
+    implementation "com.squareup.sqldelight:android-driver:$sql_delight_version"
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation "io.mockk:mockk:1.12.2"
 }

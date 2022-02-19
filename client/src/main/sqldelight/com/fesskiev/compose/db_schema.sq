@@ -1,0 +1,39 @@
+
+CREATE TABLE NOTES (
+noteUid INTEGER PRIMARY KEY NOT NULL,
+userUid INTEGER NOT NULL,
+title TEXT NOT NULL,
+description TEXT NOT NULL,
+pictureName TEXT,
+time INTEGER NOT NULL
+);
+
+CREATE TABLE USERS (
+uid INTEGER PRIMARY KEY NOT NULL,
+email TEXT NOT NULL,
+displayName TEXT NOT NULL,
+password TEXT NOT NULL
+);
+
+insertUser:
+INSERT INTO USERS(uid, email, displayName, password)
+VALUES(?, ?, ?, ?);
+
+selectNotesByUserUid:
+SELECT *
+FROM NOTES WHERE userUid = ? ORDER BY noteUid DESC LIMIT :limit OFFSET :offset;
+
+insertNote:
+INSERT INTO NOTES(noteUid, userUid, title, description, pictureName, time)
+VALUES(?, ?, ?, ?, ?, ?);
+
+deleteAllNotes:
+DELETE FROM NOTES;
+
+deleteLanguageByUid:
+DELETE FROM NOTES
+WHERE noteUid = ?;
+
+updateNoteByUid:
+UPDATE NOTES
+SET title = ?, description = ? WHERE noteUid = ?;

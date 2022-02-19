@@ -8,8 +8,9 @@ import com.fesskiev.ServerErrorCodes.NOTE_DESCRIPTION_EMPTY
 import com.fesskiev.ServerErrorCodes.NOTE_TITLE_EMPTY
 import com.fesskiev.ServerErrorCodes.PASSWORD_EMPTY
 import com.fesskiev.ServerErrorCodes.PASSWORD_INVALID
+import com.fesskiev.compose.data.PagingSource
 import com.fesskiev.compose.domain.exceptions.UserInputException
-import com.fesskiev.model.Note
+import com.fesskiev.compose.model.Note
 import java.io.File
 import kotlin.random.Random
 
@@ -100,7 +101,7 @@ data class NotesListUiState(
 
     override fun toString(): String {
         val listState = "list: size=${notes?.size}, loading=$loading, refresh=$refresh, selectedNote=$selectedNote)"
-        val pagingState = "paging: next page=${paging.page}, more=${paging.loadMore}, endReached=${paging.endOfPaginationReached}"
+        val pagingState = "paging: next page=${paging.page}, more=${paging.loadMore}, endReached=${paging.endOfPaginationReached}, source=${paging.pagingSource} "
         val errorState = "error: id=${error?.errorResourceId}"
         return listState + "\n" + pagingState + "\n" + errorState
     }
@@ -110,6 +111,7 @@ data class PagingState(
     val page: Int = -1,
     val loadMore: Boolean = false,
     val endOfPaginationReached: Boolean = false,
+    val pagingSource: PagingSource = PagingSource.LOCAL
 )
 
 data class ErrorState(

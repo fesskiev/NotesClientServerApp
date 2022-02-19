@@ -8,6 +8,8 @@ object Routes {
     const val LOGIN = "/users/login"
     const val LOGOUT = "/users/logout"
 
+    const val GET_USER = "/user"
+
     const val GET_NOTES = "/notes/get"
     const val ADD_NOTE = "/notes/add"
     const val ADD_NOTE_IMAGE = "/notes/image/add"

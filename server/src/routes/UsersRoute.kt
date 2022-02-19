@@ -3,6 +3,7 @@ package com.fesskiev.routes
 import com.fesskiev.HTTPParameters.DISPLAY_NAME
 import com.fesskiev.HTTPParameters.EMAIL
 import com.fesskiev.HTTPParameters.PASSWORD
+import com.fesskiev.Routes.GET_USER
 import com.fesskiev.Routes.LOGIN
 import com.fesskiev.Routes.LOGOUT
 import com.fesskiev.Routes.REGISTRATION
@@ -18,6 +19,7 @@ import com.fesskiev.auth.UserSession
 import com.fesskiev.model.ServerError
 import com.fesskiev.repository.Repository
 import io.ktor.application.*
+import io.ktor.auth.*
 import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.Created
@@ -64,15 +66,29 @@ fun Route.users(repository: Repository, jwtManager: JWTManager) {
         }
     }
 
-    post(LOGOUT) {
-        call.sessions.get<UserSession>()?.let { session ->
-            val user = repository.getUserByUid(session.userUid)
-            if (user == null) {
-                call.respond(BadRequest, ServerError(USER_NOT_FOUND))
-                return@post
-            } else {
-                call.sessions.clear(call.sessions.findName(UserSession::class))
-                call.respond(OK)
+    authenticate {
+        post(LOGOUT) {
+            call.sessions.get<UserSession>()?.let { session ->
+                val user = repository.getUserByUid(session.userUid)
+                if (user == null) {
+                    call.respond(BadRequest, ServerError(USER_NOT_FOUND))
+                    return@post
+                } else {
+                    call.sessions.clear(call.sessions.findName(UserSession::class))
+                    call.respond(OK)
+                }
+            }
+        }
+
+        get(GET_USER) {
+            call.sessions.get<UserSession>()?.let { session ->
+                val user = repository.getUserByUid(session.userUid)
+                if (user == null) {
+                    call.respond(BadRequest, ServerError(USER_NOT_FOUND))
+                    return@get
+                } else {
+                    call.respond(OK, user)
+                }
             }
         }
     }

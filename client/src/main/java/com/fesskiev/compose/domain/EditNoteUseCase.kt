@@ -2,12 +2,12 @@ package com.fesskiev.compose.domain
 
 import com.fesskiev.ServerErrorCodes.NOTE_DESCRIPTION_EMPTY
 import com.fesskiev.ServerErrorCodes.NOTE_TITLE_EMPTY
-import com.fesskiev.compose.data.remote.RemoteService
+import com.fesskiev.compose.data.Repository
 import com.fesskiev.compose.domain.exceptions.EditNoteException
 import com.fesskiev.compose.domain.exceptions.UserInputException
-import com.fesskiev.model.Note
+import com.fesskiev.compose.model.Note
 
-class EditNoteUseCase(private val remoteService: RemoteService) {
+class EditNoteUseCase(private val repository: Repository) {
 
     suspend operator fun invoke(note: Note): Result<Unit> =
         try {
@@ -17,7 +17,7 @@ class EditNoteUseCase(private val remoteService: RemoteService) {
             if (note.description.isEmpty()) {
                 throw UserInputException(NOTE_DESCRIPTION_EMPTY)
             }
-            val result = remoteService.editNote(note)
+            val result = repository.editNote(note)
             if (result) {
                 Result.Success(Unit)
             } else {

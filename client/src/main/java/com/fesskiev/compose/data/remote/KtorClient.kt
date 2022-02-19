@@ -11,8 +11,8 @@ import com.fesskiev.compose.BuildConfig
 import com.fesskiev.compose.data.remote.exceptions.BadRequestException
 import com.fesskiev.compose.data.remote.exceptions.NoNetworkException
 import com.fesskiev.compose.data.remote.exceptions.UnauthorizedException
+import com.fesskiev.compose.model.JWTAuth
 import com.fesskiev.compose.ui.utils.NetworkManager
-import com.fesskiev.model.JWTAuth
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.features.*

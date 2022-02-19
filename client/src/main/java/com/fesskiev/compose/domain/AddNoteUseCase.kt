@@ -2,12 +2,12 @@ package com.fesskiev.compose.domain
 
 import com.fesskiev.ServerErrorCodes.NOTE_DESCRIPTION_EMPTY
 import com.fesskiev.ServerErrorCodes.NOTE_TITLE_EMPTY
-import com.fesskiev.compose.data.remote.RemoteService
+import com.fesskiev.compose.data.Repository
 import com.fesskiev.compose.domain.exceptions.UserInputException
-import com.fesskiev.model.Note
+import com.fesskiev.compose.model.Note
 import java.io.File
 
-class AddNoteUseCase(private val remoteService: RemoteService) {
+class AddNoteUseCase(private val repository: Repository) {
 
     suspend operator fun invoke(title: String, description: String, file: File?): Result<Note> =
         try {
@@ -17,10 +17,7 @@ class AddNoteUseCase(private val remoteService: RemoteService) {
             if (description.isEmpty()) {
                 throw UserInputException(NOTE_DESCRIPTION_EMPTY)
             }
-            var note = remoteService.addNote(title, description)
-            file?.let {
-               note = remoteService.addImage(note, it)
-            }
+            val note = repository.addNote(title, description, file)
             Result.Success(note)
         } catch (e: Exception) {
             Result.Failure(e)

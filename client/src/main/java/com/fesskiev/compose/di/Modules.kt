@@ -1,7 +1,12 @@
 package com.fesskiev.compose.di
 
-import com.fesskiev.compose.data.remote.RemoteService
-import com.fesskiev.compose.data.remote.RemoteServiceImpl
+import com.fesskiev.compose.data.Repository
+import com.fesskiev.compose.data.RepositoryImpl
+import com.fesskiev.compose.data.local.DatabaseImpl
+import com.fesskiev.compose.data.local.DatabaseSource
+import com.fesskiev.compose.data.local.provideSqlDelight
+import com.fesskiev.compose.data.remote.NetworkSource
+import com.fesskiev.compose.data.remote.NetworkSourceImpl
 import com.fesskiev.compose.data.remote.provideKtorClient
 import com.fesskiev.compose.domain.*
 import com.fesskiev.compose.presentation.AuthViewModel
@@ -21,20 +26,28 @@ val appModule = module {
     factory { FieldValidator() }
 }
 
-val repositoryModule = module {
-    single { RemoteServiceImpl(get()) as RemoteService }
+val networkModule = module {
+    single { provideKtorClient(get()) }
+}
+
+val dataModule = module {
+    single { provideSqlDelight(get()) }
+    single { DatabaseImpl(get()) as DatabaseSource }
+    single { NetworkSourceImpl(get()) as NetworkSource }
+    single { RepositoryImpl(get(), get()) as Repository }
 }
 
 val viewModelModule = module {
     viewModel { AuthViewModel(get(), get()) }
-    viewModel { NotesViewModel(get(), get(), get(), get()) }
+    viewModel { NotesViewModel(get(), get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get()) }
 }
 
 val useCaseModule = module {
     factory { ThemeModeUseCase(get(), get()) }
+    factory { RefreshUseCase(get()) }
     factory { AddNoteUseCase(get()) }
-    factory { GetNotesUseCase(get()) }
+    factory { PagingNotesUseCase(get()) }
     factory { DeleteNoteUseCase(get()) }
     factory { EditNoteUseCase(get()) }
     factory { RegistrationUseCase(get(), get()) }
@@ -42,8 +55,5 @@ val useCaseModule = module {
     factory { LogoutUseCase(get()) }
 }
 
-val networkModule = module {
-    single { provideKtorClient(get()) }
-}
 
-val appModules = listOf(appModule, viewModelModule, useCaseModule, repositoryModule, networkModule)
+val appModules = listOf(appModule, viewModelModule, useCaseModule, dataModule, networkModule)

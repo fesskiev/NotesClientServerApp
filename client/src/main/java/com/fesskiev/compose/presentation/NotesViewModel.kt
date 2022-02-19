@@ -4,11 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fesskiev.compose.data.remote.parseHttpError
 import com.fesskiev.compose.domain.*
+import com.fesskiev.compose.model.Note
 import com.fesskiev.compose.state.*
 import com.fesskiev.compose.ui.utils.plusTop
 import com.fesskiev.compose.ui.utils.replace
-import com.fesskiev.model.Note
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -16,14 +17,14 @@ class NotesViewModel(
     private val deleteNoteUseCase: DeleteNoteUseCase,
     private val addNoteUseCase: AddNoteUseCase,
     private val editNoteUseCase: EditNoteUseCase,
-    private val getNotesUseCase: GetNotesUseCase
+    private val pagingNotesUseCase: PagingNotesUseCase,
+    private val refreshUseCase: RefreshUseCase
 ) : ViewModel() {
 
     val notesListUiState = MutableStateFlow(NotesListUiState())
     val addNoteUiState = MutableStateFlow(AddNoteUiState())
     val editNoteUiState = MutableStateFlow(EditNoteUiState())
-
-
+    
     init {
         getFirstPageOfNotes()
     }
@@ -38,15 +39,16 @@ class NotesViewModel(
                     )
                 }
                 update { uiState ->
-                    when (val result = getNotesUseCase(uiState.paging.page)) {
+                    when (val result = pagingNotesUseCase(uiState.paging.page)) {
                         is Result.Success -> {
                             uiState.copy(
                                 loading = false,
                                 paging = uiState.paging.copy(
-                                    endOfPaginationReached = result.data.isEmpty(),
-                                    page = uiState.paging.page + 1
+                                    endOfPaginationReached = result.data.list.isEmpty(),
+                                    page = uiState.paging.page + 1,
+                                    pagingSource = result.data.pagingSource
                                 ),
-                                notes = result.data
+                                notes = result.data.list
                             )
                         }
                         is Result.Failure -> {
@@ -70,15 +72,16 @@ class NotesViewModel(
                     )
                 }
                 update { uiState ->
-                    when (val result = getNotesUseCase(uiState.paging.page)) {
+                    when (val result = pagingNotesUseCase(uiState.paging.page)) {
                         is Result.Success -> {
                             uiState.copy(
                                 paging = uiState.paging.copy(
                                     loadMore = false,
-                                    endOfPaginationReached = result.data.isEmpty(),
+                                    endOfPaginationReached = result.data.list.isEmpty(),
                                     page = uiState.paging.page + 1,
+                                    pagingSource = result.data.pagingSource
                                 ),
-                                notes = uiState.notes?.plus(result.data)
+                                notes = uiState.notes?.plus(result.data.list)
                             )
                         }
                         is Result.Failure -> {
@@ -103,15 +106,16 @@ class NotesViewModel(
                     )
                 }
                 update { uiState ->
-                    when (val result = getNotesUseCase(uiState.paging.page)) {
+                    when (val result = refreshUseCase(uiState.paging.page)) {
                         is Result.Success -> {
                             uiState.copy(
                                 refresh = false,
                                 paging = uiState.paging.copy(
-                                    endOfPaginationReached = result.data.isEmpty(),
+                                    endOfPaginationReached = result.data.list.isEmpty(),
                                     page = uiState.paging.page + 1,
+                                    pagingSource = result.data.pagingSource
                                 ),
-                                notes = result.data
+                                notes = result.data.list
                             )
                         }
                         is Result.Failure -> {

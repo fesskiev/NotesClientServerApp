@@ -4,12 +4,12 @@ import com.fesskiev.ServerErrorCodes.EMAIL_EMPTY
 import com.fesskiev.ServerErrorCodes.EMAIL_INVALID
 import com.fesskiev.ServerErrorCodes.PASSWORD_EMPTY
 import com.fesskiev.ServerErrorCodes.PASSWORD_INVALID
-import com.fesskiev.compose.data.remote.RemoteService
+import com.fesskiev.compose.data.Repository
 import com.fesskiev.compose.domain.exceptions.UserInputException
+import com.fesskiev.compose.model.JWTAuth
 import com.fesskiev.compose.ui.utils.FieldValidator
-import com.fesskiev.model.JWTAuth
 
-class LoginUseCase(private val remoteService: RemoteService, private val validator: FieldValidator) {
+class LoginUseCase(private val repository: Repository, private val validator: FieldValidator) {
 
     suspend operator fun invoke(email: String, password: String): Result<JWTAuth> =
         try {
@@ -25,7 +25,7 @@ class LoginUseCase(private val remoteService: RemoteService, private val validat
             if (!validator.validatePassword(password)) {
                 throw UserInputException(PASSWORD_INVALID)
             }
-            val result = remoteService.login(email, password)
+            val result = repository.login(email, password)
             Result.Success(result)
         } catch (e: Exception) {
             Result.Failure(e)

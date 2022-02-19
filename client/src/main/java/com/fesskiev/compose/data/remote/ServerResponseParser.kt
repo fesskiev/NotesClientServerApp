@@ -18,8 +18,8 @@ import com.fesskiev.compose.R
 import com.fesskiev.compose.data.remote.exceptions.BadRequestException
 import com.fesskiev.compose.data.remote.exceptions.NoNetworkException
 import com.fesskiev.compose.data.remote.exceptions.UnauthorizedException
-import com.fesskiev.model.JWTAuth
-import com.fesskiev.model.ServerError
+import com.fesskiev.compose.model.JWTAuth
+import com.fesskiev.compose.model.ServerError
 import io.ktor.client.features.*
 import kotlinx.serialization.json.Json
 import java.net.ConnectException

@@ -1,12 +1,12 @@
 package com.fesskiev.compose.domain
 
-import com.fesskiev.compose.data.remote.RemoteService
+import com.fesskiev.compose.data.Repository
 
-class LogoutUseCase(private val remoteService: RemoteService) {
+class LogoutUseCase(private val repository: Repository) {
 
     suspend operator fun invoke(): Result<Unit> =
         try {
-            remoteService.logout()
+            repository.logout()
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Failure(e)

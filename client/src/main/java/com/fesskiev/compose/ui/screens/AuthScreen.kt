@@ -14,8 +14,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.fesskiev.compose.R
-import com.fesskiev.compose.state.AuthUiState
 import com.fesskiev.compose.presentation.AuthViewModel
+import com.fesskiev.compose.state.AuthUiState
 import com.fesskiev.compose.ui.components.*
 import org.koin.androidx.compose.getViewModel
 

@@ -5,13 +5,13 @@ import com.fesskiev.ServerErrorCodes.EMAIL_EMPTY
 import com.fesskiev.ServerErrorCodes.EMAIL_INVALID
 import com.fesskiev.ServerErrorCodes.PASSWORD_EMPTY
 import com.fesskiev.ServerErrorCodes.PASSWORD_INVALID
-import com.fesskiev.compose.data.remote.RemoteService
+import com.fesskiev.compose.data.Repository
 import com.fesskiev.compose.domain.exceptions.UserInputException
+import com.fesskiev.compose.model.JWTAuth
 import com.fesskiev.compose.ui.utils.FieldValidator
-import com.fesskiev.model.JWTAuth
 
 class RegistrationUseCase(
-    private val remoteService: RemoteService,
+    private val repository: Repository,
     private val validator: FieldValidator
 ) {
 
@@ -36,7 +36,7 @@ class RegistrationUseCase(
             if (!validator.validatePassword(password)) {
                 throw UserInputException(PASSWORD_INVALID)
             }
-            val result = remoteService.registration(email, displayName, password)
+            val result = repository.registration(email, displayName, password)
             Result.Success(result)
         } catch (e: Exception) {
             Result.Failure(e)

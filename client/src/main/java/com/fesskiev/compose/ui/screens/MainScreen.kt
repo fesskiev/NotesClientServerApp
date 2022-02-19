@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -18,10 +21,11 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.fesskiev.compose.R
-import com.fesskiev.compose.state.NotesListUiState
+import com.fesskiev.compose.model.Note
 import com.fesskiev.compose.presentation.NotesViewModel
 import com.fesskiev.compose.state.AddNoteUiState
 import com.fesskiev.compose.state.EditNoteUiState
+import com.fesskiev.compose.state.NotesListUiState
 import com.fesskiev.compose.ui.components.AppDrawer
 import com.fesskiev.compose.ui.components.AppScaffold
 import com.fesskiev.compose.ui.components.AppToolbar
@@ -30,7 +34,6 @@ import com.fesskiev.compose.ui.navigation.currentRoute
 import com.fesskiev.compose.ui.navigation.currentScreenByRoute
 import com.fesskiev.compose.ui.utils.getImageFileFromIntent
 import com.fesskiev.compose.ui.utils.pickImageChooserIntent
-import com.fesskiev.model.Note
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
