@@ -4,7 +4,7 @@ import com.fesskiev.compose.data.PagingResult
 import com.fesskiev.compose.data.Repository
 import com.fesskiev.compose.model.Note
 
-class RefreshUseCase(private val repository: Repository) {
+class RefreshNotesUseCase(private val repository: Repository) {
 
     suspend operator fun invoke(page: Int): Result<PagingResult<Note>> =
         try {

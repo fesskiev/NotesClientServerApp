@@ -6,19 +6,21 @@ import java.io.File
 
 interface Repository {
 
-   suspend fun login(email: String, password: String): JWTAuth
+    suspend fun login(email: String, password: String): JWTAuth
 
-   suspend fun registration(email: String, displayName: String, password: String): JWTAuth
+    suspend fun registration(email: String, displayName: String, password: String): JWTAuth
 
-   suspend fun pagingNotes(page: Int): PagingResult<Note>
+    suspend fun pagingNotes(page: Int): PagingResult<Note>
 
-   suspend fun addNote(title: String, description: String, file: File?): Note
+    suspend fun addNote(title: String, description: String, file: File?): Note
 
-   suspend fun editNote(note: Note): Boolean
+    suspend fun editNote(note: Note): Boolean
 
-   suspend fun deleteNote(note: Note): Boolean
+    suspend fun deleteNote(note: Note): Boolean
 
-   suspend fun deleteAllNotes()
+    suspend fun deleteAllNotes()
 
-   suspend fun logout()
+    suspend fun logout()
+
+    suspend fun searchNotes(query: String): List<Note>
 }

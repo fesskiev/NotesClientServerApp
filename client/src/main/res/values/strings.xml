@@ -24,12 +24,14 @@
     <string name="note_description">Description</string>
     <string name="note_added">Note added</string>
     <string name="empty_notes_list">Notes list is empty!</string>
+    <string name="empty_search_notes_list">Nothing founded!</string>
     <string name="hide">Hide</string>
     <string name="theme">Theme</string>
     <string name="logout">Logout</string>
     <string name="yes">Yes</string>
     <string name="close_app_title">Do you want to close the app?</string>
     <string name="retry">Retry</string>
+    <string name="search">Search in notes</string>
 
     <string name="error_empty_display_name">Empty display name</string>
     <string name="error_empty_email">Empty email</string>
@@ -53,6 +55,5 @@
     <string name="error_no_network">No network</string>
     <string name="error_empty_title">Empty title</string>
     <string name="error_empty_desc">Empty description</string>
-
 
 </resources>

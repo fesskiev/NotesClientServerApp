@@ -90,6 +90,17 @@ fun AddNoteUserInputState.copyWithUserInputError(e: Exception): AddNoteUserInput
         else -> this
     }
 
+data class SearchNotesUiState(
+    val notes: List<Note>? = null,
+    val query: String = "",
+    val loading: Boolean = false,
+    val error: ErrorState? = null
+) {
+    override fun toString(): String {
+        return "list: size=${notes?.size}, query=$query loading=$loading, error=$error)"
+    }
+}
+
 data class NotesListUiState(
     val notes: List<Note>? = null,
     val loading: Boolean = false,

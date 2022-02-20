@@ -26,6 +26,7 @@ import com.fesskiev.compose.presentation.NotesViewModel
 import com.fesskiev.compose.state.AddNoteUiState
 import com.fesskiev.compose.state.EditNoteUiState
 import com.fesskiev.compose.state.NotesListUiState
+import com.fesskiev.compose.state.SearchNotesUiState
 import com.fesskiev.compose.ui.components.AppDrawer
 import com.fesskiev.compose.ui.components.AppScaffold
 import com.fesskiev.compose.ui.components.AppToolbar
@@ -61,11 +62,14 @@ fun MainScreen(
     Log.wtf("state_add", addNoteUiState.toString())
     val editNoteUiState by viewModel.editNoteUiState.collectAsState()
     Log.wtf("state_edit", editNoteUiState.toString())
+    val searchNotesUiState by viewModel.searchNotesUiState.collectAsState()
+    Log.wtf("state_search", searchNotesUiState.toString())
 
     MainScaffold(
         notesListUiState = notesListUiState,
         addNoteUiState = addNoteUiState,
         editNoteUiState = editNoteUiState,
+        searchNotesUiState = searchNotesUiState,
         onRefresh = { viewModel.refresh() },
         onLoadMore = { viewModel.loadMore() },
         onRetryClick = { viewModel.loadMore() },
@@ -82,7 +86,8 @@ fun MainScreen(
         onNoteDelete = { viewModel.deleteNote(it) },
         onDeleteImageClick = { viewModel.deleteAddNoteImage() },
         onFabClick = { viewModel.openAddNoteScreen() },
-        onPickImageClick = { launcher.launch(context.pickImageChooserIntent(title = "Pick Image")) }
+        onPickImageClick = { launcher.launch(context.pickImageChooserIntent(title = "Pick Image")) },
+        onSearchChanged = { viewModel.searchNotes(it) },
     )
 }
 
@@ -91,6 +96,7 @@ fun MainScaffold(
     notesListUiState: NotesListUiState,
     addNoteUiState: AddNoteUiState,
     editNoteUiState: EditNoteUiState,
+    searchNotesUiState: SearchNotesUiState,
     onRefresh: () -> Unit,
     onLoadMore: () -> Unit,
     onRetryClick: () -> Unit,
@@ -107,7 +113,8 @@ fun MainScaffold(
     onNoteDelete: (Note) -> Unit,
     onDeleteImageClick: () -> Unit,
     onFabClick: () -> Unit,
-    onPickImageClick: () -> Unit
+    onPickImageClick: () -> Unit,
+    onSearchChanged: (String) -> Unit
 ) {
 
     val navController = rememberNavController()
@@ -132,7 +139,9 @@ fun MainScaffold(
                         }
                     },
                     onAddNoteClick = onAddNoteClick,
-                    onPickImageClick = onPickImageClick
+                    onPickImageClick = onPickImageClick,
+                    onSearchChanged = onSearchChanged,
+                    search = searchNotesUiState.query
                 )
             }
         },
@@ -196,7 +205,7 @@ fun MainScaffold(
                     )
                 }
                 composable(MainGraph.NotesSearchScreen.route) {
-                    NotesSearchScreen()
+                    NotesSearchScreen(uiState = searchNotesUiState)
                 }
                 composable(MainGraph.EditNoteScreen.route) {
                     EditNoteScreen(

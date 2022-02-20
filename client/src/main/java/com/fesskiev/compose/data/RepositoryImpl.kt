@@ -33,6 +33,8 @@ class RepositoryImpl(
         return jwtAuth
     }
 
+    override suspend fun searchNotes(query: String): List<Note> = databaseSource.searchNotes(query)
+
     override suspend fun pagingNotes(page: Int): PagingResult<Note> {
         if (page < 1) {
             throw IllegalArgumentException()

@@ -29,7 +29,9 @@ fun AppToolbar(
     onBackClick: () -> Unit,
     onHamburgerClick: () -> Unit,
     onAddNoteClick: () -> Unit,
-    onPickImageClick: () -> Unit
+    onPickImageClick: () -> Unit,
+    onSearchChanged: (String) -> Unit,
+    search: String
 ) {
     val background =
         when {
@@ -56,52 +58,66 @@ fun AppToolbar(
         },
         actions = {
             when (currentScreen) {
-                is MainGraph.AddNoteScreen -> {
-                    Row(
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.ic_add),
-                            contentDescription = "",
-                            modifier = Modifier
-                                .padding(horizontal = 8.dp)
-                                .clickable(onClick = onAddNoteClick)
-                        )
-                        Image(
-                            painter = painterResource(R.drawable.ic_image),
-                            contentDescription = "",
-                            modifier = Modifier
-                                .padding(horizontal = 8.dp)
-                                .clickable(onClick = onPickImageClick)
-                        )
-                    }
-                }
-                is MainGraph.NotesSearchScreen -> {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(background)
-
-                    ) {
-                        TextField(
-                            value = "",
-                            placeholder = { Text("Search in notes") },
-                            onValueChange = {},
-                            modifier = Modifier.fillMaxSize(),
-                            colors = TextFieldDefaults.textFieldColors(
-                                backgroundColor = background,
-                                cursorColor = MaterialTheme.colors.onSurface,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                disabledIndicatorColor = Color.Transparent
-                            ),
-                            textStyle = MaterialTheme.typography.caption
-                        )
-                    }
-                }
+                is MainGraph.AddNoteScreen -> AddNoteToolbar(
+                    onAddNoteClick = onAddNoteClick,
+                    onPickImageClick = onPickImageClick
+                )
+                is MainGraph.NotesSearchScreen -> SearchToolbar(
+                    background = background,
+                    search = search,
+                    onSearchChanged = onSearchChanged
+                )
             }
         }
     )
+}
+
+@Composable
+private fun AddNoteToolbar(onAddNoteClick: () -> Unit, onPickImageClick: () -> Unit) {
+    Row(
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            painter = painterResource(R.drawable.ic_add),
+            contentDescription = "",
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .clickable(onClick = onAddNoteClick)
+        )
+        Image(
+            painter = painterResource(R.drawable.ic_image),
+            contentDescription = "",
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .clickable(onClick = onPickImageClick)
+        )
+    }
+}
+
+@Composable
+private fun SearchToolbar(background: Color, search: String, onSearchChanged: (String) -> Unit) {
+    val searchPlaceholder = stringResource(R.string.search)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(background)
+
+    ) {
+        TextField(
+            value = search,
+            placeholder = { Text(searchPlaceholder) },
+            onValueChange = onSearchChanged,
+            modifier = Modifier.fillMaxSize(),
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = background,
+                cursorColor = MaterialTheme.colors.onSurface,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            ),
+            textStyle = MaterialTheme.typography.caption
+        )
+    }
 }

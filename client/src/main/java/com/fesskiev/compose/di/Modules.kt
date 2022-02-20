@@ -39,13 +39,14 @@ val dataModule = module {
 
 val viewModelModule = module {
     viewModel { AuthViewModel(get(), get()) }
-    viewModel { NotesViewModel(get(), get(), get(), get(), get()) }
+    viewModel { NotesViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get()) }
 }
 
 val useCaseModule = module {
     factory { ThemeModeUseCase(get(), get()) }
-    factory { RefreshUseCase(get()) }
+    factory { SearchNotesUseCase(get()) }
+    factory { RefreshNotesUseCase(get()) }
     factory { AddNoteUseCase(get()) }
     factory { PagingNotesUseCase(get()) }
     factory { DeleteNoteUseCase(get()) }

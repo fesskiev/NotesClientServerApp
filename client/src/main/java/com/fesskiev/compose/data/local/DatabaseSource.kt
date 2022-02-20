@@ -16,4 +16,6 @@ interface DatabaseSource {
     suspend fun deleteNote(note: Note)
 
     suspend fun deleteAllNotes()
+
+    suspend fun searchNotes(query: String): List<Note>
 }

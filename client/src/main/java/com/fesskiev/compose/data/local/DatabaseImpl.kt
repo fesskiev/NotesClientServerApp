@@ -17,6 +17,19 @@ class DatabaseImpl(private val sqlDelight: SqlDelight) : DatabaseSource {
         )
     }
 
+    override suspend fun searchNotes(query: String): List<Note> = withContext(IO) {
+        return@withContext sqlDelight.db_schemaQueries.searchNotes(query) { noteUid, userUid, title, description, pictureName, time ->
+            Note(
+                noteUid = noteUid,
+                userUid = userUid,
+                title = title,
+                description = description,
+                pictureName = pictureName,
+                time = time
+            )
+        }.executeAsList()
+    }
+
     override suspend fun pagingNotes(uid: Long, page: Int): List<Note> = withContext(IO) {
         val limit = 10L
         val offset = ((page - 1) * 10).toLong()

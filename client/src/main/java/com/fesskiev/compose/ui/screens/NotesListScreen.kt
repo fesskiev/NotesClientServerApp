@@ -137,7 +137,7 @@ fun NoteItem(
 }
 
 @Composable
-private fun NoteItemPicture(url: String) {
+fun NoteItemPicture(url: String) {
     Image(
         painter = rememberImagePainter(
             data = url,

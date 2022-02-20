@@ -8,8 +8,7 @@ import com.fesskiev.compose.model.Note
 import com.fesskiev.compose.state.*
 import com.fesskiev.compose.ui.utils.plusTop
 import com.fesskiev.compose.ui.utils.replace
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -18,13 +17,15 @@ class NotesViewModel(
     private val addNoteUseCase: AddNoteUseCase,
     private val editNoteUseCase: EditNoteUseCase,
     private val pagingNotesUseCase: PagingNotesUseCase,
-    private val refreshUseCase: RefreshUseCase
+    private val refreshNotesUseCase: RefreshNotesUseCase,
+    private val searchNotesUseCase: SearchNotesUseCase
 ) : ViewModel() {
 
     val notesListUiState = MutableStateFlow(NotesListUiState())
     val addNoteUiState = MutableStateFlow(AddNoteUiState())
     val editNoteUiState = MutableStateFlow(EditNoteUiState())
-    
+    val searchNotesUiState = MutableStateFlow(SearchNotesUiState())
+
     init {
         getFirstPageOfNotes()
     }
@@ -49,6 +50,36 @@ class NotesViewModel(
                                     pagingSource = result.data.pagingSource
                                 ),
                                 notes = result.data.list
+                            )
+                        }
+                        is Result.Failure -> {
+                            uiState.copy(
+                                loading = false,
+                                error = ErrorState(errorResourceId = parseHttpError(result.e))
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun searchNotes(search: String) {
+        viewModelScope.launch {
+            searchNotesUiState.apply {
+                update { uiState ->
+                    uiState.copy(
+                        loading = true,
+                        query = search,
+                    )
+                }
+                update { uiState ->
+                    when (val result = searchNotesUseCase(search)) {
+                        is Result.Success -> {
+                            uiState.copy(
+                                loading = false,
+                                notes = result.data,
+                                error = null
                             )
                         }
                         is Result.Failure -> {
@@ -106,7 +137,7 @@ class NotesViewModel(
                     )
                 }
                 update { uiState ->
-                    when (val result = refreshUseCase(uiState.paging.page)) {
+                    when (val result = refreshNotesUseCase(uiState.paging.page)) {
                         is Result.Success -> {
                             uiState.copy(
                                 refresh = false,
