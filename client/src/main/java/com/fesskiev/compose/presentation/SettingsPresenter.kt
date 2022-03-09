@@ -1,67 +1,53 @@
 package com.fesskiev.compose.presentation
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.mutableStateOf
 import com.fesskiev.compose.data.remote.parseHttpError
 import com.fesskiev.compose.domain.LogoutUseCase
 import com.fesskiev.compose.domain.Result
 import com.fesskiev.compose.domain.ThemeModeUseCase
 import com.fesskiev.compose.state.ErrorState
 import com.fesskiev.compose.state.SettingsUiState
-import kotlinx.coroutines.flow.*
+import com.fesskiev.compose.ui.utils.update
 import kotlinx.coroutines.launch
 
-class SettingsViewModel(
+class SettingsPresenter(
     private val logoutUseCase: LogoutUseCase,
     private val themeModeUseCase: ThemeModeUseCase
-) : ViewModel() {
+) : Presenter() {
 
-    val uiStateFlow = MutableStateFlow(SettingsUiState())
+    val settingsUiState = mutableStateOf(SettingsUiState())
 
-    init {
-        viewModelScope.launch {
-            themeModeUseCase.getThemeMode()
-                .collect { themeMode ->
-                    uiStateFlow.update {
-                        it.copy(
-                            loading = false,
-                            isLogout = false,
-                            themeMode = themeMode,
-                            error = null
-                        )
-                    }
-                }
+    override fun onCreate() {
+        coroutineScope.launch {
+            val themeMode = themeModeUseCase.getThemeMode()
+            settingsUiState.update {
+                it.copy(
+                    loading = false,
+                    isLogout = false,
+                    themeMode = themeMode,
+                    error = null
+                )
+            }
         }
     }
 
     fun setThemeMode(themeMode: String) {
-        viewModelScope.launch {
+        coroutineScope.launch {
             themeModeUseCase.setThemeMode(themeMode)
-                .onStart {
-                    uiStateFlow.update {
-                        it.copy(
-                            loading = false,
-                            isLogout = false,
-                            themeMode = themeMode,
-                            error = null
-                        )
-                    }
-                }.catch { e ->
-                    uiStateFlow.update {
-                        it.copy(
-                            loading = false,
-                            isLogout = false,
-                            error = ErrorState(errorResourceId = parseHttpError(e))
-                        )
-                    }
-
-                }.collect()
+            settingsUiState.update {
+                it.copy(
+                    loading = false,
+                    isLogout = false,
+                    themeMode = themeMode,
+                    error = null
+                )
+            }
         }
     }
 
     fun logout() {
-        viewModelScope.launch {
-            uiStateFlow.apply {
+        coroutineScope.launch {
+            settingsUiState.apply {
                 update {
                     it.copy(
                         loading = true,

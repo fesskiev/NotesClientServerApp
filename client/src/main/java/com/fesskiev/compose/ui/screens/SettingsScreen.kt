@@ -6,25 +6,25 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.fesskiev.compose.R
-import com.fesskiev.compose.presentation.SettingsViewModel
+import com.fesskiev.compose.presentation.SettingsPresenter
 import com.fesskiev.compose.state.SettingsUiState
 import com.fesskiev.compose.ui.components.ProgressBar
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.get
 
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel = getViewModel(),
+    presenter: SettingsPresenter = get(),
     onShowThemeDialogClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
-    val uiState = viewModel.uiStateFlow.collectAsState().value
+    val uiState by presenter.settingsUiState
     when {
         uiState.isLogout -> LaunchedEffect(Unit) { onLogoutClick() }
         uiState.loading -> ProgressBar()
@@ -32,7 +32,7 @@ fun SettingsScreen(
             SettingsContent(
                 uiState,
                 onShowThemeDialogClick = onShowThemeDialogClick,
-                onLogoutClick = { viewModel.logout() })
+                onLogoutClick = { presenter.logout() })
             if (uiState.error != null) {
 
             }

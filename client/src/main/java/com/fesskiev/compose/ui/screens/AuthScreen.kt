@@ -7,21 +7,25 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.fesskiev.compose.R
-import com.fesskiev.compose.presentation.AuthViewModel
+import com.fesskiev.compose.presentation.AuthPresenter
 import com.fesskiev.compose.state.AuthUiState
 import com.fesskiev.compose.ui.components.*
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.get
 
 @Composable
-fun AuthScreen(viewModel: AuthViewModel = getViewModel(), onCloseAppClick : () -> Unit, authSuccess: () -> Unit) {
-    val uiState = viewModel.uiStateFlow.collectAsState().value
+fun AuthScreen(
+    presenter: AuthPresenter = get(),
+    onCloseAppClick: () -> Unit,
+    authSuccess: () -> Unit
+) {
+    val uiState by presenter.authUiState
     when {
         uiState.authUserInputState.success -> LaunchedEffect(Unit) { authSuccess() }
         uiState.loading -> ProgressBar()
@@ -32,19 +36,17 @@ fun AuthScreen(viewModel: AuthViewModel = getViewModel(), onCloseAppClick : () -
                     AuthForm(
                         uiState,
                         registrationOnClick = {
-                            viewModel.registration(
+                            presenter.registration(
                                 uiState.email,
                                 uiState.displayName,
                                 uiState.password
                             )
                         },
-                        loginOnClick = {
-                            viewModel.login(uiState.email, uiState.password)
-                        },
-                        toggleFormOnClick = { viewModel.toggleForm() },
-                        displayNameOnChange = { viewModel.changeDisplayName(it) },
-                        emailOnChange = { viewModel.changeEmail(it) }
-                    ) { viewModel.changePassword(it) }
+                        loginOnClick = { presenter.login(uiState.email, uiState.password) },
+                        toggleFormOnClick = { presenter.toggleForm() },
+                        displayNameOnChange = { presenter.changeDisplayName(it) },
+                        emailOnChange = { presenter.changeEmail(it) }
+                    ) { presenter.changePassword(it) }
                 },
                 error = uiState.error
             )

@@ -1,14 +1,49 @@
 package com.fesskiev.compose.ui.utils
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
-import com.fesskiev.compose.ui.utils.Constants.ThemeMode.DAY
-import com.fesskiev.compose.ui.utils.Constants.ThemeMode.NIGHT
-import com.fesskiev.compose.ui.utils.Constants.ThemeMode.SYSTEM
+import com.fesskiev.compose.ui.utils.ThemeMode.DAY
+import com.fesskiev.compose.ui.utils.ThemeMode.NIGHT
+import com.fesskiev.compose.ui.utils.ThemeMode.SYSTEM
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 
-class ThemeManager {
+fun provideAppSharedPreferences(context: Context): SharedPreferences =
+    context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
 
-    fun applyNewTheme(themeMode: String) {
+object ThemeMode {
+    const val DAY = "DAY"
+    const val NIGHT = "NIGHT"
+    const val SYSTEM = "SYSTEM"
+}
+
+class ThemeManager(private val preferences: SharedPreferences) {
+
+    private val THEME_MODE_KEY = "theme_mode"
+
+    suspend fun setThemeMode(themeMode: String) {
+        applyNewTheme(themeMode)
+        withContext(Dispatchers.Default + NonCancellable) {
+            with(preferences.edit()) {
+                putString(THEME_MODE_KEY, themeMode)
+                commit()
+            }
+        }
+    }
+
+    suspend fun getThemeMode(): String = withContext(Dispatchers.Default) {
+        preferences.getString(THEME_MODE_KEY, DAY) ?: DAY
+    }
+
+    suspend fun setThemeMode() {
+        val theme = getThemeMode()
+        applyNewTheme(theme)
+    }
+
+    private fun applyNewTheme(themeMode: String) {
         when (themeMode) {
             DAY -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             NIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)

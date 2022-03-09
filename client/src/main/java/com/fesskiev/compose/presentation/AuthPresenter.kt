@@ -1,7 +1,6 @@
 package com.fesskiev.compose.presentation
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.mutableStateOf
 import com.fesskiev.compose.data.remote.parseHttpError
 import com.fesskiev.compose.domain.LoginUseCase
 import com.fesskiev.compose.domain.RegistrationUseCase
@@ -10,20 +9,19 @@ import com.fesskiev.compose.state.AuthUiState
 import com.fesskiev.compose.state.AuthUserInputState
 import com.fesskiev.compose.state.ErrorState
 import com.fesskiev.compose.state.copyWithUserInputError
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
+import com.fesskiev.compose.ui.utils.update
 import kotlinx.coroutines.launch
 
-class AuthViewModel(
+class AuthPresenter(
     private val registrationUseCase: RegistrationUseCase,
     private val loginUseCase: LoginUseCase
-) : ViewModel() {
+) : Presenter() {
 
-    val uiStateFlow = MutableStateFlow(AuthUiState())
+    val authUiState = mutableStateOf(AuthUiState())
 
     fun registration(email: String, displayName: String, password: String) {
-        viewModelScope.launch {
-            uiStateFlow.apply {
+        coroutineScope.launch {
+            authUiState.apply {
                 update { uiState ->
                     uiState.copy(
                         loading = true,
@@ -56,8 +54,8 @@ class AuthViewModel(
     }
 
     fun login(email: String, password: String) {
-        viewModelScope.launch {
-            uiStateFlow.apply {
+        coroutineScope.launch {
+            authUiState.apply {
                 update { uiState ->
                     uiState.copy(
                         loading = true,
@@ -90,7 +88,7 @@ class AuthViewModel(
     }
 
     fun toggleForm() {
-        uiStateFlow.update {
+        authUiState.update {
             it.copy(
                 loading = false,
                 displayName = "",
@@ -104,7 +102,7 @@ class AuthViewModel(
     }
 
     fun changeDisplayName(displayName: String) {
-        uiStateFlow.update {
+        authUiState.update {
             it.copy(
                 loading = false,
                 displayName = displayName,
@@ -115,7 +113,7 @@ class AuthViewModel(
     }
 
     fun changeEmail(email: String) {
-        uiStateFlow.update {
+        authUiState.update {
             it.copy(
                 loading = false,
                 email = email,
@@ -126,7 +124,7 @@ class AuthViewModel(
     }
 
     fun changePassword(password: String) {
-        uiStateFlow.update {
+        authUiState.update {
             it.copy(
                 loading = false,
                 password = password,

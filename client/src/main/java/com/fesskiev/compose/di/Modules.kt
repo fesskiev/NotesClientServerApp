@@ -9,20 +9,21 @@ import com.fesskiev.compose.data.remote.NetworkSource
 import com.fesskiev.compose.data.remote.NetworkSourceImpl
 import com.fesskiev.compose.data.remote.provideKtorClient
 import com.fesskiev.compose.domain.*
-import com.fesskiev.compose.presentation.AuthViewModel
-import com.fesskiev.compose.presentation.NotesViewModel
-import com.fesskiev.compose.presentation.SettingsViewModel
-import com.fesskiev.compose.ui.utils.DataStoreManager
-import com.fesskiev.compose.ui.utils.FieldValidator
-import com.fesskiev.compose.ui.utils.NetworkManager
-import com.fesskiev.compose.ui.utils.ThemeManager
-import org.koin.androidx.viewmodel.dsl.viewModel
+import com.fesskiev.compose.presentation.AuthPresenter
+import com.fesskiev.compose.presentation.NotesPresenter
+import com.fesskiev.compose.presentation.SettingsPresenter
+import com.fesskiev.compose.state.UiStateSaver
+import com.fesskiev.compose.state.provideUiStateSharedPreferences
+import com.fesskiev.compose.ui.utils.*
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val appModule = module {
     single { NetworkManager(get()) }
-    single { DataStoreManager(get()) }
-    factory { ThemeManager() }
+    single(named("uiStatePreferences")) { provideUiStateSharedPreferences(get()) }
+    single(named("appPreferences")) { provideAppSharedPreferences(get()) }
+    single { UiStateSaver(get(named("uiStatePreferences"))) }
+    factory { ThemeManager(get(named("appPreferences"))) }
     factory { FieldValidator() }
 }
 
@@ -32,19 +33,19 @@ val networkModule = module {
 
 val dataModule = module {
     single { provideSqlDelight(get()) }
-    single { DatabaseImpl(get()) as DatabaseSource }
-    single { NetworkSourceImpl(get()) as NetworkSource }
-    single { RepositoryImpl(get(), get()) as Repository }
+    single<DatabaseSource> { DatabaseImpl(get()) }
+    single<NetworkSource> { NetworkSourceImpl(get())}
+    single<Repository> { RepositoryImpl(get(), get()) }
 }
 
-val viewModelModule = module {
-    viewModel { AuthViewModel(get(), get()) }
-    viewModel { NotesViewModel(get(), get(), get(), get(), get(), get()) }
-    viewModel { SettingsViewModel(get(), get()) }
+val presenterModule = module {
+    factory { NotesPresenter(get(), get(), get(), get(), get(), get(), get()) }
+    factory { AuthPresenter(get(), get()) }
+    factory { SettingsPresenter(get(), get()) }
 }
 
 val useCaseModule = module {
-    factory { ThemeModeUseCase(get(), get()) }
+    factory { ThemeModeUseCase(get()) }
     factory { SearchNotesUseCase(get()) }
     factory { RefreshNotesUseCase(get()) }
     factory { AddNoteUseCase(get()) }
@@ -57,4 +58,4 @@ val useCaseModule = module {
 }
 
 
-val appModules = listOf(appModule, viewModelModule, useCaseModule, dataModule, networkModule)
+val appModules = listOf(appModule, presenterModule, useCaseModule, dataModule, networkModule)

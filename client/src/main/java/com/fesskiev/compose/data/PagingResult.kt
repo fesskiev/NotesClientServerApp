@@ -1,6 +1,9 @@
 package com.fesskiev.compose.data
 
-enum class PagingSource {
+import kotlinx.serialization.Serializable
+
+@Serializable
+enum class PagingSource  {
     LOCAL, REMOTE
 }
 

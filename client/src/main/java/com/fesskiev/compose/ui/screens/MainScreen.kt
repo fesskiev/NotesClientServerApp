@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -22,7 +21,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.fesskiev.compose.R
 import com.fesskiev.compose.model.Note
-import com.fesskiev.compose.presentation.NotesViewModel
+import com.fesskiev.compose.presentation.NotesPresenter
 import com.fesskiev.compose.state.AddNoteUiState
 import com.fesskiev.compose.state.EditNoteUiState
 import com.fesskiev.compose.state.NotesListUiState
@@ -38,11 +37,11 @@ import com.fesskiev.compose.ui.utils.pickImageChooserIntent
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.get
 
 @Composable
 fun MainScreen(
-    viewModel: NotesViewModel = getViewModel(),
+    presenter: NotesPresenter = get(),
     onLogoutClick: () -> Unit,
     onCloseAppClick: () -> Unit
 ) {
@@ -51,18 +50,18 @@ fun MainScreen(
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             result.data?.let { data ->
                 context.getImageFileFromIntent(data)?.let {
-                    viewModel.attachAddNoteImage(it)
+                    presenter.attachAddNoteImage(it)
                 }
             }
         }
 
-    val notesListUiState by viewModel.notesListUiState.collectAsState()
-    Log.wtf("state_list", notesListUiState.toString())
-    val addNoteUiState by viewModel.addNoteUiState.collectAsState()
+    val addNoteUiState by presenter.addNoteUiState
     Log.wtf("state_add", addNoteUiState.toString())
-    val editNoteUiState by viewModel.editNoteUiState.collectAsState()
+    val notesListUiState by presenter.notesListUiState
+    Log.wtf("state_list", notesListUiState.toString())
+    val editNoteUiState by presenter.editNoteUiState
     Log.wtf("state_edit", editNoteUiState.toString())
-    val searchNotesUiState by viewModel.searchNotesUiState.collectAsState()
+    val searchNotesUiState by presenter.searchNotesUiState
     Log.wtf("state_search", searchNotesUiState.toString())
 
     MainScaffold(
@@ -70,24 +69,24 @@ fun MainScreen(
         addNoteUiState = addNoteUiState,
         editNoteUiState = editNoteUiState,
         searchNotesUiState = searchNotesUiState,
-        onRefresh = { viewModel.refresh() },
-        onLoadMore = { viewModel.loadMore() },
-        onRetryClick = { viewModel.loadMore() },
         onCloseAppClick = onCloseAppClick,
         onLogoutClick = onLogoutClick,
-        onNoteClick = { viewModel.openNoteDetails(it) },
-        onNoteEditClick = { viewModel.openEditNoteScreen(it) },
-        onEditNoteChangedTitle = { viewModel.changeEditNoteTitle(it) },
-        onEditNoteChangedDescription = { viewModel.changeEditNoteDescription(it) },
-        onNoteEditedClick = { viewModel.editNote() },
-        onAddNoteClick = { viewModel.addNote() },
-        onAddNoteChangedTitle = { viewModel.changeAddNoteTitle(it) },
-        onAddNoteChangedDescription = { viewModel.changeAddNoteDescription(it) },
-        onNoteDelete = { viewModel.deleteNote(it) },
-        onDeleteImageClick = { viewModel.deleteAddNoteImage() },
-        onFabClick = { viewModel.openAddNoteScreen() },
+        onRefresh = { presenter.refresh() },
+        onLoadMore = { presenter.loadMore() },
+        onRetryClick = { presenter.loadMore() },
+        onNoteClick = { presenter.openNoteDetails(it) },
+        onNoteEditClick = { presenter.openEditNoteScreen(it) },
+        onEditNoteChangedTitle = { presenter.changeEditNoteTitle(it) },
+        onEditNoteChangedDescription = { presenter.changeEditNoteDescription(it) },
+        onNoteEditedClick = { presenter.editNote() },
+        onAddNoteClick = { presenter.addNote() },
+        onAddNoteChangedTitle = { presenter.changeAddNoteTitle(it) },
+        onAddNoteChangedDescription = { presenter.changeAddNoteDescription(it) },
+        onNoteDelete = { presenter.deleteNote(it) },
+        onDeleteImageClick = { presenter.deleteAddNoteImage() },
+        onFabClick = { presenter.openAddNoteScreen() },
         onPickImageClick = { launcher.launch(context.pickImageChooserIntent(title = "Pick Image")) },
-        onSearchChanged = { viewModel.searchNotes(it) },
+        onSearchChanged = { presenter.searchNotes(it) },
     )
 }
 
@@ -97,11 +96,11 @@ fun MainScaffold(
     addNoteUiState: AddNoteUiState,
     editNoteUiState: EditNoteUiState,
     searchNotesUiState: SearchNotesUiState,
+    onCloseAppClick: () -> Unit,
+    onLogoutClick: () -> Unit,
     onRefresh: () -> Unit,
     onLoadMore: () -> Unit,
     onRetryClick: () -> Unit,
-    onCloseAppClick: () -> Unit,
-    onLogoutClick: () -> Unit,
     onNoteClick: (Note) -> Unit,
     onNoteEditClick: (Note) -> Unit,
     onEditNoteChangedTitle: (String) -> Unit,
@@ -161,7 +160,7 @@ fun MainScaffold(
                 }
             )
         },
-        drawerGesturesEnabled = currentScreen is MainGraph.NotesListScreen,
+        drawerGesturesEnabled = currentScreen is MainGraph.NotesListScreen || currentScreen is MainGraph.NotesSearchScreen,
         floatingActionButton = {
             if (currentScreen is MainGraph.NotesListScreen) {
                 FloatingActionButton(

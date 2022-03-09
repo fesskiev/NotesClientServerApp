@@ -6,40 +6,42 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.fesskiev.compose.R
-import com.fesskiev.compose.presentation.SettingsViewModel
-import com.fesskiev.compose.ui.utils.Constants
-import org.koin.androidx.compose.getViewModel
+import com.fesskiev.compose.presentation.SettingsPresenter
+import com.fesskiev.compose.ui.utils.ThemeMode.DAY
+import com.fesskiev.compose.ui.utils.ThemeMode.NIGHT
+import com.fesskiev.compose.ui.utils.ThemeMode.SYSTEM
+import org.koin.androidx.compose.get
 
 @Composable
-fun ThemeDialog(viewModel: SettingsViewModel = getViewModel()) {
-    val uiState = viewModel.uiStateFlow.collectAsState().value
+fun ThemeDialog(presenter: SettingsPresenter = get()) {
+    val uiState by presenter.settingsUiState
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(verticalArrangement = Arrangement.Center) {
                 arrayOf(
                     Theme(
-                        themeMode = Constants.ThemeMode.NIGHT,
+                        themeMode = NIGHT,
                         text = stringResource(R.string.theme_night),
-                        selected = uiState.themeMode == Constants.ThemeMode.NIGHT
+                        selected = uiState.themeMode == NIGHT
                     ),
                     Theme(
-                        themeMode = Constants.ThemeMode.DAY,
+                        themeMode = DAY,
                         text = stringResource(R.string.theme_day),
-                        selected = uiState.themeMode == Constants.ThemeMode.DAY
+                        selected = uiState.themeMode == DAY
                     ),
                     Theme(
-                        themeMode = Constants.ThemeMode.SYSTEM,
+                        themeMode = SYSTEM,
                         text = stringResource(R.string.theme_system),
-                        selected = uiState.themeMode == Constants.ThemeMode.SYSTEM
+                        selected = uiState.themeMode == SYSTEM
                     )
                 ).forEach { theme ->
                     RadioButtonRow(text = theme.text, selected = theme.selected, onClick = {
-                        viewModel.setThemeMode(theme.themeMode)
+                        presenter.setThemeMode(theme.themeMode)
                     })
                 }
             }

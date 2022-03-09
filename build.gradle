@@ -11,7 +11,6 @@ buildscript {
     ext.exposed_version = "0.25.1"
     ext.coroutines_version = "1.5.2"
     ext.coil_version = "1.4.0"
-    ext.datastore_version = "1.0.0"
     ext.swiperefresh_version = "0.24.1-alpha"
     ext.sql_delight_version = "1.5.3"
 
@@ -22,7 +21,7 @@ buildscript {
         maven { url 'https://kotlin.bintray.com/ktor' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.1'
+        classpath 'com.android.tools.build:gradle:7.1.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
         classpath("com.squareup.sqldelight:gradle-plugin:$sql_delight_version")

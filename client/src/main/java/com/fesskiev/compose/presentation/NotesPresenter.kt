@@ -1,37 +1,55 @@
 package com.fesskiev.compose.presentation
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.mutableStateOf
 import com.fesskiev.compose.data.remote.parseHttpError
 import com.fesskiev.compose.domain.*
 import com.fesskiev.compose.model.Note
 import com.fesskiev.compose.state.*
 import com.fesskiev.compose.ui.utils.plusTop
 import com.fesskiev.compose.ui.utils.replace
-import kotlinx.coroutines.flow.*
+import com.fesskiev.compose.ui.utils.update
 import kotlinx.coroutines.launch
 import java.io.File
 
-class NotesViewModel(
+class NotesPresenter(
+    private val stateSaver: UiStateSaver,
     private val deleteNoteUseCase: DeleteNoteUseCase,
     private val addNoteUseCase: AddNoteUseCase,
     private val editNoteUseCase: EditNoteUseCase,
     private val pagingNotesUseCase: PagingNotesUseCase,
     private val refreshNotesUseCase: RefreshNotesUseCase,
     private val searchNotesUseCase: SearchNotesUseCase
-) : ViewModel() {
+) : Presenter() {
 
-    val notesListUiState = MutableStateFlow(NotesListUiState())
-    val addNoteUiState = MutableStateFlow(AddNoteUiState())
-    val editNoteUiState = MutableStateFlow(EditNoteUiState())
-    val searchNotesUiState = MutableStateFlow(SearchNotesUiState())
+    val notesListUiState = mutableStateOf(NotesListUiState())
+    val searchNotesUiState = mutableStateOf(SearchNotesUiState())
+    val addNoteUiState = mutableStateOf(AddNoteUiState())
+    val editNoteUiState = mutableStateOf(EditNoteUiState())
 
-    init {
-        getFirstPageOfNotes()
+    override fun onCreate() {
+        stateSaver.saveStateNotesListener = {
+            NotesUiState(
+                notesListUiState = notesListUiState.value,
+                searchNotesUiState = searchNotesUiState.value,
+                addNoteUiState = addNoteUiState.value,
+                editNoteUiState = editNoteUiState.value
+            )
+        }
+        coroutineScope.launch {
+            val uiState = stateSaver.restoreNotesState()
+            if (uiState == null) {
+                getFirstPageOfNotes()
+            } else {
+                notesListUiState.value = uiState.notesListUiState
+                searchNotesUiState.value = uiState.searchNotesUiState
+                addNoteUiState.value = uiState.addNoteUiState
+                editNoteUiState.value = uiState.editNoteUiState
+            }
+        }
     }
 
     private fun getFirstPageOfNotes() {
-        viewModelScope.launch {
+        coroutineScope.launch {
             notesListUiState.apply {
                 update { uiState ->
                     uiState.copy(
@@ -64,17 +82,17 @@ class NotesViewModel(
         }
     }
 
-    fun searchNotes(search: String) {
-        viewModelScope.launch {
+    fun searchNotes(query: String) {
+        coroutineScope.launch {
             searchNotesUiState.apply {
                 update { uiState ->
                     uiState.copy(
                         loading = true,
-                        query = search,
+                        query = query,
                     )
                 }
                 update { uiState ->
-                    when (val result = searchNotesUseCase(search)) {
+                    when (val result = searchNotesUseCase(query)) {
                         is Result.Success -> {
                             uiState.copy(
                                 loading = false,
@@ -95,7 +113,7 @@ class NotesViewModel(
     }
 
     fun loadMore() {
-        viewModelScope.launch {
+        coroutineScope.launch {
             notesListUiState.apply {
                 update { uiState ->
                     uiState.copy(
@@ -128,7 +146,7 @@ class NotesViewModel(
     }
 
     fun refresh() {
-        viewModelScope.launch {
+        coroutineScope.launch {
             notesListUiState.apply {
                 update { uiState ->
                     uiState.copy(
@@ -162,7 +180,7 @@ class NotesViewModel(
     }
 
     fun addNote() {
-        viewModelScope.launch {
+        coroutineScope.launch {
             addNoteUiState.update {
                 it.copy(
                     loading = true,
@@ -204,7 +222,7 @@ class NotesViewModel(
     }
 
     fun editNote() {
-        viewModelScope.launch {
+        coroutineScope.launch {
             editNoteUiState.update {
                 it.copy(
                     loading = true,
@@ -247,7 +265,7 @@ class NotesViewModel(
     }
 
     fun deleteNote(note: Note) {
-        viewModelScope.launch {
+        coroutineScope.launch {
             notesListUiState.apply {
                 update { uiState ->
                     uiState.copy(
@@ -328,5 +346,3 @@ class NotesViewModel(
         addNoteUiState.update { it.copy(description = description) }
     }
 }
-
-
