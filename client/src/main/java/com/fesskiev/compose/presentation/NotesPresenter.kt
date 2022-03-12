@@ -55,6 +55,7 @@ class NotesPresenter(
                     uiState.copy(
                         loading = true,
                         paging = uiState.paging.copy(page = 1),
+                        error = null
                     )
                 }
                 update { uiState ->
@@ -67,7 +68,8 @@ class NotesPresenter(
                                     page = uiState.paging.page + 1,
                                     pagingSource = result.data.pagingSource
                                 ),
-                                notes = result.data.list
+                                notes = result.data.list,
+                                error = null
                             )
                         }
                         is Result.Failure -> {
@@ -89,6 +91,7 @@ class NotesPresenter(
                     uiState.copy(
                         loading = true,
                         query = query,
+                        error = null
                     )
                 }
                 update { uiState ->
@@ -118,6 +121,7 @@ class NotesPresenter(
                 update { uiState ->
                     uiState.copy(
                         paging = uiState.paging.copy(loadMore = true),
+                        error = null
                     )
                 }
                 update { uiState ->
@@ -130,7 +134,8 @@ class NotesPresenter(
                                     page = uiState.paging.page + 1,
                                     pagingSource = result.data.pagingSource
                                 ),
-                                notes = uiState.notes?.plus(result.data.list)
+                                notes = uiState.notes?.plus(result.data.list),
+                                error = null
                             )
                         }
                         is Result.Failure -> {
@@ -151,7 +156,8 @@ class NotesPresenter(
                 update { uiState ->
                     uiState.copy(
                         refresh = true,
-                        paging = uiState.paging.copy(page = 1)
+                        paging = uiState.paging.copy(page = 1),
+                        error = null
                     )
                 }
                 update { uiState ->
@@ -164,7 +170,8 @@ class NotesPresenter(
                                     page = uiState.paging.page + 1,
                                     pagingSource = result.data.pagingSource
                                 ),
-                                notes = result.data.list
+                                notes = result.data.list,
+                                error = null
                             )
                         }
                         is Result.Failure -> {
@@ -199,11 +206,15 @@ class NotesPresenter(
                     addNoteUiState.update {
                         it.copy(
                             loading = false,
-                            success = true
+                            success = true,
+                            error = null
                         )
                     }
                     notesListUiState.update {
-                        it.copy(notes = it.notes?.plusTop(result.data))
+                        it.copy(
+                            notes = it.notes?.plusTop(result.data),
+                            error = null
+                        )
                     }
                 }
                 is Result.Failure -> {

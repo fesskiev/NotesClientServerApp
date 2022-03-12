@@ -29,9 +29,7 @@ import com.fesskiev.compose.state.SearchNotesUiState
 import com.fesskiev.compose.ui.components.AppDrawer
 import com.fesskiev.compose.ui.components.AppScaffold
 import com.fesskiev.compose.ui.components.AppToolbar
-import com.fesskiev.compose.ui.navigation.MainGraph
-import com.fesskiev.compose.ui.navigation.currentRoute
-import com.fesskiev.compose.ui.navigation.currentScreenByRoute
+import com.fesskiev.compose.ui.navigation.*
 import com.fesskiev.compose.ui.utils.getImageFileFromIntent
 import com.fesskiev.compose.ui.utils.pickImageChooserIntent
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -145,8 +143,7 @@ fun MainScaffold(
             }
         },
         bottomBar = {
-            if (currentScreen != null && (currentScreen is MainGraph.NotesListScreen || currentScreen is MainGraph.NotesSearchScreen)
-            ) {
+            if (currentScreen.hasBottomBar()) {
                 BottomBar(navController)
             }
         },
@@ -160,9 +157,9 @@ fun MainScaffold(
                 }
             )
         },
-        drawerGesturesEnabled = currentScreen is MainGraph.NotesListScreen || currentScreen is MainGraph.NotesSearchScreen,
+        drawerGesturesEnabled = currentScreen.isGestureEnable(),
         floatingActionButton = {
-            if (currentScreen is MainGraph.NotesListScreen) {
+            if (currentScreen.hasFab()) {
                 FloatingActionButton(
                     onClick = {
                         navController.navigate(MainGraph.AddNoteScreen.route)

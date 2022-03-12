@@ -79,3 +79,8 @@ fun String.currentScreenByRoute(): Screen? =
         EXIT_DIALOG -> MainGraph.ExitDialog
         else -> null
     }
+fun Screen?.isGestureEnable() : Boolean = this is MainGraph.NotesListScreen || this is MainGraph.NotesSearchScreen
+
+fun Screen?.hasBottomBar() : Boolean = this is MainGraph.NotesListScreen || this is MainGraph.NotesSearchScreen
+
+fun Screen?.hasFab() : Boolean = this is MainGraph.NotesListScreen
