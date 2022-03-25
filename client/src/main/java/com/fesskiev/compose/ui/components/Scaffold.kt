@@ -39,9 +39,7 @@ fun AppScaffold(
     }
     Scaffold(
         scaffoldState = scaffoldState,
-        topBar = {
-            topBar(scaffoldState)
-        },
+        topBar = { topBar(scaffoldState) },
         bottomBar = bottomBar,
         snackbarHost = {
             SnackbarHost(it) { data ->

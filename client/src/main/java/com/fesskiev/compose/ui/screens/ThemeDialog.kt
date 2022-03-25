@@ -19,7 +19,7 @@ import com.fesskiev.compose.ui.utils.ThemeMode.SYSTEM
 import org.koin.androidx.compose.get
 
 @Composable
-fun ThemeDialog(presenter: SettingsPresenter = get()) {
+fun ThemeDialog(presenter: SettingsPresenter = get(), onCloseDialog: () -> Unit) {
     val uiState by presenter.settingsUiState
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(verticalArrangement = Arrangement.Center) {
@@ -41,6 +41,7 @@ fun ThemeDialog(presenter: SettingsPresenter = get()) {
                     )
                 ).forEach { theme ->
                     RadioButtonRow(text = theme.text, selected = theme.selected, onClick = {
+                        onCloseDialog()
                         presenter.setThemeMode(theme.themeMode)
                     })
                 }

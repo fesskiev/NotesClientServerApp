@@ -34,14 +34,6 @@ class SettingsPresenter(
     fun setThemeMode(themeMode: String) {
         coroutineScope.launch {
             themeModeUseCase.setThemeMode(themeMode)
-            settingsUiState.update {
-                it.copy(
-                    loading = false,
-                    isLogout = false,
-                    themeMode = themeMode,
-                    error = null
-                )
-            }
         }
     }
 

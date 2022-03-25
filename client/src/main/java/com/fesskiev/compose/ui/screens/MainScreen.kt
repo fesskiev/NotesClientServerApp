@@ -14,7 +14,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -144,7 +143,10 @@ fun MainScaffold(
         },
         bottomBar = {
             if (currentScreen.hasBottomBar()) {
-                BottomBar(navController)
+                BottomBar(
+                    navController = navController,
+                    searchNotesCount = searchNotesUiState.notes?.size ?: 0
+                )
             }
         },
         drawerContent = {
@@ -209,9 +211,7 @@ fun MainScaffold(
                         onEditedNoteClick = onNoteEditedClick,
                         onEditNoteChangedTitle = onEditNoteChangedTitle,
                         onEditNoteChangedDescription = onEditNoteChangedDescription,
-                        onScreenClose = {
-                            navController.popBackStack()
-                        }
+                        onScreenClose = { navController.popBackStack() }
                     )
                 }
                 composable(MainGraph.AddNoteScreen.route) {
@@ -220,9 +220,7 @@ fun MainScaffold(
                         onAddNoteChangedTitle = onAddNoteChangedTitle,
                         onAddNoteChangedDescription = onAddNoteChangedDescription,
                         onDeleteImageClick = onDeleteImageClick,
-                        onScreenClose = {
-                            navController.popBackStack()
-                        }
+                        onScreenClose = { navController.popBackStack() }
                     )
                 }
                 composable(MainGraph.NoteDetailsScreen.route) {
@@ -235,7 +233,7 @@ fun MainScaffold(
                     )
                 }
                 dialog(MainGraph.SettingsThemeDialog.route) {
-                    ThemeDialog()
+                    ThemeDialog(onCloseDialog = { navController.popBackStack() })
                 }
                 dialog(MainGraph.ExitDialog.route) {
                     ExitDialog(onCloseAppClick = onCloseAppClick)
@@ -246,7 +244,7 @@ fun MainScaffold(
 }
 
 @Composable
-private fun BottomBar(navController: NavHostController) {
+private fun BottomBar(navController: NavHostController, searchNotesCount: Int) {
     val items = listOf(
         MainGraph.NotesListScreen,
         MainGraph.NotesSearchScreen,
@@ -256,13 +254,7 @@ private fun BottomBar(navController: NavHostController) {
         val currentDestination = navBackStackEntry?.destination
         items.forEach { screen ->
             BottomNavigationItem(
-                icon = {
-                    Icon(
-                        painter = painterResource(screen.iconId),
-                        contentDescription = null
-                    )
-                },
-                label = { Text(stringResource(screen.label)) },
+                icon = { BottomNavigationItemIcon(screen, searchNotesCount) },
                 selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                 onClick = {
                     navController.navigate(screen.route) {
@@ -281,6 +273,32 @@ private fun BottomBar(navController: NavHostController) {
                 }
             )
         }
+    }
+}
+
+@Composable
+private fun BottomNavigationItemIcon(
+    screen: BottomBarScreen,
+    searchNotesCount: Int
+) {
+    if (screen is MainGraph.NotesSearchScreen && searchNotesCount > 0) {
+        BadgedBox(
+            badge = {
+                Badge {
+                    Text(text = searchNotesCount.toString())
+                }
+            }
+        ) {
+            Icon(
+                painter = painterResource(screen.iconId),
+                contentDescription = null
+            )
+        }
+    } else {
+        Icon(
+            painter = painterResource(screen.iconId),
+            contentDescription = null
+        )
     }
 }
 

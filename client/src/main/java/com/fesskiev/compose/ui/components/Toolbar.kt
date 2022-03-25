@@ -4,15 +4,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,18 +44,19 @@ fun AppToolbar(
             when (currentScreen) {
                 is MainGraph.NotesListScreen, MainGraph.NotesSearchScreen -> {
                     IconButton(onClick = { onHamburgerClick() }) {
-                        Icon(imageVector = Icons.Filled.Menu, contentDescription = "")
+                        Icon(imageVector = Icons.Default.Menu, contentDescription = "")
                     }
                 }
                 else -> {
                     IconButton(onClick = { onBackClick() }) {
-                        Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "")
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "")
                     }
                 }
             }
         },
         actions = {
             when (currentScreen) {
+                is MainGraph.NotesListScreen -> DropDownMenu()
                 is MainGraph.AddNoteScreen -> AddNoteToolbar(
                     onAddNoteClick = onAddNoteClick,
                     onPickImageClick = onPickImageClick
@@ -70,6 +69,29 @@ fun AppToolbar(
             }
         }
     )
+}
+
+@Composable
+private fun DropDownMenu() {
+    var expanded by remember { mutableStateOf(false) }
+    val items = listOf("", "", "")
+    Box {
+        IconButton(
+            onClick = { expanded = !expanded }
+        ) {
+            Icon(imageVector = Icons.Default.MoreVert, contentDescription = "")
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = !expanded }
+        ) {
+            items.forEach { text ->
+                DropdownMenuItem(onClick = { expanded = !expanded }) {
+                    Text(text = text)
+                }
+            }
+        }
+    }
 }
 
 @Composable
