@@ -27,7 +27,7 @@ fun AuthScreen(
 ) {
     val uiState by presenter.authUiState
     when {
-        uiState.authUserInputState.success -> LaunchedEffect(Unit) { authSuccess() }
+        uiState.authSuccess -> LaunchedEffect(Unit) { authSuccess() }
         uiState.loading -> ProgressBar()
         else -> {
             AppScaffold(

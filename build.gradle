@@ -2,16 +2,16 @@ buildscript {
     ext.kotlin_version = "1.6.10"
     ext.ktor_version= "1.5.2"
     ext.logback_version= "1.2.3"
-    ext.compose_version = '1.1.0'
+    ext.compose_version = '1.1.1'
     ext.compose_activity_version = '1.4.0'
-    ext.compose_nav_version = "2.4.0"
-    ext.material = '1.4.0'
+    ext.compose_nav_version = "2.4.1"
+    ext.material_version = '1.5.0'
     ext.koin_version = '3.1.4'
     ext.h2_version = "1.4.200"
     ext.exposed_version = "0.25.1"
-    ext.coroutines_version = "1.5.2"
+    ext.coroutines_version = "1.6.0"
     ext.coil_version = "1.4.0"
-    ext.swiperefresh_version = "0.24.1-alpha"
+    ext.swiperefresh_version = "0.24.4-alpha"
     ext.sql_delight_version = "1.5.3"
 
     repositories {

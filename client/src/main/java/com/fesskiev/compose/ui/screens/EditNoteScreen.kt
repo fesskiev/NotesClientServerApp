@@ -27,7 +27,7 @@ fun EditNoteScreen(
 ) {
     when {
         uiState.loading -> ProgressBar()
-        uiState.success -> { LaunchedEffect(Unit) { onScreenClose() } }
+        uiState.editNoteSuccess -> { LaunchedEffect(Unit) { onScreenClose() } }
         else -> {
             EditNoteContent(
                 uiState = uiState,
@@ -46,12 +46,14 @@ fun EditNoteContent(
     onChangedTitle: (String) -> Unit,
     onChangedDescription: (String) -> Unit
 ) {
+    val isEmptyTitle = uiState.editNoteUserInputState.isEmptyTitleError
+    val isEmptyDescription = uiState.editNoteUserInputState.isEmptyDescriptionError
     val titleLabel = when {
-        uiState.title.isEmpty() -> stringResource(R.string.error_empty_title)
+        isEmptyTitle -> stringResource(R.string.error_empty_title)
         else -> stringResource(R.string.note_title)
     }
     val descriptionLabel = when {
-        uiState.description.isEmpty() -> stringResource(R.string.error_empty_desc)
+        isEmptyDescription -> stringResource(R.string.error_empty_desc)
         else -> stringResource(R.string.note_description)
     }
     Column(

@@ -1,15 +1,7 @@
 package com.fesskiev.compose.state
 
 import androidx.annotation.StringRes
-import com.fesskiev.ServerErrorCodes.DISPLAY_NAME_EMPTY
-import com.fesskiev.ServerErrorCodes.EMAIL_EMPTY
-import com.fesskiev.ServerErrorCodes.EMAIL_INVALID
-import com.fesskiev.ServerErrorCodes.NOTE_DESCRIPTION_EMPTY
-import com.fesskiev.ServerErrorCodes.NOTE_TITLE_EMPTY
-import com.fesskiev.ServerErrorCodes.PASSWORD_EMPTY
-import com.fesskiev.ServerErrorCodes.PASSWORD_INVALID
 import com.fesskiev.compose.data.PagingSource
-import com.fesskiev.compose.domain.exceptions.UserInputException
 import com.fesskiev.compose.model.Note
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
@@ -20,6 +12,7 @@ interface UiState
 
 @Serializable
 data class AuthUiState(
+    val authSuccess: Boolean = false,
     val loading: Boolean = false,
     val displayName: String = "",
     val email: String = "test100@i.ua",
@@ -31,28 +24,12 @@ data class AuthUiState(
 
 @Serializable
 data class AuthUserInputState(
-    val success: Boolean = false,
     val isEmptyPasswordError: Boolean = false,
     val isEmptyEmailError: Boolean = false,
     val isEmptyDisplayNameError: Boolean = false,
     val isValidateEmailError: Boolean = false,
     val isValidatePasswordError: Boolean = false
 ) : UiState
-
-fun AuthUserInputState.copyWithUserInputError(e: Exception): AuthUserInputState =
-    when (e) {
-        is UserInputException -> {
-            when (e.errorCode) {
-                PASSWORD_EMPTY -> this.copy(isEmptyPasswordError = true)
-                EMAIL_EMPTY -> this.copy(isEmptyEmailError = true)
-                DISPLAY_NAME_EMPTY -> this.copy(isEmptyDisplayNameError = true)
-                EMAIL_INVALID -> this.copy(isValidateEmailError = true)
-                PASSWORD_INVALID -> this.copy(isValidatePasswordError = true)
-                else -> this
-            }
-        }
-        else -> this
-    }
 
 @Serializable
 data class SettingsUiState(
@@ -64,8 +41,9 @@ data class SettingsUiState(
 
 @Serializable
 data class EditNoteUiState(
+    val editNoteSuccess: Boolean = false,
     val loading: Boolean = false,
-    val success: Boolean = false,
+    val editNoteUserInputState: NoteUserInputState = NoteUserInputState(),
     val title: String = "",
     val description: String = "",
     val error: ErrorState? = null
@@ -73,33 +51,21 @@ data class EditNoteUiState(
 
 @Serializable
 data class AddNoteUiState(
+    val AddNoteSuccess: Boolean = false,
     val loading: Boolean = false,
-    val success: Boolean = false,
     @Contextual
     val imageFile: File? = null,
-    val addNoteUserInputState: AddNoteUserInputState = AddNoteUserInputState(),
+    val addNoteUserInputState: NoteUserInputState = NoteUserInputState(),
     val title: String = "",
     val description: String = "",
     val error: ErrorState? = null
 ) : UiState
 
 @Serializable
-data class AddNoteUserInputState(
+data class NoteUserInputState(
     val isEmptyTitleError: Boolean = false,
     val isEmptyDescriptionError: Boolean = false,
 )
-
-fun AddNoteUserInputState.copyWithUserInputError(e: Exception): AddNoteUserInputState =
-    when (e) {
-        is UserInputException -> {
-            when (e.errorCode) {
-                NOTE_TITLE_EMPTY -> this.copy(isEmptyTitleError = true)
-                NOTE_DESCRIPTION_EMPTY -> this.copy(isEmptyDescriptionError = true)
-                else -> this
-            }
-        }
-        else -> this
-    }
 
 @Serializable
 data class SearchNotesUiState(

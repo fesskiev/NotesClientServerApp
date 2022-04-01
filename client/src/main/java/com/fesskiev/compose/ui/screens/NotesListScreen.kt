@@ -1,7 +1,6 @@
 package com.fesskiev.compose.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -85,10 +84,8 @@ fun RetryButton(onRetryClick: () -> Unit) {
     }
 }
 
-@OptIn(
-    ExperimentalAnimationApi::class,
-    ExperimentalFoundationApi::class
-)
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NoteItem(
     note: Note,

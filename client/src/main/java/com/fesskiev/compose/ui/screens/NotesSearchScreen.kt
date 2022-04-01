@@ -21,7 +21,7 @@ import com.fesskiev.compose.ui.utils.toPictureUrl
 @Composable
 fun NotesSearchScreen(uiState: SearchNotesUiState) {
     val notes = uiState.notes
-    if (notes != null) {
+    if (notes != null && uiState.query.isNotEmpty()) {
         when {
             uiState.loading -> ProgressBar()
             notes.isEmpty() -> EmptySearchNotesList()

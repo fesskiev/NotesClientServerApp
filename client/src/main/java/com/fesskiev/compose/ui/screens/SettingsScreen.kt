@@ -32,10 +32,8 @@ fun SettingsScreen(
             SettingsContent(
                 uiState,
                 onShowThemeDialogClick = onShowThemeDialogClick,
-                onLogoutClick = { presenter.logout() })
-            if (uiState.error != null) {
-
-            }
+                onLogoutClick = { presenter.logout() }
+            )
         }
     }
 }

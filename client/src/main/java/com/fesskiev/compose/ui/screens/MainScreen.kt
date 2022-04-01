@@ -28,6 +28,7 @@ import com.fesskiev.compose.state.SearchNotesUiState
 import com.fesskiev.compose.ui.components.AppDrawer
 import com.fesskiev.compose.ui.components.AppScaffold
 import com.fesskiev.compose.ui.components.AppToolbar
+import com.fesskiev.compose.ui.components.ProgressBar
 import com.fesskiev.compose.ui.navigation.*
 import com.fesskiev.compose.ui.utils.getImageFileFromIntent
 import com.fesskiev.compose.ui.utils.pickImageChooserIntent
@@ -119,16 +120,12 @@ fun MainScaffold(
     val currentScreen = navController.currentRoute()?.currentScreenByRoute()
     AppScaffold(
         scope = scope,
-        onBackPressed = {
-            navController.navigate(MainGraph.ExitDialog.route)
-        },
+        onBackPressed = { navController.navigate(MainGraph.ExitDialog.route) },
         topBar = {
             if (currentScreen != null) {
                 AppToolbar(
                     currentScreen = currentScreen,
-                    onBackClick = {
-                        navController.popBackStack()
-                    },
+                    onBackClick = { navController.popBackStack() },
                     onHamburgerClick = {
                         scope.launch {
                             it.drawerState.open()
@@ -175,7 +172,8 @@ fun MainScaffold(
                 }
             }
         },
-        error = notesListUiState.error
+        error = notesListUiState.error ?: addNoteUiState.error ?: editNoteUiState.error ?:
+        searchNotesUiState.error
     ) { innerPadding ->
         if (notesListUiState.refresh) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())

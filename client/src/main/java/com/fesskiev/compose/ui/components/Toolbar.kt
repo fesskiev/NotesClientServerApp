@@ -37,8 +37,14 @@ fun AppToolbar(
             currentScreen is MainGraph.NotesSearchScreen -> Color.White.copy(alpha = 0.8f)
             else -> MaterialTheme.colors.primarySurface
         }
+    val elevation =
+        when (currentScreen) {
+            is MainGraph.NotesSearchScreen -> 0.dp
+            else -> AppBarDefaults.TopAppBarElevation
+        }
     TopAppBar(
         backgroundColor = background,
+        elevation = elevation,
         title = { Text(stringResource(currentScreen.resourceId)) },
         navigationIcon = {
             when (currentScreen) {
@@ -139,7 +145,7 @@ private fun SearchToolbar(background: Color, search: String, onSearchChanged: (S
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent
             ),
-            textStyle = MaterialTheme.typography.caption
+            textStyle = MaterialTheme.typography.body1
         )
     }
 }

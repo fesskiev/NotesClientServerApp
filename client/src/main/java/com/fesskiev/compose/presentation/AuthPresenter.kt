@@ -1,14 +1,19 @@
 package com.fesskiev.compose.presentation
 
 import androidx.compose.runtime.mutableStateOf
+import com.fesskiev.ServerErrorCodes.DISPLAY_NAME_EMPTY
+import com.fesskiev.ServerErrorCodes.EMAIL_EMPTY
+import com.fesskiev.ServerErrorCodes.EMAIL_INVALID
+import com.fesskiev.ServerErrorCodes.PASSWORD_EMPTY
+import com.fesskiev.ServerErrorCodes.PASSWORD_INVALID
 import com.fesskiev.compose.data.remote.parseHttpError
 import com.fesskiev.compose.domain.LoginUseCase
 import com.fesskiev.compose.domain.RegistrationUseCase
 import com.fesskiev.compose.domain.Result
+import com.fesskiev.compose.domain.exceptions.UserInputException
 import com.fesskiev.compose.state.AuthUiState
 import com.fesskiev.compose.state.AuthUserInputState
 import com.fesskiev.compose.state.ErrorState
-import com.fesskiev.compose.state.copyWithUserInputError
 import com.fesskiev.compose.ui.utils.update
 import kotlinx.coroutines.launch
 
@@ -34,18 +39,25 @@ class AuthPresenter(
                     when (result) {
                         is Result.Success -> {
                             uiState.copy(
+                                authSuccess = true,
                                 loading = false,
-                                authUserInputState = AuthUserInputState(success = true),
                                 error = null
 
                             )
                         }
                         is Result.Failure -> {
-                            uiState.copy(
-                                loading = false,
-                                authUserInputState = AuthUserInputState().copyWithUserInputError(result.e),
-                                error = ErrorState(errorResourceId = parseHttpError(result.e))
-                            )
+                            if (result.e is UserInputException) {
+                                uiState.copy(
+                                    loading = false,
+                                    authUserInputState = parseUserInputException(result.e),
+                                    error = null
+                                )
+                            } else {
+                                uiState.copy(
+                                    loading = false,
+                                    error = ErrorState(errorResourceId = parseHttpError(result.e))
+                                )
+                            }
                         }
                     }
                 }
@@ -59,7 +71,6 @@ class AuthPresenter(
                 update { uiState ->
                     uiState.copy(
                         loading = true,
-                        authUserInputState = AuthUserInputState(),
                         error = null
                     )
                 }
@@ -68,24 +79,40 @@ class AuthPresenter(
                     when (result) {
                         is Result.Success -> {
                             uiState.copy(
+                                authSuccess = true,
                                 loading = false,
-                                authUserInputState = AuthUserInputState(success = true),
                                 error = null
-
                             )
                         }
                         is Result.Failure -> {
-                            uiState.copy(
-                                loading = false,
-                                authUserInputState = AuthUserInputState().copyWithUserInputError(result.e),
-                                error = ErrorState(errorResourceId = parseHttpError(result.e))
-                            )
+                            if (result.e is UserInputException) {
+                                uiState.copy(
+                                    loading = false,
+                                    authUserInputState = parseUserInputException(result.e),
+                                    error = null
+                                )
+                            } else {
+                                uiState.copy(
+                                    loading = false,
+                                    error = ErrorState(errorResourceId = parseHttpError(result.e))
+                                )
+                            }
                         }
                     }
                 }
             }
         }
     }
+
+    private fun parseUserInputException(e: UserInputException): AuthUserInputState =
+        when (e.errorCode) {
+            PASSWORD_EMPTY -> AuthUserInputState(isEmptyPasswordError = true)
+            EMAIL_EMPTY -> AuthUserInputState(isEmptyEmailError = true)
+            DISPLAY_NAME_EMPTY -> AuthUserInputState(isEmptyDisplayNameError = true)
+            EMAIL_INVALID -> AuthUserInputState(isValidateEmailError = true)
+            PASSWORD_INVALID -> AuthUserInputState(isValidatePasswordError = true)
+            else -> AuthUserInputState()
+        }
 
     fun toggleForm() {
         authUiState.update {
@@ -96,29 +123,20 @@ class AuthPresenter(
                 password = "",
                 isLoginFormShow = !it.isLoginFormShow,
                 authUserInputState = AuthUserInputState(),
-                error= null
+                error = null
             )
         }
     }
 
     fun changeDisplayName(displayName: String) {
-        authUiState.update {
-            it.copy(
-                loading = false,
-                displayName = displayName,
-                authUserInputState = AuthUserInputState(),
-                error = null
-            )
-        }
+        authUiState.update { it.copy(displayName = displayName) }
     }
 
     fun changeEmail(email: String) {
         authUiState.update {
             it.copy(
-                loading = false,
                 email = email,
-                authUserInputState = AuthUserInputState(),
-                error = null
+                authUserInputState = AuthUserInputState()
             )
         }
     }
@@ -126,10 +144,8 @@ class AuthPresenter(
     fun changePassword(password: String) {
         authUiState.update {
             it.copy(
-                loading = false,
                 password = password,
-                authUserInputState = AuthUserInputState(),
-                error = null
+                authUserInputState = AuthUserInputState()
             )
         }
     }

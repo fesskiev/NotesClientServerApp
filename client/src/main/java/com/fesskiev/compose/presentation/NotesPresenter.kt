@@ -1,8 +1,11 @@
 package com.fesskiev.compose.presentation
 
 import androidx.compose.runtime.mutableStateOf
+import com.fesskiev.ServerErrorCodes.NOTE_DESCRIPTION_EMPTY
+import com.fesskiev.ServerErrorCodes.NOTE_TITLE_EMPTY
 import com.fesskiev.compose.data.remote.parseHttpError
 import com.fesskiev.compose.domain.*
+import com.fesskiev.compose.domain.exceptions.UserInputException
 import com.fesskiev.compose.model.Note
 import com.fesskiev.compose.state.*
 import com.fesskiev.compose.ui.utils.plusTop
@@ -205,8 +208,8 @@ class NotesPresenter(
                 is Result.Success -> {
                     addNoteUiState.update {
                         it.copy(
+                            AddNoteSuccess = true,
                             loading = false,
-                            success = true,
                             error = null
                         )
                     }
@@ -219,18 +222,30 @@ class NotesPresenter(
                 }
                 is Result.Failure -> {
                     addNoteUiState.update {
-                        it.copy(
-                            loading = false,
-                            addNoteUserInputState = AddNoteUserInputState().copyWithUserInputError(
-                                result.e
-                            ),
-                            error = ErrorState(errorResourceId = parseHttpError(result.e))
-                        )
+                        if (result.e is UserInputException) {
+                            it.copy(
+                                loading = false,
+                                addNoteUserInputState = parseUserInputException(result.e),
+                                error = null
+                            )
+                        } else {
+                            it.copy(
+                                loading = false,
+                                error = ErrorState(errorResourceId = parseHttpError(result.e))
+                            )
+                        }
                     }
                 }
             }
         }
     }
+
+    private fun parseUserInputException(e: UserInputException): NoteUserInputState =
+        when (e.errorCode) {
+            NOTE_TITLE_EMPTY -> NoteUserInputState(isEmptyTitleError = true)
+            NOTE_DESCRIPTION_EMPTY -> NoteUserInputState(isEmptyDescriptionError = true)
+            else -> NoteUserInputState()
+        }
 
     fun editNote() {
         coroutineScope.launch {
@@ -251,8 +266,8 @@ class NotesPresenter(
                 is Result.Success -> {
                     editNoteUiState.update {
                         it.copy(
+                            editNoteSuccess = true,
                             loading = false,
-                            success = true,
                             error = null
                         )
                     }
@@ -265,10 +280,18 @@ class NotesPresenter(
                 }
                 is Result.Failure -> {
                     editNoteUiState.update {
-                        it.copy(
-                            loading = false,
-                            error = ErrorState(errorResourceId = parseHttpError(result.e))
-                        )
+                        if (result.e is UserInputException) {
+                            it.copy(
+                                loading = false,
+                                editNoteUserInputState = parseUserInputException(result.e),
+                                error = null
+                            )
+                        } else {
+                            it.copy(
+                                loading = false,
+                                error = ErrorState(errorResourceId = parseHttpError(result.e))
+                            )
+                        }
                     }
                 }
             }
@@ -319,8 +342,8 @@ class NotesPresenter(
     fun openEditNoteScreen(note: Note) {
         editNoteUiState.update {
             it.copy(
+                editNoteSuccess = false,
                 loading = false,
-                success = false,
                 title = note.title,
                 description = note.description,
                 error = null
@@ -330,11 +353,21 @@ class NotesPresenter(
     }
 
     fun changeEditNoteTitle(title: String) {
-        editNoteUiState.update { it.copy(title = title) }
+        editNoteUiState.update {
+            it.copy(
+                title = title,
+                editNoteUserInputState = NoteUserInputState()
+            )
+        }
     }
 
     fun changeEditNoteDescription(description: String) {
-        editNoteUiState.update { it.copy(description = description) }
+        editNoteUiState.update {
+            it.copy(
+                description = description,
+                editNoteUserInputState = NoteUserInputState()
+            )
+        }
     }
 
     fun openAddNoteScreen() {
@@ -350,10 +383,20 @@ class NotesPresenter(
     }
 
     fun changeAddNoteTitle(title: String) {
-        addNoteUiState.update { it.copy(title = title) }
+        addNoteUiState.update {
+            it.copy(
+                title = title,
+                addNoteUserInputState = NoteUserInputState()
+            )
+        }
     }
 
     fun changeAddNoteDescription(description: String) {
-        addNoteUiState.update { it.copy(description = description) }
+        addNoteUiState.update {
+            it.copy(
+                description = description,
+                addNoteUserInputState = NoteUserInputState()
+            )
+        }
     }
 }

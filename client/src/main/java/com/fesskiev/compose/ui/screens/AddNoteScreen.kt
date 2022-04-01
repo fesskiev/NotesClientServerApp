@@ -33,7 +33,7 @@ fun AddNoteScreen(
 ) {
     when {
         uiState.loading -> ProgressBar()
-        uiState.success -> LaunchedEffect(Unit) { onScreenClose() }
+        uiState.AddNoteSuccess -> LaunchedEffect(Unit) { onScreenClose() }
         else -> {
             AddNoteContent(
                 uiState = uiState,
